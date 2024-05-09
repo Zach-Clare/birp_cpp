@@ -4,5 +4,5 @@
 
 class DataCube {
 public:
-	void load();
+	void Load();
 };

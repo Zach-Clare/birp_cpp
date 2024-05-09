@@ -1,6 +1,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
+
 #include "../helper.cpp"
 
 class DataCube {
@@ -9,8 +11,10 @@ public:
 	std::vector<float> coords_x;
 	std::vector<float> coords_y;
 	std::vector<float> coords_z;
+	
+	float spacing[3];
 
-	void load(std::string filename, int data_begin) {
+	void Load(std::string filename, int data_begin) {
 		std::cout << "Loading data...\n";
 
 		std::fstream ifs(filename); // create filestream from filename
@@ -53,6 +57,43 @@ public:
 
 			// coord arrays built. Now build slices
 
+			if (line_num == data_begin) {
+				this->GetSpacingAll();
+			}
+			int thing = 1+1;
+			
 		}
+		std::cout << std::to_string(this->spacing[0]);
+		std::cout << "\ndeeeeeef\n";
+	}
+
+private:
+
+	void GetSpacingAll() {
+		this->spacing[0] = this->GetSpacing(coords_x);
+		this->spacing[1] = this->GetSpacing(coords_y);
+		this->spacing[2] = this->GetSpacing(coords_z);
+	}
+
+	float GetSpacing(std::vector<float> coords) {
+		// first calculate the distances between each element
+		auto size = coords.size(); // get the size of coords
+		std::vector<float> distances; // create the holding array
+		for (int i = 0; i < size; i++) { // loop through each of coords items
+			if (i == 0) { // first element, skip
+				continue;
+			}
+
+			// use abs() because sometimes we deal with negative coordinates
+			distances.push_back(std::abs(coords[i - 1] - coords[i]));
+		}
+
+		// now check that all the distances are the same
+		if (!std::equal(distances.begin() + 1, distances.end(), distances.begin())) {
+			//all equal
+			throw std::invalid_argument("non-uniform grid given");
+		}
+
+		return distances[0];
 	}
 };

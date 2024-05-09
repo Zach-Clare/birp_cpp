@@ -8,7 +8,7 @@ int main()
     // Here, we'll use as a substitute for main.py
 
     DataCube cube;
-    cube.load("Data/px_uni_1000.dat", 82);
+    cube.Load("Data/px_uni_1000.dat", 82);
 }
 
 void amr_ov_cube2image(
