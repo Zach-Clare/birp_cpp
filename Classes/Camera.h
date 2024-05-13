@@ -13,6 +13,9 @@ private:
     int nsky;
     std::vector<float> sky1;
     std::vector<float> sky2;
+    std::vector<float> xsky;
+    std::vector<float> ysky;
+    std::vector<std::vector<float>> gei_to_gse;
 
     void BuildLatLon(float, int);
     void GenerateSky(float);

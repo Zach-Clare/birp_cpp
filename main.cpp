@@ -3,6 +3,7 @@
 #include <string>
 #include "Classes/DataCube.h"
 #include "Classes/Camera.h"
+#include "Helper.h"
 
 int main()
 {

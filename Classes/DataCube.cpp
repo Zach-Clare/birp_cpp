@@ -3,7 +3,7 @@
 #include <fstream>
 #include <stdexcept>
 
-#include "../helper.cpp"
+#include "../Helper.h"
 
 #include "DataCube.h"
 
@@ -34,7 +34,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 
 		// this area describes the coord array
 		if ((11 <= line_num) && (line_num <= (data_begin - 1))) {
-			line_buffer = explode_float(line, ' ');
+			line_buffer = Helper::explode_float(line, ' ');
 			coord_buffer.insert(coord_buffer.end(), line_buffer.begin(), line_buffer.end());
 
 			if (line_buffer.size() < 6) {
@@ -64,7 +64,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 		// All coord-related arrays built. Now build slices with actual data
 		if (line_num >= (data_begin - 1)) {
 			// trim line. 
-			trim(line);
+			Helper::trim(line);
 			if (line == "") {
 				k++;
 				j = 0;
@@ -73,7 +73,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 
 			// process volume
 			if (line_num >= data_begin) {
-				std::vector<float> inter = explode_float(line, '  '); // split line into individual elements
+				std::vector<float> inter = Helper::explode_float(line, '  '); // split line into individual elements
 				data_buffer.insert(data_buffer.end(), inter.begin(), inter.end());
 
 				if (inter.size() < 6) { // end of this thread, meaning data buffer is full. Add the thread
