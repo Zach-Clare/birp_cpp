@@ -8,7 +8,7 @@
 #include "DataCube.h"
 
 void DataCube::Load(std::string filename, int data_begin) {
-	std::cout << "Loading data...\n";
+	std::cout << "Loading datacube...\n";
 
 	std::fstream ifs(filename); // create filestream from filename
 	std::string line; // create space for line data to go
@@ -86,7 +86,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 		}
 		
 	}
-	std::cout << std::to_string(this->spacing[0]);
+	std::cout << "Datacube loaded.\n";
 }
 
 void DataCube::InitSpacing() {

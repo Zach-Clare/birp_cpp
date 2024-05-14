@@ -16,7 +16,10 @@ int main()
     float pixel_size_deg = 0.25f;
 
     Camera camera(cube, pixel_size_deg, plot_fov);
+    camera.SetPosition(5.91813f, 6.74116f, 17.7067f);
+    camera.SetAim(7.81768f, 0.f, 0.f);
 
+    camera.Render();
 }
 
 void amr_ov_cube2image(

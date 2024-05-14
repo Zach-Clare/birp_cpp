@@ -16,9 +16,24 @@ private:
     std::vector<float> xsky;
     std::vector<float> ysky;
     std::vector<std::vector<float>> gei_to_gse;
+    struct {
+        float x;
+        float y;
+        float z;
+    } position;
+    struct {
+        float x;
+        float y;
+        float z;
+    } aim;
+    float dist[3];
+    float aimpointUnitVector[3];
 
     void BuildLatLon(float, int);
     void GenerateSky(float);
+
+    void Orient();
+    std::vector<float> PointToPlane(std::vector<float>, float, float);
 
 public:
     DataCube dataCube;
@@ -26,4 +41,8 @@ public:
 
     Camera(DataCube cube, float pixel_size_deg, int plot_fov);
     ~Camera();
+
+    void SetPosition(float, float, float);
+    void SetAim(float, float, float);
+    void Render();
 };
