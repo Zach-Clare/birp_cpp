@@ -27,10 +27,15 @@ private:
         float z;
     } aim;
     float dist[3];
-    float aimpointUnitVector[3];
+    float aimpoint_unit_vector[3];
+    float north_vector[3];
+    float right_vector[3];
+    float angle_sun;
+    float plac;
 
     void BuildLatLon(float, int);
     void GenerateSky(float);
+    void GetSky();
 
     void Orient();
     std::vector<float> PointToPlane(std::vector<float>, float, float);

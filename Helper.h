@@ -26,8 +26,12 @@ class Helper
         }
 
         static std::vector<float> explode_float(std::string const & s, char delim);
-
         static std::vector<std::vector<float>> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<std::vector<float>> b);
-
+        static std::vector<float> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<float> b);
+        static std::vector<std::vector<float>> MatrixScalarMultiply(std::vector<std::vector<float>>, float);
+        static std::vector<float> MatrixScalarMultiply(std::vector<float>, float);
         static std::vector<std::vector<float>> Gei2GseTransforms();
+        static std::vector<float> RaDecToGSI(float ra, float dec);
+        static std::vector<float> RaDecGSEConversion(std::vector<float>, std::vector<std::vector<float>>);
+        
 };

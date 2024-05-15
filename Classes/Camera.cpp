@@ -60,7 +60,7 @@ void Camera::GenerateSky(float pixel_size_deg)
             value = std::min(-90.0f - (pixel_size_deg / 2), -89.5f);
         }
         sky2.push_back(value);
-        sky1.push_back(c_lon + skysep);
+        sky1.push_back(c_lon * skysep);
 
         c_lon++;
 
@@ -97,6 +97,8 @@ void Camera::SetAim(float x, float y, float z)
 void Camera::Render()
 {
     this->Orient();
+    this->GetSky();
+    // TODO: GetRayStepDistance(33)
 }
 
 std::vector<float> Camera::PointToPlane(std::vector<float> obj, float plac, float prad)
@@ -104,13 +106,13 @@ std::vector<float> Camera::PointToPlane(std::vector<float> obj, float plac, floa
     float conv = 180 / M_PI;
 
     float snumer = (dist[0] * obj[0]) + (dist[1] * obj[1]) + (dist[2] * obj[2]) + plac;
-    float sdenom = (dist[0] * aimpointUnitVector[0]) + (dist[1] * aimpointUnitVector[1]) + (dist[2] * aimpointUnitVector[2]);
+    float sdenom = (dist[0] * aimpoint_unit_vector[0]) + (dist[1] * aimpoint_unit_vector[1]) + (dist[2] * aimpoint_unit_vector[2]);
     float scalar = snumer / sdenom;
 
     float q[3] = {
-        obj[0] - (scalar * aimpointUnitVector[0]),
-        obj[1] - (scalar * aimpointUnitVector[1]),
-        obj[2] - (scalar * aimpointUnitVector[2])
+        obj[0] - (scalar * aimpoint_unit_vector[0]),
+        obj[1] - (scalar * aimpoint_unit_vector[1]),
+        obj[2] - (scalar * aimpoint_unit_vector[2])
     };
 
     // vector of object from the camera
@@ -121,14 +123,72 @@ std::vector<float> Camera::PointToPlane(std::vector<float> obj, float plac, floa
     };
 
     float dp = std::sqrt((object_vector[0] * object_vector[0]) + (object_vector[1] * object_vector[1]) + (object_vector[2] * object_vector[2]));
-    float object_unitvector[3] = {
+    float object_unit_vector[3] = {
         object_vector[0] / dp,
         object_vector[1] / dp,
         object_vector[2] / dp
     };
-    dp = std::sqrt((object_unitvector[0] * object_unitvector[0]) + (object_unitvector[1] * object_unitvector[1]) + (object_unitvector[2] * object_unitvector[2]));
+    dp = std::sqrt((object_unit_vector[0] * object_unit_vector[0]) + (object_unit_vector[1] * object_unit_vector[1]) + (object_unit_vector[2] * object_unit_vector[2]));
 
-    // maps to line 530 Camera.py
+    // angle in plane, angle of object from the north vector
+    float t1 = (object_unit_vector[0] * north_vector[0]) + (object_unit_vector[1] * north_vector[1]) + (object_unit_vector[2] * north_vector[2]);
+    float t2 = dp * std::sqrt((north_vector[0] * north_vector[0]) + (north_vector[1] * north_vector[1]) + (north_vector[2] * north_vector[2]));
+    float t3 = t1 / t2;
+    if (t3 > 1) {
+        t3 = 1.f;
+    } else if (t3 < -1) {
+        t3 = -1.f;
+    }
+    float apon = conv * std::cos(t3); // not sure what apon means (angle in plane of north?)
+
+    // now get the angle of object from right vector
+    t1 = (object_unit_vector[0] * right_vector[0]) + (object_unit_vector[1] * right_vector[1]) + (object_unit_vector[2] * right_vector[2]);
+    t2 = dp * std::sqrt((right_vector[0] * right_vector[0]) + (right_vector[1] * right_vector[1]) + (right_vector[2] * right_vector[2]));
+    t3 = t1/t2;
+    if (t3 > 1) {
+        t3 = 1.f;
+    } else if (t3 < -1) {
+        t3 = -1.f;
+    }
+    float apor = conv * std::acos(t3);
+    int soy = 1;
+    int sox = 1;
+    if (apor > 90) {
+        sox = -1;
+    }
+
+    // Vector from observer to object
+    float observer_object_vector[3] = {
+        obj[0] - position.x,
+        obj[1] - position.y,
+        obj[2] - position.z
+    };
+    float observer_object_distance = std::sqrt((observer_object_vector[0] * observer_object_vector[0]) + (observer_object_vector[1] * observer_object_vector[1]) + (observer_object_vector[2] * observer_object_vector[2]));
+    // turn vector into unit vector
+    observer_object_vector[0] = observer_object_vector[0] / observer_object_distance;
+    observer_object_vector[1] = observer_object_vector[1] / observer_object_distance;
+    observer_object_vector[2] = observer_object_vector[2] / observer_object_distance;
+
+    // angular radius object (radius of the object)
+    float aro = conv * std::atan(prad / observer_object_distance);
+
+    // angle of observer object aim
+    t1 = (observer_object_vector[0] * aimpoint_unit_vector[0]) + (observer_object_vector[1] * aimpoint_unit_vector[1]) + (observer_object_vector[2] * aimpoint_unit_vector[2]);
+    t2 = std::sqrt((observer_object_vector[0] * observer_object_vector[0]) + (observer_object_vector[1] * observer_object_vector[1]) + (observer_object_vector[2] * observer_object_vector[2]));
+    t3 = t1 / t2;
+    if (t3 > 1) {
+        t3 = 1;
+    }
+    float observer_object_angle = conv * std::acos(t3);
+
+    float xo = 0.f;
+    float yo = 0.f;
+    if (observer_object_angle > 0.000001f) {
+        xo = sox * observer_object_angle * std::sin(apon / conv);
+        yo = soy * observer_object_angle * std::cos(apon / conv);
+    }
+
+    return {xo, yo, aro, observer_object_angle};
 }
 
 void Camera::Orient()
@@ -142,81 +202,103 @@ void Camera::Orient()
     float distance = sqrt((pow(dist[0], 2)) + (pow(dist[1], 2)) + (pow(dist[2], 2)));
 
     // aimpoint vector as a unit vector
-    aimpointUnitVector[0] = dist[0] / distance;
-    aimpointUnitVector[1] = dist[1] / distance;
-    aimpointUnitVector[1] = dist[2] / distance;
+    aimpoint_unit_vector[0] = dist[0] / distance;
+    aimpoint_unit_vector[1] = dist[1] / distance;
+    aimpoint_unit_vector[1] = dist[2] / distance;
     
     // calculate the north vector
-    float phi = conv * std::acos(aimpointUnitVector[2]);
+    float phi = conv * std::acos(aimpoint_unit_vector[2]);
     float thdenom = std::sin(phi / conv);
 
     // calculate based around unit vectors x value
     float theta1;
-    if (abs(thdenom) < abs(aimpointUnitVector[0])) {
-        if ((thdenom * aimpointUnitVector[0]) < 0) {
+    if (abs(thdenom) < abs(aimpoint_unit_vector[0])) {
+        if ((thdenom * aimpoint_unit_vector[0]) < 0) {
             theta1 = conv * std::acos(-1);
-        } else if ((thdenom * aimpointUnitVector[0]) > 0) {
+        } else if ((thdenom * aimpoint_unit_vector[0]) > 0) {
             theta1 = conv * std::acos(1);
         }
     } else {
-        theta1 = conv * std::acos(aimpointUnitVector[0] / thdenom);
+        theta1 = conv * std::acos(aimpoint_unit_vector[0] / thdenom);
     }
 
     // calculate based around unit vectors y value
     float theta2;
-    if (abs(thdenom) < abs(aimpointUnitVector[1])) {
-        if ((thdenom * aimpointUnitVector[1]) < 0) {
+    if (abs(thdenom) < abs(aimpoint_unit_vector[1])) {
+        if ((thdenom * aimpoint_unit_vector[1]) < 0) {
             theta2 = conv * std::acos(-1);
-        } else if ((thdenom * aimpointUnitVector[1]) > 0) {
+        } else if ((thdenom * aimpoint_unit_vector[1]) > 0) {
             theta2 = conv * std::acos(1);
         }
     } else {
-        theta2 = conv * std::acos(aimpointUnitVector[1] / thdenom);
+        theta2 = conv * std::acos(aimpoint_unit_vector[1] / thdenom);
     }
 
     float vn1 = -1.f * std::cos(theta2 / conv) * std::cos(phi / conv);
     float vn2 = -1.f * std::sin(theta2 / conv) * std::cos(phi / conv);
-    if (aimpointUnitVector[0] > 0 && aimpointUnitVector[1] > 0 && aimpointUnitVector[2] > 0) {
+    if (aimpoint_unit_vector[0] > 0 && aimpoint_unit_vector[1] > 0 && aimpoint_unit_vector[2] > 0) {
         vn1 = -1.f * abs(vn1);
         vn2 = -1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] > 0 && aimpointUnitVector[1] > 0 && aimpointUnitVector[2] < 0) {
+    } else if (aimpoint_unit_vector[0] > 0 && aimpoint_unit_vector[1] > 0 && aimpoint_unit_vector[2] < 0) {
         vn1 = 1.f * abs(vn1);
         vn2 = 1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] > 0 && aimpointUnitVector[1] < 0 && aimpointUnitVector[2] > 0) {
+    } else if (aimpoint_unit_vector[0] > 0 && aimpoint_unit_vector[1] < 0 && aimpoint_unit_vector[2] > 0) {
         vn1 = -1.f * abs(vn1);
         vn2 = 1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] > 0 && aimpointUnitVector[1] < 0 && aimpointUnitVector[2] < 0) {
+    } else if (aimpoint_unit_vector[0] > 0 && aimpoint_unit_vector[1] < 0 && aimpoint_unit_vector[2] < 0) {
         vn1 = 1.f * abs(vn1);
         vn2 = -1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] < 0 && aimpointUnitVector[1] > 0 && aimpointUnitVector[2] > 0) {
+    } else if (aimpoint_unit_vector[0] < 0 && aimpoint_unit_vector[1] > 0 && aimpoint_unit_vector[2] > 0) {
         vn1 = 1.f * abs(vn1);
         vn2 = -1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] < 0 && aimpointUnitVector[1] > 0 && aimpointUnitVector[2] < 0) {
+    } else if (aimpoint_unit_vector[0] < 0 && aimpoint_unit_vector[1] > 0 && aimpoint_unit_vector[2] < 0) {
         vn1 = -1.f * abs(vn1);
         vn2 = 1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] < 0 && aimpointUnitVector[1] < 0 && aimpointUnitVector[2] > 0) {
+    } else if (aimpoint_unit_vector[0] < 0 && aimpoint_unit_vector[1] < 0 && aimpoint_unit_vector[2] > 0) {
         vn1 = 1.f * abs(vn1);
         vn2 = 1.f * abs(vn2);
-    } else if (aimpointUnitVector[0] < 0 && aimpointUnitVector[1] < 0 && aimpointUnitVector[2] < 0) {
+    } else if (aimpoint_unit_vector[0] < 0 && aimpoint_unit_vector[1] < 0 && aimpoint_unit_vector[2] < 0) {
         vn1 = -1.f * abs(vn1);
         vn2 = -1.f * abs(vn2);
     }
 
     float vn3 = 1.f * abs(vn3);
-    float vn[3] = {vn1, vn2, vn3};
+    north_vector[0] = vn1;
+    north_vector[1] = vn2;
+    north_vector[2] = vn3;
 
     // calculate the right vector
-    float vr[3] = {
-        (aimpointUnitVector[1] * vn3) - (aimpointUnitVector[2] * vn2),
-        (aimpointUnitVector[2] * vn1) - (aimpointUnitVector[0] * vn1),
-        (aimpointUnitVector[0] * vn2) - (aimpointUnitVector[1] * vn1)
-    };
+    right_vector[0] = (aimpoint_unit_vector[1] * vn3) - (aimpoint_unit_vector[2] * vn2);
+    right_vector[1] = (aimpoint_unit_vector[2] * vn1) - (aimpoint_unit_vector[0] * vn1);
+    right_vector[2] = (aimpoint_unit_vector[0] * vn2) - (aimpoint_unit_vector[1] * vn1);
 
-    float plac = (-1.f * dist[0] * position.x) + (-1.f * dist[1] * position.y) + (-1.f * dist[2] * position.z);
+    plac = (-1.f * dist[0] * position.x) + (-1.f * dist[1] * position.y) + (-1.f * dist[2] * position.z);
 
-    float sun[3] = {23455.f, 0.f, 0.f};
+    std::vector<float> sun = {23455.f, 0.f, 0.f};
+    std::vector<float> p2pout = PointToPlane(sun, plac, 1);
+    angle_sun = 270 - (conv * std::atan2(0 - p2pout[0], 0 - p2pout[1]));
 
+    if (angle_sun > 360) {
+        angle_sun = angle_sun - 360;
+    } else if (angle_sun < 0) {
+        angle_sun = angle_sun + 360;
+    }
+}
 
+void Camera::GetSky()
+{
+    for (int i = 0; i < nsky; i++) {
+        std::vector<float> skygse = Helper::RaDecGSEConversion(std::vector<float> {sky1[i], sky2[i]}, gei_to_gse);
+        skygse = Helper::MatrixScalarMultiply(skygse, 1e19);
+        std::vector<float> p2pout = PointToPlane(skygse, plac, 1);
+
+        if (p2pout[0] == 0.f || p2pout[1] == 0.f) {
+            std::cout << "ERROR: RaDecGSEConversion returning invalid values.";
+        }
+
+        xsky[i] = p2pout[0];
+        ysky[i] = p2pout[1];
+    }
 }
 
 Camera::~Camera()

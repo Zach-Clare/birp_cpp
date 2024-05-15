@@ -8,6 +8,7 @@
 #include <math.h>
 #include <chrono>
 #include <ctime>
+#include <iterator>
 
 #include "Helper.h"
 
@@ -54,6 +55,42 @@ std::vector<std::vector<float>> Helper::MatrixMultiply(std::vector<std::vector<f
     }
 
     return result;
+}
+
+std::vector<float> Helper::MatrixMultiply(std::vector<std::vector<float>> a, std::vector<float> b) {
+    int rows = a.size(); // a is 2D
+    int a_columns = a[0].size();
+    int columns = b.size(); // b is 1D
+    float result[4] = {0}; // fixed size
+    for (int row = 0; row < rows; row++) {
+        for (int col = 0; col < a_columns; col++) {
+            result[row] += a[row][col] * b[col];
+        }
+    }
+
+    std::vector<float> v(std::begin(result), std::end(result));
+
+    return v;
+}
+
+std::vector<std::vector<float>> Helper::MatrixScalarMultiply(std::vector<std::vector<float>> matrix, float scalar)
+{
+    for (int i = 0; i < matrix.size(); i++) {
+        for (int j = 0; j < matrix[0].size(); j++) {
+            matrix[i][j] = matrix[i][j] * scalar;
+        }
+    }
+
+    return matrix;
+}
+
+std::vector<float> Helper::MatrixScalarMultiply(std::vector<float> matrix, float scalar)
+{
+    for (int i = 0; i < matrix.size(); i++) {
+        matrix[i] = matrix[i] * scalar;
+    }
+
+    return matrix;
 }
 
 float DateToJulianDate(int year, int month, float day) 
@@ -135,12 +172,44 @@ std::vector<std::vector<float>> Helper::Gei2GseTransforms()
     return MatrixMultiply(gei2gseA, gei2gseB);
 }
 
-std::tm MakeTm(int year, int month, int day)
+std::vector<float> Helper::RaDecToGSI(float ra, float dec)
 {
-    std::tm tm = {0};
-    tm.tm_year = year - 1900;
-    tm.tm_mon = month - 1;
-    tm.tm_mday = day;
+    float conv = M_PI / 180; // conversion float
 
-    return tm;
+    float alpha = ra * conv;
+    float delta = dec * conv;
+
+    float z_gei = std::sin(delta);
+    float y_int = 1 - std::pow(std::sin(delta), 2);
+    if (y_int < 0) {
+        y_int = 0.f;
+    }
+
+    float y_gei = std::sqrt(y_int) * std::tan(alpha) / std::sqrt(1 + std::pow(std::tan(alpha),2));
+    float x_int = 1 - std::pow(y_gei, 2) - std::pow(std::sin(delta), 2);
+    if (x_int < 0) {
+        x_int = 0.f;
+    }
+
+    float x_gei = std::sqrt(x_int);
+
+    if (90 < ra && ra < 180) {
+        x_gei = std::abs(x_gei) * (-1);
+        y_gei = std::abs(y_gei);
+    } else if (180 < ra && ra < 270) {
+        x_gei = std::abs(x_gei) * (-1);
+        y_gei = std::abs(y_gei) * (-1);
+    }
+
+    return std::vector<float> {x_gei, y_gei, z_gei};
+}
+
+std::vector<float> Helper::RaDecGSEConversion(std::vector<float> ra_dec, std::vector<std::vector<float>> gei_to_gse)
+{
+    std::vector<float> gei_co = RaDecToGSI(ra_dec[0], ra_dec[1]);
+    gei_co.push_back(1.f);
+    std::vector<float> gse_pos = MatrixMultiply(gei_to_gse, gei_co);
+    gse_pos.pop_back();
+
+    return gse_pos;
 }
