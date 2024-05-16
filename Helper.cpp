@@ -213,3 +213,99 @@ std::vector<float> Helper::RaDecGSEConversion(std::vector<float> ra_dec, std::ve
 
     return gse_pos;
 }
+
+std::vector<float> Helper::TwoMin(std::vector<float> arr, std::vector<int> mask) 
+{
+    float smallest = 0;
+    float second = 1;
+    if (arr[second] < arr[smallest]) {
+        float temp = smallest;
+        smallest = second;
+        second = temp;
+    }
+    for (int i = 2; i < arr.size() - 1; i++) {
+        if (std::find(mask.begin(), mask.end(), i) == mask.end()) {
+            continue; // don't search this element
+        }
+        if (arr[i] < arr[smallest]) {
+            second = smallest;
+            smallest = i;
+        } else if (arr[i]  < arr[second]) {
+            second = i;
+        }
+    }
+
+    return std::vector<float> {smallest, second};
+}
+
+std::vector<float> Helper::XYToRaDec(float ct_x, float ct_y, std::vector<float> xsky, std::vector<float> ysky, std::vector<float> sky1, std::vector<float> sky2, float skysep)
+{
+    float conv = 180 / M_PI;
+    float out[2] = {-999.999f, -999.999f};
+
+    std::vector<float> dtest;
+    for (int i = 0; i < xsky.size(); i++) { 
+        dtest.push_back(std::sqrt(((ct_x - xsky[i]) * (ct_x - xsky[i])) + ((ct_y - ysky[i]) * (ct_y - ysky[i]))));
+    } // calculate closest value in xsky/ysky to ct_x/ct_y
+    int dmax = std::distance(dtest.begin(), std::min_element(dtest.begin(), dtest.end()));
+
+    std::vector<int> sel;
+    for (int i = 0; i < sky1.size(); i++) {
+        if (sky1[i] == sky1[dmax]) {
+            sel.push_back(i);
+        }
+    }
+
+    // std::vector<float> sel_values;
+    // for (int i = 0; i < sel.size(); i++) {
+    //     sel_values.push_back(dtest[sel[i]]);
+    // }
+
+    std::vector<float> min_two = TwoMin(dtest, sel);
+    float diff_dec = sky2[min_two[1]] - sky2[min_two[0]];
+    float diff_x = xsky[min_two[1]] - xsky[min_two[0]];
+    float diff_y = ysky[min_two[1]] - ysky[min_two[0]];
+
+    sel.clear();
+    for (int i = 0; i < sky2.size(); i++) {
+        if (sky2[i] == sky2[dmax]) {
+            sel.push_back(i);
+        }
+    }
+    min_two = TwoMin(dtest, sel);
+    float diff_ra = sky1[min_two[1]] - sky1[min_two[0]];
+    float diff_x2 = xsky[min_two[1]] - xsky[min_two[0]];
+    float diff_y2 = ysky[min_two[1]] - ysky[min_two[0]];
+
+    float d_ang = conv * std::atan2(diff_y, diff_x);
+    float c_ang = conv * std::atan2((ct_y - ysky[dmax]), (ct_x - xsky[dmax]));
+    float ct_dec = sky2[dmax] + ((diff_dec / skysep) * (dtest[dmax] * std::cos((d_ang - c_ang) / conv)));
+
+    if (ct_dec > 90.f) {
+        ct_dec = 90.f;
+    } else if (ct_dec < -90.f) {
+        ct_dec = -90.f;
+    }
+
+    if (diff_ra == (skysep - 360.f)) {
+        diff_ra = skysep;
+    } else if (diff_ra == (360.f - skysep)) {
+        diff_ra = -1.f * skysep;
+    }
+    float d2_ang = conv * std::atan2(diff_y2, diff_x2);
+
+    float ct_ra;
+    if (std::cos(ct_dec / conv) != 0) {
+        ct_ra = sky1[dmax] + ((diff_ra / (1.f * skysep)) * (dtest[dmax] * std::cos((d2_ang - c_ang) / conv)) / std::cos(ct_dec / conv));
+    } else {
+        ct_ra = sky1[dmax];
+    }
+
+    if (ct_ra < 0) {
+        ct_ra = ct_ra + 360.f;
+    } else if (ct_ra > 360) {
+        ct_ra = ct_ra - 360.f;
+    }
+
+    return std::vector<float> {ct_ra, ct_dec};
+}

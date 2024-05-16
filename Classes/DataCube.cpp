@@ -23,7 +23,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 	int j = 0;
 	int k = 0;
 
-	std::vector<std::vector<std::vector<float>>> slices(161); // needs to be of length k (or coords_z?)
+	slices.push_back(std::vector<std::vector<float>> {});
 
 	while(std::getline(ifs, line)) {
 		++line_num; // incrememnt line number
@@ -59,6 +59,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 		if (line_num == data_begin) {
 			this->InitSpacing();
 			this->InitOriginCoords();
+			this->InitSize();
 		}
 
 		// All coord-related arrays built. Now build slices with actual data
@@ -68,6 +69,7 @@ void DataCube::Load(std::string filename, int data_begin) {
 			if (line == "") {
 				k++;
 				j = 0;
+				slices.push_back(std::vector<std::vector<float>> {});
 				continue;
 			}
 
@@ -125,4 +127,10 @@ void DataCube::InitOriginCoords() {
 	origin_coords[0] = this->coords_x[0];
 	origin_coords[1] = this->coords_y[0];
 	origin_coords[2] = this->coords_z[0];
+}
+
+void DataCube::InitSize() {
+	size.x = this->coords_x.size();
+	size.y = this->coords_y.size();
+	size.z = this->coords_z.size();
 }

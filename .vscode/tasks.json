@@ -3,14 +3,17 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: g++ build active file",
+            "label": "C/C++: g++ build and run",
             "command": "/usr/bin/g++",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
-                "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}"
+                // "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}",
+                "${workspaceFolder}/Classes/DataCube.cpp",
+                "${workspaceFolder}/Classes/Camera.cpp",
+                "${workspaceFolder}/Helper.cpp"
             ],
             "options": {
                 "cwd": "${fileDirname}"

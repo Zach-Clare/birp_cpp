@@ -11,10 +11,6 @@ private:
     int ns_lat;
     int ns_lon;
     int nsky;
-    std::vector<float> sky1;
-    std::vector<float> sky2;
-    std::vector<float> xsky;
-    std::vector<float> ysky;
     std::vector<std::vector<float>> gei_to_gse;
     struct {
         float x;
@@ -32,17 +28,27 @@ private:
     float right_vector[3];
     float angle_sun;
     float plac;
+    std::vector<float> ray_dist;
+    float ray_width;
+    int ray_samples;
 
     void BuildLatLon(float, int);
     void GenerateSky(float);
     void GetSky();
+    void GetRayStepDistances(int);
+    void Integrate();
 
     void Orient();
     std::vector<float> PointToPlane(std::vector<float>, float, float);
 
 public:
     DataCube dataCube;
-    std::vector<float> image; // image is square, it's size will be image_dimension^2 
+    float image[144][144] {0}; // image is square, it's size will be image_dimension^2 
+    
+    std::vector<float> sky1;
+    std::vector<float> sky2;
+    std::vector<float> xsky;
+    std::vector<float> ysky;
 
     Camera(DataCube cube, float pixel_size_deg, int plot_fov);
     ~Camera();

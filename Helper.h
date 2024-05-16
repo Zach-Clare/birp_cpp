@@ -33,5 +33,7 @@ class Helper
         static std::vector<std::vector<float>> Gei2GseTransforms();
         static std::vector<float> RaDecToGSI(float ra, float dec);
         static std::vector<float> RaDecGSEConversion(std::vector<float>, std::vector<std::vector<float>>);
+        static std::vector<float> TwoMin(std::vector<float>, std::vector<int>);
+        static std::vector<float> XYToRaDec(float, float, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>, float);
         
 };
