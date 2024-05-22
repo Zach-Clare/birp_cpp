@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+// #include <EleFits/MefFile.h>
+
 #include "Classes/DataCube.h"
 #include "Classes/Camera.h"
 #include "Helper.h"
@@ -20,6 +22,7 @@ int main()
     camera.SetAim(7.81768f, 0.f, 0.f);
 
     camera.Render();
+    camera.ToFITS();
 }
 
 void amr_ov_cube2image(

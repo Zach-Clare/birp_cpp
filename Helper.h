@@ -35,5 +35,7 @@ class Helper
         static std::vector<float> RaDecGSEConversion(std::vector<float>, std::vector<std::vector<float>>);
         static std::vector<float> TwoMin(std::vector<float>, std::vector<int>);
         static std::vector<float> XYToRaDec(float, float, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>, float);
+        static std::vector<float> Interp1( std::vector< float > &x, std::vector< float > &y, std::vector< float > x_new );
+        static int findNearestNeighbourIndex( float value, std::vector< float > &x );
         
 };

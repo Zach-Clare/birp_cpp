@@ -1,5 +1,9 @@
 #include <vector>
 #include <cmath>
+#include <memory>
+#include <fstream>
+// #include <CCfits>
+// #include <CCfits/FITS.h>
 
 #include "DataCube.h"
 #include "../Helper.h"
@@ -346,21 +350,48 @@ void Camera::Integrate()
                     std::vector<float> sample_vector = Helper::MatrixScalarMultiply(pixel_ray_unit_vector, ray_dist[pxk]);
 
                     // x coordinate of sample point
-                    int x_coord = std::round(sample_vector[0] + position.x); // use nearest neighbour
-                    int y_coord = std::round(sample_vector[1] + position.y);
-                    int z_coord = std::round(sample_vector[2] + position.z);
+                    float x_coord = sample_vector[0] + position.x; // use nearest neighbour
+                    float y_coord = sample_vector[1] + position.y;
+                    float z_coord = sample_vector[2] + position.z;
 
-                    if ((0 > x_coord || x_coord > dataCube.size.x) ||
-                        (0 > y_coord || y_coord > dataCube.size.y) ||
-                        (0 > z_coord || z_coord > dataCube.size.z)) {
+                    std::vector<float> x_coords = {x_coord};
+                    std::vector<float> y_coords = {y_coord};
+                    std::vector<float> z_coords = {z_coord};
+
+                    std::vector<float> x_indexes;
+                    for (int a = 0; a < dataCube.coords_x.size(); a++) {
+                        x_indexes.push_back(a);
+                    }
+
+                    std::vector<float> y_indexes;
+                    for (int a = 0; a < dataCube.coords_y.size(); a++) {
+                        y_indexes.push_back(a);
+                    }
+
+                    std::vector<float> z_indexes;
+                    for (int a = 0; a < dataCube.coords_z.size(); a++) {
+                        z_indexes.push_back(a);
+                    }
+
+                    std::vector<float> x_index_vec = Helper::Interp1(dataCube.coords_x, x_indexes, x_coords);
+                    std::vector<float> y_index_vec = Helper::Interp1(dataCube.coords_y, y_indexes, y_coords);
+                    std::vector<float> z_index_vec = Helper::Interp1(dataCube.coords_z, z_indexes, z_coords);
+
+                    int x_index = std::round(x_index_vec[0]) - 1;
+                    int y_index = std::round(y_index_vec[0]) - 1;
+                    int z_index = std::round(z_index_vec[0]) - 1;
+
+                    if ((0 > x_index || x_index >= dataCube.size.x) ||
+                        (0 > y_index || y_index >= dataCube.size.y) ||
+                        (0 > z_index || z_index >= dataCube.size.z)) {
                         pxk_ok = 0;
                         continue;
                     }
 
-                    float sample = dataCube.slices.at(x_coord).at(y_coord).at(z_coord);
+                    float sample = dataCube.slices.at(z_index).at(y_index).at(x_index);
                     sample = sample * ray_width;
 
-                    image[i][j] += sample;
+                    image[i][j] = image[i][j] + sample;
                     sample_vector.clear();
 
                     pxk_yes = 1;
@@ -376,6 +407,31 @@ void Camera::Integrate()
     }
 
     std::cout << "Image complete.\n";
+}
+
+int Camera::ToFITS()
+{
+    long naxis = 2;
+    long naxes[2] = {144, 144};
+
+    // using namespace CCfits;
+
+    // const CCfits::String& filename = "testfits";
+    // CCfits::RWmode mode = CCfits::RWmode::Write;
+
+    // CCfits::FITS pFits = CCfits::FITS(filename, 100, naxis, naxes);
+
+    std::ofstream outfile("../testfile.dat");
+
+    for (int i = 0; i < 144; i++) {
+        for (int j = 0; j < 144; j++) {
+            outfile << std::to_string(image[i][j]);
+            outfile << ",";
+        }
+        outfile << "\n";
+    }
+
+    return 1;
 }
 
 Camera::~Camera()

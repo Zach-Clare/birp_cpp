@@ -14,6 +14,7 @@
                 "${workspaceFolder}/Classes/DataCube.cpp",
                 "${workspaceFolder}/Classes/Camera.cpp",
                 "${workspaceFolder}/Helper.cpp"
+                // "/usr/local/include/CCfits"
             ],
             "options": {
                 "cwd": "${fileDirname}"
@@ -30,13 +31,17 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-fdiagnostics-color=always",
+                "-I/usr/local/include/",
+                // "-I/usr/local/include/fitsio",
+                "-L/usr/local/lib",
                 "-g",
                 "${workspaceFolder}/main.cpp",
                 "-o",
                 "${workspaceFolder}/main.exe",
                 "${workspaceFolder}/Classes/DataCube.cpp",
                 "${workspaceFolder}/Classes/Camera.cpp",
-                "${workspaceFolder}/Helper.cpp"
+                "${workspaceFolder}/Helper.cpp",
+                // "-lEleFits"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

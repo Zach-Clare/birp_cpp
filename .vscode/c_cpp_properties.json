@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/Classes/"
+                "${workspaceFolder}/Classes/",
+                "/usr/local/include/CCfits",
+                "/usr/local/include/fitsio"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
