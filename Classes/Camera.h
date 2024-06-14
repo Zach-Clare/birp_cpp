@@ -6,6 +6,7 @@ private:
     int image_dimension;
     std::vector<float> lat;
     std::vector<float> lon;
+    int fov;
     int pxn_dist = 200;
     float skysep;
     int ns_lat;

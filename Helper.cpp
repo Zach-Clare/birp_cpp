@@ -94,6 +94,136 @@ std::vector<float> Helper::MatrixScalarMultiply(std::vector<float> matrix, float
     return matrix;
 }
 
+std::vector<float> Helper::ApplyRotation(std::vector<std::vector<float>> rot, float* coords)
+{
+    std::vector<float> result;
+    // we want to use coords vertically, as if there are three nested single-element arrays
+    // First, loop over rot
+    for (auto row : rot) {
+        // take each element and multiply it by the equivalent in coords
+        // and add it to a buffer
+        result.push_back((row[0] * coords[0]) + (row[1] * coords[1]) + (row[2] * coords[2]));
+    }
+
+    return result;
+}
+
+float Helper::GetDeterminant(const std::vector<std::vector<float>> vect) {
+    if(vect.size() != vect[0].size()) {
+        throw std::runtime_error("Matrix is not quadratic");
+    } 
+    int dimension = vect.size();
+
+    if(dimension == 0) {
+        return 1;
+    }
+
+    if(dimension == 1) {
+        return vect[0][0];
+    }
+
+    //Formula for 2x2-matrix
+    if(dimension == 2) {
+        return vect[0][0] * vect[1][1] - vect[0][1] * vect[1][0];
+    }
+
+    float result = 0;
+    int sign = 1;
+    for(int i = 0; i < dimension; i++) {
+
+        //Submatrix
+        std::vector<std::vector<float>> subVect(dimension - 1, std::vector<float> (dimension - 1));
+        for(int m = 1; m < dimension; m++) {
+            int z = 0;
+            for(int n = 0; n < dimension; n++) {
+                if(n != i) {
+                    subVect[m-1][z] = vect[m][n];
+                    z++;
+                }
+            }
+        }
+
+        //recursive call
+        result = result + sign * vect[0][i] * Helper::GetDeterminant(subVect);
+        sign = -sign;
+    }
+
+    return result;
+}
+
+std::vector<std::vector<float>> Helper::GetTranspose(const std::vector<std::vector<float>> matrix1) {
+
+    //Transpose-matrix: height = width(matrix), width = height(matrix)
+    std::vector<std::vector<float>> solution(matrix1[0].size(), std::vector<float> (matrix1.size()));
+
+    //Filling solution-matrix
+    for(size_t i = 0; i < matrix1.size(); i++) {
+        for(size_t j = 0; j < matrix1[0].size(); j++) {
+            solution[j][i] = matrix1[i][j];
+        }
+    }
+    return solution;
+}
+
+std::vector<std::vector<float>> Helper::GetCofactor(const std::vector<std::vector<float>> vect) {
+    if(vect.size() != vect[0].size()) {
+        throw std::runtime_error("Matrix is not quadratic");
+    } 
+
+    std::vector<std::vector<float>> solution(vect.size(), std::vector<float> (vect.size()));
+    std::vector<std::vector<float>> subVect(vect.size() - 1, std::vector<float> (vect.size() - 1));
+
+    for(std::size_t i = 0; i < vect.size(); i++) {
+        for(std::size_t j = 0; j < vect[0].size(); j++) {
+
+            int p = 0;
+            for(size_t x = 0; x < vect.size(); x++) {
+                if(x == i) {
+                    continue;
+                }
+                int q = 0;
+
+                for(size_t y = 0; y < vect.size(); y++) {
+                    if(y == j) {
+                        continue;
+                    }
+
+                    subVect[p][q] = vect[x][y];
+                    q++;
+                }
+                p++;
+            }
+            solution[i][j] = pow(-1, i + j) * Helper::GetDeterminant(subVect);
+        }
+    }
+    return solution;
+}
+
+std::vector<std::vector<float>> Helper::GetInverse(const std::vector<std::vector<float>> vect) {
+    if(Helper::GetDeterminant(vect) == 0) {
+        throw std::runtime_error("Determinant is 0");
+    } 
+
+    float d = 1.f / Helper::GetDeterminant(vect);
+    std::vector<std::vector<float>> solution(vect.size(), std::vector<float> (vect.size()));
+
+    for(size_t i = 0; i < vect.size(); i++) {
+        for(size_t j = 0; j < vect.size(); j++) {
+            solution[i][j] = vect[i][j]; 
+        }
+    }
+
+    solution = Helper::GetTranspose(Helper::GetCofactor(solution));
+
+    for(size_t i = 0; i < vect.size(); i++) {
+        for(size_t j = 0; j < vect.size(); j++) {
+            solution[i][j] *= d;
+        }
+    }
+
+    return solution;
+}
+
 float DateToJulianDate(int year, int month, float day) 
 {
     int yearp;
@@ -141,14 +271,6 @@ std::vector<std::vector<float>> Helper::Gei2GseTransforms()
     float date = DateToJulianDate(2024, 1, 1);
     date = date - 2400000.5f; // modify to be relative to 17th Nov 1858
     float t0 = (date - 51544.5f) / 36525; // convert into julian centuries
-
-    // auto now = std::chrono::system_clock::now(); // time right now
-    // auto julian_date = now + 58574100h; // shift to julian calendar
-    // auto julian_date_mod = julian_date - (2400000.5f * 24h); // modified relative to 17 Nov 1858
-    // auto point = std::chrono::time_point_cast<std::chrono::hours>(julian_date_mod); // Fancy footwork. cast to time_point
-    // auto epoch = point.time_since_epoch(); // get duration from time_point object
-    // auto duration = std::chrono::duration_cast<std::chrono::hours>(epoch); // cast to duration
-    // float t0 = (epoch - (52544.5f * 24h)).count() / 36525; // so we can use .count() to get time in julian centuries
 
     float theta = 100.461f + 36000.770f * t0;
     float epsilon = 23.439f - 0.013f * t0;
@@ -243,6 +365,8 @@ std::vector<float> Helper::XYToRaDec(float ct_x, float ct_y, std::vector<float> 
 {
     float conv = 180 / M_PI;
     float out[2] = {-999.999f, -999.999f};
+
+    // float ra = std::atan2(ct_x, ct_y);
 
     std::vector<float> dtest;
     for (int i = 0; i < xsky.size(); i++) { 
@@ -362,4 +486,68 @@ int Helper::findNearestNeighbourIndex( float value, std::vector< float > &x )
     }
 
     return idx;
+}
+
+std::vector<float> Helper::XYZToSpherical(float* xyz, int size)
+{
+    float x = xyz[0];
+    float y = xyz[1];
+    float z = xyz[2];
+
+    float r = std::sqrt(std::pow(x, 2) + std::pow(y, 2) + std::pow(z, 2));
+
+    float theta;
+    // if (z > 0.f) {
+        theta = std::atan2(std::sqrt(std::pow(x, 2) + std::pow(y, 2)), z);
+    // } else if (z == 0.f && std::sqrt(std::pow(x, 2) + std::pow(y, 2)) != 0.f) {
+    //     theta = M_PI / 2;
+    // }
+
+    float phi;
+    phi = std::atan2(y, x);
+
+    return {phi, theta, r};
+}
+
+std::vector<float> Helper::XYZToSphericalAlt(float* xyz, int size)
+{
+    float x = xyz[0];
+    float y = xyz[1];
+    float z = xyz[2];
+
+
+    float r = std::sqrt(std::pow(x, 2) + std::pow(y, 2) + std::pow(z, 2));
+
+    float theta;
+    // if (z > 0) {
+    //     theta = std::atan(std::sqrt(std::pow(x, 2) + std::pow(y, 2)) / z);
+    // } else if (z < 0) {
+    //     theta = M_PI + std::atan(std::sqrt(std::pow(x, 2) + std::pow(y, 2)) / z);
+    // } else if (z == 0.f && std::sqrt(std::pow(x, 2) + std::pow(y, 2)) != 0) {
+    //     theta = M_PI / 2;
+    // }
+    // theta = std::atan2(std::sqrt(std::pow(x, 2) + std::pow(y, 2)), z);
+    theta = std::atan2(y, x);
+
+    float phi;
+    // if (x > 0) {
+    //     phi = std::atan(y / x);
+    // } else if (x < 0 && y >= 0) {
+    //     phi = std::atan(y / x) + M_PI;
+    // } else if (x < 0 && y < 0) {
+    //     phi = std::atan(y / x) - M_PI;
+    // } else if (x == 0.f && y > 0) {
+    //     phi = M_PI / 2;
+    // } else if (x == 0.f && y < 0) {
+    //     phi = -(M_PI / 2);
+    // }
+    // phi = std::acos(z / r);
+    phi = std::atan2(z, std::sqrt(std::pow(x, 2) + std::pow(y, 2)));
+
+    return {phi, theta, r};
+}
+
+float Helper::VectorDistance(float* xyz)
+{
+    return std::sqrt(std::pow(xyz[0], 2) + std::pow(xyz[1], 2) + std::pow(xyz[2], 2));
 }

@@ -2,8 +2,7 @@
 #include <cmath>
 #include <memory>
 #include <fstream>
-// #include <CCfits>
-// #include <CCfits/FITS.h>
+#include <chrono>
 
 #include "DataCube.h"
 #include "../Helper.h"
@@ -13,6 +12,7 @@
 Camera::Camera(DataCube cube, float pixel_size_deg, int plot_fov)
 {
     ray_samples = 200;
+    fov = plot_fov;
 
     dataCube = cube;
     image_dimension = std::round(plot_fov / pixel_size_deg);
@@ -303,7 +303,7 @@ void Camera::GetSky()
         std::vector<float> p2pout = PointToPlane(skygse, plac, 1.f);
 
         if (p2pout[0] == 0.f || p2pout[1] == 0.f) {
-            std::cout << "ERROR: RaDecGSEConversion returning invalid values.";
+            std::cout << "ERROR: RaDecGSEConversion returning invalid values.\n";
         }
 
         xsky[i] = p2pout[0];
@@ -324,62 +324,124 @@ void Camera::GetRayStepDistances(int max)
 
 void Camera::Integrate() 
 {
+    auto t0 = std::chrono::high_resolution_clock::now();
+    auto t1 = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> outer = t1 - t0;
+    std::chrono::duration<double> xy2radec = t1 - t0;
+    std::chrono::duration<double> inner = t1 - t0;
+    std::chrono::duration<double> the_rest = t1 - t0;
+
+    auto t_all = std::chrono::high_resolution_clock::now();
+
+    float to_rad = M_PI / 180.f;
+    float to_deg = 180.f / M_PI;
+
+    // Let's calculate some angles. Firstly, a rotation about the z axis so that y points towards the aimpoint
+    float x_diff = aim.x - position.x;
+    float theta = std::atan(x_diff / position.y);
+    float rotation_z = (180 - (to_deg * theta)) * to_rad;
+    float hypotenuse = std::sqrt(std::pow(x_diff, 2) + std::pow(position.y, 2));
+    float phi = std::atan(hypotenuse / position.z);
+    float rotation_x =  (90 * to_rad) - phi; // Simply phi in degrees
+
+    std::vector<std::vector<float>> rz = {
+        {std::cos(rotation_z), - std::sin(rotation_z), 0},
+        {std::sin(rotation_z), std::cos(rotation_z), 0},
+        {0, 0, 1}
+    };
+    std::vector<std::vector<float>> rx = {
+        {1, 0, 0},
+        {0, std::cos(rotation_x), - std::sin(rotation_x)},
+        {0, std::sin(rotation_x), std::cos(rotation_x)}
+    };
+    // Then we need to do matrix multiplication
+    // https://en.wikipedia.org/wiki/Rotation_matrix#General_3D_rotations
+
+    std::vector<std::vector<float>> rotation = Helper::MatrixMultiply(rz, rx);
+    rotation = Helper::GetInverse(rotation);
+
     // serial method first, no parallelisation yet
     for (int i = 0; i < image_dimension; i++) {
         for (int j = 0; j < image_dimension; j++) {
-            // Get Right Ascension and Declination for this pixel
-            std::vector<float> pixel_radec = Helper::XYToRaDec(lon[i], lat[j], xsky, ysky, sky1, sky2, skysep);
 
-            // Calculate that as a unit vector
-            std::vector<float> pixel_ray_vector = Helper::RaDecGSEConversion(pixel_radec, gei_to_gse);
-            pixel_ray_vector = Helper::MatrixScalarMultiply(pixel_ray_vector, 1000.f);
-            float pixel_ray_dist = std::sqrt(std::pow(pixel_ray_vector[0], 2) + std::pow(pixel_ray_vector[1], 2) + std::pow(pixel_ray_vector[2], 2));
-            std::vector<float> pixel_ray_unit_vector = {
-                pixel_ray_vector[0] / pixel_ray_dist,
-                pixel_ray_vector[1] / pixel_ray_dist,
-                pixel_ray_vector[2] / pixel_ray_dist,
-            };
+            auto t_outer = std::chrono::high_resolution_clock::now();
+            
+            auto t_xy2radec = std::chrono::high_resolution_clock::now();
+            // Get Right Ascension and Declination for this pixel
+            // std::vector<float> pixel_radec = Helper::XYToRaDec(lon[i], lat[j], xsky, ysky, sky1, sky2, skysep);
+            auto t_xy2radec_end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> d_xy2radec = t_xy2radec_end - t_xy2radec;
+            xy2radec = xy2radec + d_xy2radec;
+
+            // Calculate pixel position
+            float device_x = (i + 0.5f) / (image_dimension);
+            float device_y = (j + 0.5f) / (image_dimension);
+            float screen_x = ((2 * device_x) - 1) * std::tan(to_rad * (fov / 2));
+            float screen_y = (1 - (2 * device_y)) * std::tan(to_rad * (fov / 2));
+            float screen_vec[3] = {screen_x, screen_y, -1};
+
+            float new_distance = Helper::VectorDistance(screen_vec);
+            float screen_unit_vec[3] = {
+                screen_x / new_distance,
+                screen_y / new_distance,
+                -1 / new_distance
+            }; // That's our camera-based ray unit vector. We need to apply the rotation matrix
+            
+            std::vector<float> pixel_ray_unit_vector = Helper::ApplyRotation(rotation, screen_unit_vec);
+            float* world_vector = &pixel_ray_unit_vector[0];
+            float world_distance = Helper::VectorDistance(world_vector);
+            std::vector<float> world_unit_vector = {
+                world_vector[0] / world_distance,
+                world_vector[1] / world_distance,
+                world_vector[2] / world_distance
+            }; // and now we have the unit vector in world space!
 
             int pxk_ok = 1;
             int pxk_yes = 0;
 
+            auto t_outer_end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> d_outer = t_outer_end - t_outer;
+            outer = outer + d_outer;
+
             for (int pxk = 0; pxk < pxn_dist; pxk++) {
                 if (pxk_ok == 1) {
+
+                    auto t_inner = std::chrono::high_resolution_clock::now();
                     
                     // vector to sample point
-                    std::vector<float> sample_vector = Helper::MatrixScalarMultiply(pixel_ray_unit_vector, ray_dist[pxk]);
+                    std::vector<float> sample_vector = Helper::MatrixScalarMultiply(world_unit_vector, ray_dist[pxk]);
 
                     // x coordinate of sample point
                     float x_coord = sample_vector[0] + position.x; // use nearest neighbour
                     float y_coord = sample_vector[1] + position.y;
                     float z_coord = sample_vector[2] + position.z;
 
-                    std::vector<float> x_coords = {x_coord};
-                    std::vector<float> y_coords = {y_coord};
-                    std::vector<float> z_coords = {z_coord};
-
-                    std::vector<float> x_indexes;
-                    for (int a = 0; a < dataCube.coords_x.size(); a++) {
-                        x_indexes.push_back(a);
+                    if ((i == 0 && j == 0) ||
+                    (i == 0 && j == 143) ||
+                    (i == 143 && j == 0) ||
+                    (i == 143 && j == 143)) {
+                        if (pxk == 199) {
+                            std::cout << x_coord << "," << y_coord << "," << z_coord << "," << std::flush;
+                            std::cout << "|||||";
+                        }
                     }
 
-                    std::vector<float> y_indexes;
-                    for (int a = 0; a < dataCube.coords_y.size(); a++) {
-                        y_indexes.push_back(a);
+                    if ((x_coord < 8.f && x_coord > 7.5f) &&
+                    (y_coord < .5f && y_coord > -0.5f) &&
+                    (z_coord < .5f && z_coord > -0.5f)
+                    ) {
+                        image[i][j] = 10;
+                        continue;
                     }
 
-                    std::vector<float> z_indexes;
-                    for (int a = 0; a < dataCube.coords_z.size(); a++) {
-                        z_indexes.push_back(a);
-                    }
+                    float x_ingress = std::abs(dataCube.coords_x[0] - x_coord);
+                    int x_index = x_ingress / dataCube.spacing[0];
 
-                    std::vector<float> x_index_vec = Helper::Interp1(dataCube.coords_x, x_indexes, x_coords);
-                    std::vector<float> y_index_vec = Helper::Interp1(dataCube.coords_y, y_indexes, y_coords);
-                    std::vector<float> z_index_vec = Helper::Interp1(dataCube.coords_z, z_indexes, z_coords);
+                    float y_ingress = std::abs(dataCube.coords_y[0] - y_coord);
+                    int y_index = y_ingress / dataCube.spacing[1];
 
-                    int x_index = std::round(x_index_vec[0]) - 1;
-                    int y_index = std::round(y_index_vec[0]) - 1;
-                    int z_index = std::round(z_index_vec[0]) - 1;
+                    float z_ingress = std::abs(dataCube.coords_z[0] - z_coord);
+                    int z_index = z_ingress / dataCube.spacing[2];
 
                     if ((0 > x_index || x_index >= dataCube.size.x) ||
                         (0 > y_index || y_index >= dataCube.size.y) ||
@@ -389,24 +451,36 @@ void Camera::Integrate()
                     }
 
                     float sample = dataCube.slices.at(z_index).at(y_index).at(x_index);
-                    sample = sample * ray_width;
+                    sample = sample * ray_width * 1000;
 
                     image[i][j] = image[i][j] + sample;
                     sample_vector.clear();
 
                     pxk_yes = 1;
+
+                    auto t_inner_end = std::chrono::high_resolution_clock::now();
+                    std::chrono::duration<double> d_inner = t_inner_end - t_inner;
+                    inner = inner + d_inner;
                 }
             }
-            pixel_radec.clear();
-            pixel_ray_vector.clear();
+            // pixel_radec.clear();
+            // pixel_ray_vector.clear();
             pixel_ray_unit_vector.clear();
-
             
         }
-        std::cout << std::to_string(i) << "\n";
+        std::cout << std::to_string(i) << ", " << std::flush;
     }
 
-    std::cout << "Image complete.\n";
+    auto t_all_end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> d_all = t_all_end - t_all;
+
+    std::cout << "\nImage complete.\n";
+    std::cout << "Outer loop:" << std::to_string(outer.count()) << "\n";
+    std::cout << "XY2RaDec:" << std::to_string(xy2radec.count()) << "\n";
+    std::cout << "Inner loop:" << std::to_string(inner.count()) << "\n";
+    std::cout << "Rendering:" << std::to_string(d_all.count()) << "\n";
+    
+
 }
 
 int Camera::ToFITS()
