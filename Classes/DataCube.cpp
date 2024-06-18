@@ -7,7 +7,7 @@
 
 #include "DataCube.h"
 
-void DataCube::Load(std::string filename, int data_begin) {
+void DataCube::Load(std::string filename, int data_begin, bool debug = false) {
 	std::cout << "Loading datacube...\n";
 
 	std::fstream ifs(filename); // create filestream from filename
@@ -88,6 +88,11 @@ void DataCube::Load(std::string filename, int data_begin) {
 		}
 		
 	}
+
+	if (debug == true) {
+		slices[80][79][50] = 1;
+	}
+
 	std::cout << "Datacube loaded.\n";
 }
 

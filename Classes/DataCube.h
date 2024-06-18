@@ -5,7 +5,7 @@
 
 class DataCube {
 public:
-	void Load(std::string, int);
+	void Load(std::string, int, bool debug);
 
 	std::vector<float> coords_x;
 	std::vector<float> coords_y;

@@ -12,7 +12,7 @@ int main()
     // Here, we'll use as a substitute for main.py
 
     DataCube cube;
-    cube.Load("Data/px_uni_1000.dat", 82);
+    cube.Load("Data/px_uni_1000_debug.dat", 82, true);
 
     int plot_fov = 36;
     float pixel_size_deg = .25f;

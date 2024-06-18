@@ -339,10 +339,19 @@ void Camera::Integrate()
     // Let's calculate some angles. Firstly, a rotation about the z axis so that y points towards the aimpoint
     float x_diff = aim.x - position.x;
     float theta = std::atan(x_diff / position.y);
-    float rotation_z = (180 - (to_deg * theta)) * to_rad;
+    float rotation_z = ((180 - (to_deg * theta)) * to_rad) + (20 * to_rad);
     float hypotenuse = std::sqrt(std::pow(x_diff, 2) + std::pow(position.y, 2));
     float phi = std::atan(hypotenuse / position.z);
-    float rotation_x =  (90 * to_rad) - phi; // Simply phi in degrees
+    float rotation_x =  (90 * to_rad) - phi;
+
+    float h = std::sqrt(std::pow(aim.z - position.x, 2) + std::pow(aim.y - position.y, 2));
+    float alpha = std::tan(std::abs(h) / std::abs(aim.z - position.z));
+
+    // And now beta
+    float beta = (180.f - (std::tan((aim.x - position.x) / position.y) * to_deg)) * to_rad;
+
+    float xh = std::sqrt(std::pow(position.y, 2) + std::pow(position.z, 2));
+    float angle = std::atan2(x_diff, xh);
 
     std::vector<std::vector<float>> rz = {
         {std::cos(rotation_z), - std::sin(rotation_z), 0},
@@ -351,18 +360,81 @@ void Camera::Integrate()
     };
     std::vector<std::vector<float>> rx = {
         {1, 0, 0},
-        {0, std::cos(rotation_x), - std::sin(rotation_x)},
-        {0, std::sin(rotation_x), std::cos(rotation_x)}
+        {0, std::cos(phi), - std::sin(phi)},
+        {0, std::sin(phi), std::cos(phi)}
     };
+    // float angle = 5.f * to_rad;
+    std::vector<std::vector<float>> ry = {
+        {std::cos(angle), 0, std::sin(angle)},
+        {0, 1, 0},
+        {- std::sin(angle), 0, std::cos(angle)}
+    };
+
+    std::vector<std::vector<float>> identity = {
+        {1, 0, 0},
+        {0, 1, 0},
+        {0, 0, 1}
+    };
+
     // Then we need to do matrix multiplication
     // https://en.wikipedia.org/wiki/Rotation_matrix#General_3D_rotations
 
-    std::vector<std::vector<float>> rotation = Helper::MatrixMultiply(rz, rx);
-    rotation = Helper::GetInverse(rotation);
+    std::vector<std::vector<float>> rotation = Helper::MatrixMultiply(ry, rx);
+    // std::vector<std::vector<float>> rotation2 = Helper::MatrixMultiply(rotation, rx);
+    std::vector<std::vector<float>> rotation_inverse = Helper::GetInverse(rotation);
+
+    // Alternative method
+    // We first find the angle we have rotated by along the x axis to get to an intermediary frame.
+    // Then we calculate the second angle which we have rotated around the z axis.
+    // We're using SOHCAHTOA rules here, namely angle = tan(opposite / adjacent)
+    // The first angle we will call alpha (a)
+    // The second angle will be called beta (b)
+    /// Let's calculate alpha
+    // float h = std::sqrt(std::pow(aim.z - position.x, 2) + std::pow(aim.y - position.y, 2));
+    // float alpha = std::tan((aim.y - position.y) / (aim.z - position.z)) * to_deg;
+
+    // // And now beta
+    // float beta = 180.f - std::tan((aim.x - position.x) / position.y) * to_deg;
+
+    // These values remain the same throughout the entire render. These angles only change if the spacecraft position is moved or is the aimpoint has changed.
+    // The above calculations also assume that the aimpoint is somewhere along y = 0 and z = 0.
+    // We now begin out pixel-specific calculations.
 
     // serial method first, no parallelisation yet
     for (int i = 0; i < image_dimension; i++) {
         for (int j = 0; j < image_dimension; j++) {
+
+            // Alternative method
+            float phi = 180.f + lat[i]; // it is possible that this value is the same for all pixels on the same row as each other...not sure yet
+
+            // The standard formula is x = r cos (phi - theta)
+            // where:
+            // - r is distance of the line
+            // - phi is angle of rotation from line to positive axis
+            // - theta is angle between the new and old axis
+            // The "axis" is usually x, but in this specific 3d scenario, we are using z. It will be x in the second rotation later on.
+            struct {
+                float x;
+                float y;
+                float z;
+            } pixel;
+
+            float r = std::sqrt(std::pow(aim.y - position.y, 2) + std::pow(aim.z - position.z, 2));
+            pixel.z = r * std::cos((phi - alpha) * to_rad);
+            float s = r * std::sin((phi - alpha) * to_rad); // this would be the y coord but it's actualy the magnitude of our next line
+
+            // We will overwrite y, but z is accurate because we will now rotate along the z new z axis, meaning it won't change.
+            // Let's calculate our second angle of rtoation here.
+
+            // need to recalculate h
+
+            float theta = 90 - lon[j];
+            // float s = std::sqrt(std::pow(aim.x - position.x, 2) + std::pow(aim.y - position.y, 2));
+            pixel.x = s * std::cos((theta - beta) * to_rad);
+            pixel.y = s * std::sin((theta - beta) * to_rad);
+
+
+            // Alternative method END
 
             auto t_outer = std::chrono::high_resolution_clock::now();
             
@@ -386,9 +458,11 @@ void Camera::Integrate()
                 screen_y / new_distance,
                 -1 / new_distance
             }; // That's our camera-based ray unit vector. We need to apply the rotation matrix
+
+            // float vector[3] = {pixel.x, pixel.y, pixel.z};
             
-            std::vector<float> pixel_ray_unit_vector = Helper::ApplyRotation(rotation, screen_unit_vec);
-            float* world_vector = &pixel_ray_unit_vector[0];
+            std::vector<float> vector = Helper::ApplyRotation(rotation_inverse, screen_unit_vec);
+            float* world_vector = &vector[0];
             float world_distance = Helper::VectorDistance(world_vector);
             std::vector<float> world_unit_vector = {
                 world_vector[0] / world_distance,
@@ -421,27 +495,27 @@ void Camera::Integrate()
                     (i == 143 && j == 0) ||
                     (i == 143 && j == 143)) {
                         if (pxk == 199) {
-                            std::cout << x_coord << "," << y_coord << "," << z_coord << "," << std::flush;
+                            std::cout << pixel.x << "," << pixel.y << "," << pixel.z << "," << std::flush;
                             std::cout << "|||||";
                         }
                     }
 
-                    if ((x_coord < 8.f && x_coord > 7.5f) &&
-                    (y_coord < .5f && y_coord > -0.5f) &&
-                    (z_coord < .5f && z_coord > -0.5f)
-                    ) {
-                        image[i][j] = 10;
-                        continue;
-                    }
+                    // if ((x_coord < 8.f && x_coord > 7.5f) &&
+                    // (y_coord < .25f && y_coord > -0.25f) &&
+                    // (z_coord < .25f && z_coord > -0.25f)
+                    // ) {
+                    //     image[i][j] = 7;
+                    //     continue;
+                    // }
 
                     float x_ingress = std::abs(dataCube.coords_x[0] - x_coord);
-                    int x_index = x_ingress / dataCube.spacing[0];
+                    int x_index = (x_ingress / dataCube.spacing[0]);
 
                     float y_ingress = std::abs(dataCube.coords_y[0] - y_coord);
-                    int y_index = y_ingress / dataCube.spacing[1];
+                    int y_index = (y_ingress / dataCube.spacing[1]);
 
                     float z_ingress = std::abs(dataCube.coords_z[0] - z_coord);
-                    int z_index = z_ingress / dataCube.spacing[2];
+                    int z_index = (z_ingress / dataCube.spacing[2]);
 
                     if ((0 > x_index || x_index >= dataCube.size.x) ||
                         (0 > y_index || y_index >= dataCube.size.y) ||
@@ -465,7 +539,7 @@ void Camera::Integrate()
             }
             // pixel_radec.clear();
             // pixel_ray_vector.clear();
-            pixel_ray_unit_vector.clear();
+            // unit_vector.clear();
             
         }
         std::cout << std::to_string(i) << ", " << std::flush;
@@ -495,7 +569,7 @@ int Camera::ToFITS()
 
     // CCfits::FITS pFits = CCfits::FITS(filename, 100, naxis, naxes);
 
-    std::ofstream outfile("../testfile.dat");
+    std::ofstream outfile("../python/testfile.dat");
 
     for (int i = 0; i < 144; i++) {
         for (int j = 0; j < 144; j++) {
