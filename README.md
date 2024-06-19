@@ -63,7 +63,7 @@ The method used in ths program is to calculate the rotation angles, plug them in
 
 Let's go through an example here - we'll use a specific moment in orbit where the position of the spacecraft in xyz GSE coordinates are `[5.9, 6.7, 17.7]`. For this orbit position, we are given the aimpoint of `[7.8, 0, 0]`. So for perspective, the spacecraft is quite high up above the earth, and is in front and to the side. We are finding the angles to rotate along each axis if we reverse the camera's orientation when the negative z axis points directly at the aimpoint which lies at some point between the sun and the earth. 
 
-Let's define our first angle of rotation along the spacecraft's x axis. Remember that the spacecraft's x axis goes from left to right across the image plane. Rotating along the x axis looks (from the camera's perspective) as if we are panning the shot up and down. Here is a a not-to-scale diagram showing the value we're trying to get. By using the coordinates available to us already, we can create another oh-so-handy ad hoc right-angle triangle (shown in green). By constructing this right-angle triangle and using SOHCAHTOA rules, we can find the angle we're interested in. We know the adjacent side, as that is simply the spacecraft's z coordinate. In order to find the opposite length (along the bottom), we'll need to create another triangle. This new triangle is a right-angled triangle along the x-y plane flat as if on the floor (shown in blue). Notice that the opposite length we're trying to find here is actually the hypotenuse of our newer on-the-floor-triangle. By squaring, summing, and then square root-ing these lengths, we can find the legnth of that hypotenuse and, therefore, the opposite length of our stood-up triangle.
+Let's define our first angle of rotation along the spacecraft's x axis. Remember that the spacecraft's x axis goes from left to right across the image plane. Rotating along the x axis looks (from the camera's perspective) as if we are panning the shot up and down. Here is a a not-to-scale diagram showing the value we're trying to get. By using the coordinates available to us already, we can create another oh-so-handy ad hoc right-angle triangle (shown in green). By constructing this right-angle triangle and using SOHCAHTOA rules, we can find the angle we're interested in. We know the adjacent side, as that is simply the spacecraft's z coordinate. In order to find the opposite length (along the bottom), we'll need to create another triangle. This new triangle is a right-angled triangle along the x-y plane flat as if on the floor (shown in blue). Notice that the opposite length we're trying to find here is actually the hypotenuse of our newer on-the-floor-triangle. By squaring, summing, and then square root-ing these lengths, we can find the legnth of that hypotenuse and, therefore, the opposite length of our stood-up triangle with arctan.
 
 ![3noscale_enhanced_colour](https://github.com/Zach-Clare/birp_cpp/assets/41343750/ad73bb19-0aeb-4fac-96f0-87956ce0cde9)
 
@@ -71,6 +71,55 @@ $$opposite = \sqrt{(x_ {aim} - x_ {spacecraft})^2 + (y_ {aim} - y_ {spacecraft})
 
 $$\angle z_{s}z = \arctan({\frac{opposite}{adjacent}})$$
 
+That's great, we now have our angle to rotate around x. If we refer to [wikipedia page for 3D rotations](https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions), we can see that the rotation matrix for the x axis looks like this:
+
+```math 
+R_{x}(\theta) = \begin{bmatrix}
+       1 &           0 &             0  \\[0.3em]
+       0 & \cos{\theta} & -\sin{\theta} \\[0.3em]
+       0 & \sin{\theta} & \cos{\theta}
+     \end{bmatrix}
+```
+If we were to calculate this for our example, where $\theta$ is $\angle z_{s}z$:
+```math
+\begin{aligned}
+&&opposite = &\sqrt{(7.8 - 5.9)^2 + (0 - 6.7) ^2}\\ 
+&& = & \sqrt{(1.9^2 + 6.7^2}\\ 
+&& = & \sqrt{(3.61 + 44.89}\\ 
+&& = & \sqrt{(48.5}\\ 
+&& = & 6.96419...\\
+\end{aligned}
+```
+Now we have the opposite length, we use $tan$ from SOHCAHTOA on the $opposite$ over the $adjacent$:
+```math
+\begin{aligned}
+&&\theta = &\arctan({\frac{6.96419}{17.7}})\\ 
+&& = &\arctan{0.393457}\\ 
+&& = &0.37485342\\ 
+\end{aligned}
+```
+There we have our angle in radians. To calculate the rotation matrix, simply plug it in and calculate:
+```math
+\begin{aligned}
+&&R_{x}(\theta) = &\begin{bmatrix}
+       1 &            0 &             0  \\[0.3em]
+       0 & \cos{\theta} & -\sin{\theta} \\[0.3em]
+       0 & \sin{\theta} &  \cos{\theta}
+     \end{bmatrix}\\ 
+&& = &\begin{bmatrix}
+       1 &                0 &                 0  \\[0.3em]
+       0 & \cos{0.37485342} & -\sin{0.37485342} \\[0.3em]
+       0 & \sin{0.37485342} &  \cos{0.37485342}
+     \end{bmatrix}\\
+&& = &\begin{bmatrix}
+       1 &          0 &           0  \\[0.3em]
+       0 & 0.92358911 & -0.38338382 \\[0.3em]
+       0 & 0.38338382 &  0.92358911
+     \end{bmatrix}
+\end{aligned}
+```
+
+There we have our $R_{x}(\theta)$. Now that we've defined a rotatio matrix that rotates our vectors and rays around their x axis, I want to explain where I went wrong on the next step where we calculate rotation along the y axis.
 
 ---------------
 
