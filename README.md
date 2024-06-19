@@ -71,7 +71,7 @@ $$opposite = \sqrt{(x_ {aim} - x_ {spacecraft})^2 + (y_ {aim} - y_ {spacecraft})
 
 $$\angle z_{s}z = \arctan({\frac{opposite}{adjacent}})$$
 
-That's great, we now have our angle to rotate around x. If we refer to [wikipedia page for 3D rotations](https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions), we can see that the rotation matrix for the x axis looks like this:
+That's great, we now have our angle to rotate around x. If we refer to [wikipedia page for 3D rotations](https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions), we can see that the rotation matrix for any 3D rotation around the x axis (ever!) looks like this:
 
 ```math 
 R_{x}(\theta) = \begin{bmatrix}
@@ -93,9 +93,11 @@ If we were to calculate this for our example, where $\theta$ is $\angle z_{s}z$:
 Now we have the opposite length, we use $tan$ from SOHCAHTOA on the $opposite$ over the $adjacent$:
 ```math
 \begin{aligned}
-&&\theta = &\arctan({\frac{6.96419}{17.7}})\\ 
-&& = &\arctan{0.393457}\\ 
-&& = &0.37485342\\ 
+&&\theta = &\arctan({\frac{6.96419}{17.7}})\\
+\\
+&& = &\arctan{0.393457}\\
+\\
+&& = &0.37485342\\
 \end{aligned}
 ```
 There we have our angle in radians. To calculate the rotation matrix, simply plug it in and calculate:
@@ -105,12 +107,14 @@ There we have our angle in radians. To calculate the rotation matrix, simply plu
        1 &            0 &             0  \\[0.3em]
        0 & \cos{\theta} & -\sin{\theta} \\[0.3em]
        0 & \sin{\theta} &  \cos{\theta}
-     \end{bmatrix}\\ 
+     \end{bmatrix}\\
+\\
 && = &\begin{bmatrix}
        1 &                0 &                 0  \\[0.3em]
        0 & \cos{0.37485342} & -\sin{0.37485342} \\[0.3em]
        0 & \sin{0.37485342} &  \cos{0.37485342}
      \end{bmatrix}\\
+\\
 && = &\begin{bmatrix}
        1 &          0 &           0  \\[0.3em]
        0 & 0.92358911 & -0.38338382 \\[0.3em]
