@@ -128,13 +128,17 @@ There we have our $R_{x}(\theta)$. Now that we've defined a rotation matrix that
 Now imagine that we are floating directly above the earth looking down through GSEs negative z axis. We need to align the x and y axis of the spacecraft to the GSE x and y axis, but the y axis is currently pointing at the aimpoint still and the x axis is 90 degrees right of that. Remember that we are trying to reverse this transformation so it goes back to GSE. To get y back to GSEs, see that we can define that with the same figures we used to calculate the hypotenuse of the flat blue traingle. Namely:
 ```math
 \begin{aligned}
-&&R_{z}(\theta) = &\arctan{\frac{1.9}{6.7}}
-&&              = &0.27632 radians
-&&              = &15.8323 degrees
+&&R_{z}(\theta) = &\arctan{\frac{1.9}{6.7}}\\ 
+&&              = &0.27632 radians\\ 
+&&              = &15.8323 degrees\\ 
 \end{aligned}
 ```
 
-Looking at this, it's easy to see why that seems reasonable, but if we use these values in the rotation matrix, we'll see we slightly overcook it and pan too far. Why is this? It's because we don't want the angle when that triangle is flat. In our example specifically, the spacecraft is really high up in the air.
+Looking at this, it's easy to see why that seems reasonable, but if we use these values in the rotation matrix, we'll see we slightly overcook it and pan too far up the x axis. If we take into account the height of the spacecraft during this calculation, you can see how the angle might become significantly more acute. Here is another not-to-scale diagram:
+
+![smile orbit rotations](https://github.com/Zach-Clare/birp_cpp/assets/41343750/029aa458-02bc-47e8-a3dd-8f4a18f2bd95)
+
+Our previous on-the-floor triangle (in a light blue) has a wider angle under the spacecraft than our new orange triangle. How do we calculate the angle at the orange triangle?
 
 ---------------
 
