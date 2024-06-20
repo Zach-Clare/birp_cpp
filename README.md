@@ -123,7 +123,18 @@ There we have our angle in radians. To calculate the rotation matrix, simply plu
 \end{aligned}
 ```
 
-There we have our $R_{x}(\theta)$. Now that we've defined a rotatio matrix that rotates our vectors and rays around their x axis, I want to explain where I went wrong on the next step where we calculate rotation along the y axis.
+There we have our $R_{x}(\theta)$. Now that we've defined a rotation matrix that rotates our vectors and rays around their x axis, I want to explain where I went wrong on the next step where we calculate rotation along the y axis.
+
+Now imagine that we are floating directly above the earth looking down through GSEs negative z axis. We need to align the x and y axis of the spacecraft to the GSE x and y axis, but the y axis is currently pointing at the aimpoint still and the x axis is 90 degrees right of that. Remember that we are trying to reverse this transformation so it goes back to GSE. To get y back to GSEs, see that we can define that with the same figures we used to calculate the hypotenuse of the flat blue traingle. Namely:
+```math
+\begin{aligned}
+&&R_{z}(\theta) = &\arctan{\frac{1.9}{6.7}}
+&&              = &0.27632 radians
+&&              = &15.8323 degrees
+\end{aligned}
+```
+
+Looking at this, it's easy to see why that seems reasonable, but if we use these values in the rotation matrix, we'll see we slightly overcook it and pan too far. Why is this? It's because we don't want the angle when that triangle is flat. In our example specifically, the spacecraft is really high up in the air.
 
 ---------------
 
