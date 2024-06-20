@@ -138,7 +138,37 @@ Looking at this, it's easy to see why that seems reasonable, but if we use these
 
 ![smile orbit rotations](https://github.com/Zach-Clare/birp_cpp/assets/41343750/029aa458-02bc-47e8-a3dd-8f4a18f2bd95)
 
-Our previous on-the-floor triangle (in a light blue) has a wider angle under the spacecraft than our new orange triangle. How do we calculate the angle at the orange triangle?
+Our previous on-the-floor triangle (in a light blue) has a wider angle under the spacecraft than our new orange triangle. How do we calculate the angle at the orange triangle? It might be a bit hard to notice from this angle (sorry) but that orange triangle is a right-angle triangle (again!). By finding the length along the side and the distance along the x axis (the latter of which we already have) we can find the smaller angle that we need. To find the length of the adjacent side, we can use pythagoras theorum and we just square, sum, and square root the lengths. That looks like this:
+```math
+\begin{aligned}
+&&hypotenuse = &\sqrt{spacecraft_ {y} ^2 + spacecraft_ {z}^2}\\
+\\
+&&            = &\sqrt{6.7^2 + 17.7^2}\\
+\\
+&&            = &\sqrt{44.89 + 313.29}\\
+\\
+&&            = &\sqrt{358.18}\\
+\\
+&&            = &18.92
+\end{aligned}
+```
+
+And then we use that in yet another $\tan$ calculation:
+```math
+\begin{aligned}
+&&\theta = &\arctan{\frac{opposite}{hypotenuse}}\\
+\\
+&&       = &\arctan{\frac{1.9}{18.92}}\\
+\\
+&&       = \arctan{0.100422}\\
+\\
+&&       = 0.10008728 radians\\
+\\
+&&       = 5.73457881 degrees\\
+\end{aligned}
+```
+And if we use that angle instead of our earlier mis-calculated one, we'll end up with a perfect setup for another rotation matrix. On that note, he's the rotation matrix for a rotation about the z axis:
+
 
 ---------------
 
