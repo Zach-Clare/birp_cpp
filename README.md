@@ -156,19 +156,43 @@ Our previous on-the-floor triangle (in a light blue) has a wider angle under the
 And then we use that in yet another $\tan$ calculation:
 ```math
 \begin{aligned}
-&&\theta = &\arctan{\frac{opposite}{hypotenuse}}\\
+&& \theta = &\arctan{\frac{opposite}{hypotenuse}}\\
 \\
 &&       = &\arctan{\frac{1.9}{18.92}}\\
 \\
-&&       = \arctan{0.100422}\\
+&&       = &\arctan{0.100422}\\
 \\
-&&       = 0.10008728 radians\\
+&&       = &0.10008728 radians\\
 \\
-&&       = 5.73457881 degrees\\
+&&       = &5.73457881 &deg;\\
 \end{aligned}
 ```
-And if we use that angle instead of our earlier mis-calculated one, we'll end up with a perfect setup for another rotation matrix. On that note, he's the rotation matrix for a rotation about the z axis:
+And if we use that angle instead of our earlier mis-calculated one, we'll end up with a perfect setup for another rotation matrix. On that note, he's the rotation matrix for a rotation about the z axis with our new value beign plugged in:
+```math
+\begin{aligned}
+&&R_{x}(\theta) = &\begin{bmatrix}
+       \cos{\theta} & -\sin{\theta} &  0  \\[0.3em]
+       \sin{\theta} &  \cos{\theta} &  0  \\[0.3em]
+                  0 &             0 &  1
+     \end{bmatrix}\\
+\\
+&& = &\begin{bmatrix}
+        \cos{0.10008728} & -\sin{0.10008728} &  0  \\[0.3em]
+        \sin{0.10008728} &  \cos{0.10008728} &  0  \\[0.3em]
+                       0 &                 0 &  1
+     \end{bmatrix}\\
+\\
+&& = &\begin{bmatrix}
+       0.99499545 & -0.09992026 &  0  \\[0.3em]
+       0.09992026 &  0.99499545 &  0  \\[0.3em]
+                0 &           0 &  1
+     \end{bmatrix}
+\end{aligned}
+```
 
+Now that we have both sets of rotation matraces, we need to use matrix multiplication to create a single matrix. Now, as I stated earlier, I'm not a mathematician, so I'm a bit fuzzy on the details, but I have managed to arrange this step in a way that works. Basically, matraces aren't commutative, meaning it matters which way round you multiply them. They also have to be done in reverse if you're rotating the coordinate system and not the vector itself.You will also need to get the inverse of that vector, and then you multiply it by your vector and it works. The program does $R_{y} x R_{x}$, then gets the inversion and multiplys it with the vector for each pixel, and that seems to work perfectly.
+
+Once we have that resultant vector, we make it into a unit vector and then multiply it by a series of numbers in order to get a vector with an acurate distance. We take the sample at that point and add it to a running total flux level for that pixel. Once we've reached teh end of the ray, we move onto the next pixel, and once we've cmplted the next pixel, we're done!
 
 ---------------
 
