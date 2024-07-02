@@ -190,6 +190,16 @@ And if we use that angle instead of our earlier mis-calculated one, we'll end up
 \end{aligned}
 ```
 
+```math
+
+\begin{bmatrix}
+       0.96 & -0.25 &  -0.10  \\[0.3em]
+       0.27 &  0.90 &  0.35  \\[0.3em]
+       0    & -0.37 &  0.93
+\end{bmatrix}
+
+```
+
 Now that we have both sets of rotation matraces, we need to use matrix multiplication to create a single matrix. Now, as I stated earlier, I'm not a mathematician, so I'm a bit fuzzy on the details, but I have managed to arrange this step in a way that works. Basically, matraces aren't commutative, meaning it matters which way round you multiply them. They also have to be done in reverse if you're rotating the coordinate system and not the vector itself. You will also need to get the inverse of that vector, and then you multiply it by your vector and it works. The program does $R_{y} \times R_{x}$ then gets the inversion and multiplys it with the vector for each pixel, and that seems to work perfectly.
 
 Once we have that resultant vector, we make it into a unit vector and then multiply it by a uniformly increasing set of factors in order to get a vector with a specific distance. We take the sample at each of these points and add them all to a running total flux level for that pixel. Once we've reached the end of the ray, we move onto the next pixel, and once we've completed the last pixel, we're done! The SXI unit rotates itself so that the sun-earth line (our x axis) is perpendicular to the sides of the image. There's a great visualisation of this that makes that really easy to understand, but I'm not sure where it is. Once I do, I'll post a link here. For us, all we need to do is rotate our image along the z axis by 90 degrees. We create a rotation matrix using the standard z rotation matrix and 90 degrees in radians as theta, then multiply that with matrix y, and then multiply the result with matrix x. That will result in a perfectly centred and rotated image!
