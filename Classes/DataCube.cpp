@@ -91,6 +91,10 @@ void DataCube::Load(std::string filename, int data_begin, bool debug = false) {
 
 	if (debug == true) {
 		slices[80][79][50] = 1;
+
+		for (int i = 0; i < 101; i++) {
+			slices[80][79][i] = 1;
+		}
 	}
 
 	std::cout << "Datacube loaded.\n";
