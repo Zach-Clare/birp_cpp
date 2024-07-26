@@ -31,6 +31,7 @@
             "command": "/usr/bin/g++",
             "args": [
                 "-fdiagnostics-color=always",
+                "-O3",
                 "-I/usr/local/include/",
                 // "-I/usr/local/include/fitsio",
                 "-L/usr/local/lib",

@@ -57,5 +57,5 @@ public:
     void SetPosition(float, float, float);
     void SetAim(float, float, float);
     void Render();
-    int ToFITS();
+    int ToFITS(std::string filename);
 };

@@ -120,8 +120,8 @@ void Camera::Integrate()
     
 
     // serial method first, no parallelisation yet
-    for (int i = 0; i < image_dimension; i++) {
-        for (int j = 0; j < image_dimension; j++) {
+    for (int i = 0; i < image_dimension; ++i) {
+        for (int j = 0; j < image_dimension; ++j) {
 
             // Calculate pixel position
             float device_x = (j + 0.5f) / (image_dimension);
@@ -149,10 +149,10 @@ void Camera::Integrate()
             int pxk_ok = 1;
             int pxk_yes = 0;
 
-            for (int pxk = 0; pxk < pxn_dist; pxk++) {
+            for (int pxk = 0; pxk < pxn_dist; ++pxk) {
                 if (pxk_ok == 1) {
 
-                    auto t_inner = std::chrono::high_resolution_clock::now();
+                    // auto t_inner = std::chrono::high_resolution_clock::now();
                     
                     // vector to sample point
                     std::vector<float> sample_vector = Helper::MatrixScalarMultiply(world_unit_vector, ray_dist[pxk]);
@@ -162,6 +162,7 @@ void Camera::Integrate()
                     float y_coord = sample_vector[1] + position.y;
                     float z_coord = sample_vector[2] + position.z;
 
+                    // If this gives a segmentation fault, the datacube likely has a problem loading. TODO: Error catch
                     float x_ingress = std::abs(dataCube.coords_x[0] - x_coord);
                     int x_index = (x_ingress / dataCube.spacing[0]);
 
@@ -195,19 +196,19 @@ void Camera::Integrate()
                 }
             }
         }
-        std::cout << std::to_string(i) << ", " << std::flush;
+        // std::cout << std::to_string(i) << ", " << std::flush;
     }
 }
 
-int Camera::ToFITS()
+int Camera::ToFITS(std::string filename)
 {
-    long naxis = 2;
-    long naxes[2] = {144, 144};
+    // long naxis = 2;
+    // long naxes[2] = {144, 144};
 
-    std::ofstream outfile("../python/testfile.dat");
+    std::ofstream outfile("../python/" + filename + ".dat");
 
-    for (int i = 0; i < 144; i++) {
-        for (int j = 0; j < 144; j++) {
+    for (int i = 0; i < 144; ++i) {
+        for (int j = 0; j < 144; ++j) {
             outfile << std::to_string(image[i][j]);
             outfile << ",";
         }
