@@ -6,8 +6,9 @@
 
 #include "DataCube.h"
 #include "../Helper.h"
-
 #include "Camera.h"
+
+#include <EleFits/FitsFile.h>
 
 Camera::Camera(DataCube cube, float pixel_size_deg, int plot_fov)
 {
@@ -216,6 +217,8 @@ int Camera::ToFITS(std::string filename)
     }
 
     return 1;
+
+    // SifFile fits()
 }
 
 Camera::~Camera()

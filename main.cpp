@@ -1,10 +1,10 @@
 #include <cstdio>
 #include <vector>
 #include <string>
-// #include <EleFits/MefFile.h>
 #include <chrono>
 #include <filesystem>
 
+#include "mainconfig.h"
 #include "Classes/DataCube.h"
 #include "Classes/Camera.h"
 #include "Helper.h"

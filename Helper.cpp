@@ -264,7 +264,7 @@ float DateToJulianDate(int year, int month, float day)
 
 std::vector<std::vector<float>> Helper::Gei2GseTransforms()
 {
-    using namespace std::chrono_literals;
+    // using namespace std::chrono_literals;
 
     float conv = M_PI / 180; // conversion from degrees to radians
 

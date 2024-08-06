@@ -1,0 +1,2 @@
+/usr/bin/ar qc libClasses.a CMakeFiles/Classes.dir/Classes/Camera.cpp.o CMakeFiles/Classes.dir/Classes/DataCube.cpp.o CMakeFiles/Classes.dir/Classes/Volume.cpp.o CMakeFiles/Classes.dir/Helper.cpp.o
+/usr/bin/ranlib libClasses.a
