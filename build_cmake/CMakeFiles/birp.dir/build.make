@@ -69,32 +69,79 @@ include CMakeFiles/birp.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/birp.dir/flags.make
 
-CMakeFiles/birp.dir/main.cpp.o: CMakeFiles/birp.dir/flags.make
-CMakeFiles/birp.dir/main.cpp.o: ../main.cpp
-CMakeFiles/birp.dir/main.cpp.o: CMakeFiles/birp.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/birp.dir/main.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/birp.dir/main.cpp.o -MF CMakeFiles/birp.dir/main.cpp.o.d -o CMakeFiles/birp.dir/main.cpp.o -c /home/zc/code/birp/cpp/main.cpp
+CMakeFiles/birp.dir/src/main.cpp.o: CMakeFiles/birp.dir/flags.make
+CMakeFiles/birp.dir/src/main.cpp.o: ../src/main.cpp
+CMakeFiles/birp.dir/src/main.cpp.o: CMakeFiles/birp.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/birp.dir/src/main.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/birp.dir/src/main.cpp.o -MF CMakeFiles/birp.dir/src/main.cpp.o.d -o CMakeFiles/birp.dir/src/main.cpp.o -c /home/zc/code/birp/cpp/src/main.cpp
 
-CMakeFiles/birp.dir/main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/birp.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/zc/code/birp/cpp/main.cpp > CMakeFiles/birp.dir/main.cpp.i
+CMakeFiles/birp.dir/src/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/birp.dir/src/main.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/zc/code/birp/cpp/src/main.cpp > CMakeFiles/birp.dir/src/main.cpp.i
 
-CMakeFiles/birp.dir/main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/birp.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/zc/code/birp/cpp/main.cpp -o CMakeFiles/birp.dir/main.cpp.s
+CMakeFiles/birp.dir/src/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/birp.dir/src/main.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/zc/code/birp/cpp/src/main.cpp -o CMakeFiles/birp.dir/src/main.cpp.s
+
+CMakeFiles/birp.dir/src/Camera.cpp.o: CMakeFiles/birp.dir/flags.make
+CMakeFiles/birp.dir/src/Camera.cpp.o: ../src/Camera.cpp
+CMakeFiles/birp.dir/src/Camera.cpp.o: CMakeFiles/birp.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/birp.dir/src/Camera.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/birp.dir/src/Camera.cpp.o -MF CMakeFiles/birp.dir/src/Camera.cpp.o.d -o CMakeFiles/birp.dir/src/Camera.cpp.o -c /home/zc/code/birp/cpp/src/Camera.cpp
+
+CMakeFiles/birp.dir/src/Camera.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/birp.dir/src/Camera.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/zc/code/birp/cpp/src/Camera.cpp > CMakeFiles/birp.dir/src/Camera.cpp.i
+
+CMakeFiles/birp.dir/src/Camera.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/birp.dir/src/Camera.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/zc/code/birp/cpp/src/Camera.cpp -o CMakeFiles/birp.dir/src/Camera.cpp.s
+
+CMakeFiles/birp.dir/src/DataCube.cpp.o: CMakeFiles/birp.dir/flags.make
+CMakeFiles/birp.dir/src/DataCube.cpp.o: ../src/DataCube.cpp
+CMakeFiles/birp.dir/src/DataCube.cpp.o: CMakeFiles/birp.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/birp.dir/src/DataCube.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/birp.dir/src/DataCube.cpp.o -MF CMakeFiles/birp.dir/src/DataCube.cpp.o.d -o CMakeFiles/birp.dir/src/DataCube.cpp.o -c /home/zc/code/birp/cpp/src/DataCube.cpp
+
+CMakeFiles/birp.dir/src/DataCube.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/birp.dir/src/DataCube.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/zc/code/birp/cpp/src/DataCube.cpp > CMakeFiles/birp.dir/src/DataCube.cpp.i
+
+CMakeFiles/birp.dir/src/DataCube.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/birp.dir/src/DataCube.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/zc/code/birp/cpp/src/DataCube.cpp -o CMakeFiles/birp.dir/src/DataCube.cpp.s
+
+CMakeFiles/birp.dir/src/Helper.cpp.o: CMakeFiles/birp.dir/flags.make
+CMakeFiles/birp.dir/src/Helper.cpp.o: ../src/Helper.cpp
+CMakeFiles/birp.dir/src/Helper.cpp.o: CMakeFiles/birp.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/birp.dir/src/Helper.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/birp.dir/src/Helper.cpp.o -MF CMakeFiles/birp.dir/src/Helper.cpp.o.d -o CMakeFiles/birp.dir/src/Helper.cpp.o -c /home/zc/code/birp/cpp/src/Helper.cpp
+
+CMakeFiles/birp.dir/src/Helper.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/birp.dir/src/Helper.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/zc/code/birp/cpp/src/Helper.cpp > CMakeFiles/birp.dir/src/Helper.cpp.i
+
+CMakeFiles/birp.dir/src/Helper.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/birp.dir/src/Helper.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/zc/code/birp/cpp/src/Helper.cpp -o CMakeFiles/birp.dir/src/Helper.cpp.s
 
 # Object files for target birp
 birp_OBJECTS = \
-"CMakeFiles/birp.dir/main.cpp.o"
+"CMakeFiles/birp.dir/src/main.cpp.o" \
+"CMakeFiles/birp.dir/src/Camera.cpp.o" \
+"CMakeFiles/birp.dir/src/DataCube.cpp.o" \
+"CMakeFiles/birp.dir/src/Helper.cpp.o"
 
 # External object files for target birp
 birp_EXTERNAL_OBJECTS =
 
-birp: CMakeFiles/birp.dir/main.cpp.o
+birp: CMakeFiles/birp.dir/src/main.cpp.o
+birp: CMakeFiles/birp.dir/src/Camera.cpp.o
+birp: CMakeFiles/birp.dir/src/DataCube.cpp.o
+birp: CMakeFiles/birp.dir/src/Helper.cpp.o
 birp: CMakeFiles/birp.dir/build.make
-birp: libClasses.a
 birp: CMakeFiles/birp.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable birp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/zc/code/birp/cpp/build_cmake/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable birp"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/birp.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -1,1 +1,1 @@
-/usr/bin/c++ CMakeFiles/birp.dir/main.cpp.o -o birp  libClasses.a -lEleFits 
+/usr/bin/c++ CMakeFiles/birp.dir/src/main.cpp.o CMakeFiles/birp.dir/src/Camera.cpp.o CMakeFiles/birp.dir/src/DataCube.cpp.o CMakeFiles/birp.dir/src/Helper.cpp.o -o birp  -lEleFits -lEleCfitsioWrapper -lcfitsio -lEleFitsData 

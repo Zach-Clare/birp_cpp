@@ -129,138 +129,101 @@ birp/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/build
 .PHONY : birp/fast
 
-#=============================================================================
-# Target rules for targets named Classes
-
-# Build rule for target.
-Classes: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Classes
-.PHONY : Classes
-
-# fast build rule for target.
-Classes/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/build
-.PHONY : Classes/fast
-
-Classes/Camera.o: Classes/Camera.cpp.o
-.PHONY : Classes/Camera.o
+src/Camera.o: src/Camera.cpp.o
+.PHONY : src/Camera.o
 
 # target to build an object file
-Classes/Camera.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/Camera.cpp.o
-.PHONY : Classes/Camera.cpp.o
+src/Camera.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/Camera.cpp.o
+.PHONY : src/Camera.cpp.o
 
-Classes/Camera.i: Classes/Camera.cpp.i
-.PHONY : Classes/Camera.i
+src/Camera.i: src/Camera.cpp.i
+.PHONY : src/Camera.i
 
 # target to preprocess a source file
-Classes/Camera.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/Camera.cpp.i
-.PHONY : Classes/Camera.cpp.i
+src/Camera.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/Camera.cpp.i
+.PHONY : src/Camera.cpp.i
 
-Classes/Camera.s: Classes/Camera.cpp.s
-.PHONY : Classes/Camera.s
+src/Camera.s: src/Camera.cpp.s
+.PHONY : src/Camera.s
 
 # target to generate assembly for a file
-Classes/Camera.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/Camera.cpp.s
-.PHONY : Classes/Camera.cpp.s
+src/Camera.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/Camera.cpp.s
+.PHONY : src/Camera.cpp.s
 
-Classes/DataCube.o: Classes/DataCube.cpp.o
-.PHONY : Classes/DataCube.o
+src/DataCube.o: src/DataCube.cpp.o
+.PHONY : src/DataCube.o
 
 # target to build an object file
-Classes/DataCube.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/DataCube.cpp.o
-.PHONY : Classes/DataCube.cpp.o
+src/DataCube.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/DataCube.cpp.o
+.PHONY : src/DataCube.cpp.o
 
-Classes/DataCube.i: Classes/DataCube.cpp.i
-.PHONY : Classes/DataCube.i
+src/DataCube.i: src/DataCube.cpp.i
+.PHONY : src/DataCube.i
 
 # target to preprocess a source file
-Classes/DataCube.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/DataCube.cpp.i
-.PHONY : Classes/DataCube.cpp.i
+src/DataCube.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/DataCube.cpp.i
+.PHONY : src/DataCube.cpp.i
 
-Classes/DataCube.s: Classes/DataCube.cpp.s
-.PHONY : Classes/DataCube.s
+src/DataCube.s: src/DataCube.cpp.s
+.PHONY : src/DataCube.s
 
 # target to generate assembly for a file
-Classes/DataCube.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/DataCube.cpp.s
-.PHONY : Classes/DataCube.cpp.s
+src/DataCube.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/DataCube.cpp.s
+.PHONY : src/DataCube.cpp.s
 
-Classes/Volume.o: Classes/Volume.cpp.o
-.PHONY : Classes/Volume.o
+src/Helper.o: src/Helper.cpp.o
+.PHONY : src/Helper.o
 
 # target to build an object file
-Classes/Volume.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/Volume.cpp.o
-.PHONY : Classes/Volume.cpp.o
+src/Helper.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/Helper.cpp.o
+.PHONY : src/Helper.cpp.o
 
-Classes/Volume.i: Classes/Volume.cpp.i
-.PHONY : Classes/Volume.i
+src/Helper.i: src/Helper.cpp.i
+.PHONY : src/Helper.i
 
 # target to preprocess a source file
-Classes/Volume.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/Volume.cpp.i
-.PHONY : Classes/Volume.cpp.i
+src/Helper.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/Helper.cpp.i
+.PHONY : src/Helper.cpp.i
 
-Classes/Volume.s: Classes/Volume.cpp.s
-.PHONY : Classes/Volume.s
+src/Helper.s: src/Helper.cpp.s
+.PHONY : src/Helper.s
 
 # target to generate assembly for a file
-Classes/Volume.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Classes/Volume.cpp.s
-.PHONY : Classes/Volume.cpp.s
+src/Helper.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/Helper.cpp.s
+.PHONY : src/Helper.cpp.s
 
-Helper.o: Helper.cpp.o
-.PHONY : Helper.o
+src/main.o: src/main.cpp.o
+.PHONY : src/main.o
 
 # target to build an object file
-Helper.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Helper.cpp.o
-.PHONY : Helper.cpp.o
+src/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/main.cpp.o
+.PHONY : src/main.cpp.o
 
-Helper.i: Helper.cpp.i
-.PHONY : Helper.i
-
-# target to preprocess a source file
-Helper.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Helper.cpp.i
-.PHONY : Helper.cpp.i
-
-Helper.s: Helper.cpp.s
-.PHONY : Helper.s
-
-# target to generate assembly for a file
-Helper.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Classes.dir/build.make CMakeFiles/Classes.dir/Helper.cpp.s
-.PHONY : Helper.cpp.s
-
-main.o: main.cpp.o
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-.PHONY : main.i
+src/main.i: src/main.cpp.i
+.PHONY : src/main.i
 
 # target to preprocess a source file
-main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/main.cpp.i
-.PHONY : main.cpp.i
+src/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/main.cpp.i
+.PHONY : src/main.cpp.i
 
-main.s: main.cpp.s
-.PHONY : main.s
+src/main.s: src/main.cpp.s
+.PHONY : src/main.s
 
 # target to generate assembly for a file
-main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/main.cpp.s
-.PHONY : main.cpp.s
+src/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/birp.dir/build.make CMakeFiles/birp.dir/src/main.cpp.s
+.PHONY : src/main.cpp.s
 
 # Help Target
 help:
@@ -270,23 +233,19 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... Classes"
 	@echo "... birp"
-	@echo "... Classes/Camera.o"
-	@echo "... Classes/Camera.i"
-	@echo "... Classes/Camera.s"
-	@echo "... Classes/DataCube.o"
-	@echo "... Classes/DataCube.i"
-	@echo "... Classes/DataCube.s"
-	@echo "... Classes/Volume.o"
-	@echo "... Classes/Volume.i"
-	@echo "... Classes/Volume.s"
-	@echo "... Helper.o"
-	@echo "... Helper.i"
-	@echo "... Helper.s"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
+	@echo "... src/Camera.o"
+	@echo "... src/Camera.i"
+	@echo "... src/Camera.s"
+	@echo "... src/DataCube.o"
+	@echo "... src/DataCube.i"
+	@echo "... src/DataCube.s"
+	@echo "... src/Helper.o"
+	@echo "... src/Helper.i"
+	@echo "... src/Helper.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 .PHONY : help
 
 

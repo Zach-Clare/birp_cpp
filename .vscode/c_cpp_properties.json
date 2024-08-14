@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${workspaceFolder}/Classes/",
+                "${workspaceFolder}/src/",
+                "${workspaceFolder}/include",
                 "/usr/local/include/CCfits",
                 "/usr/local/include/fitsio"
             ],
