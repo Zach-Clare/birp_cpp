@@ -209,7 +209,7 @@ To see the data in the way we usually want to, we need to convert it to a FITS i
 
 # Build Instructions
 ## Pre-requisites
-To run this, you need to have installed <a href="https://github.com/CNES/EleFits">EleFits</a>. The CMake file in this project (the file which tells the computer how to compile the code) will look for your installed version of EleFits. It's a bit finnicky so it's probably best you have a bit of knowledge on building C++ projects. EleFits have their own instructions for installing their software.
+To run this, you need to have installed <a href="https://github.com/CNES/EleFits">EleFits</a> and <a href="https://heasarc.gsfc.nasa.gov/fitsio/">cfitsio</a>. The CMake file in this project (the file which tells the computer how to compile the code) will look for your installed version of EleFits, and EleFits (I think) will need to look fro your install of cfitsio. It's a bit finnicky so it's probably best you have a bit of knowledge on building C++ projects. Both EleFits and cfitsio have their own instructions for installing their software in the links above.
 
 ## Download and build
 1. Once EleFits is installed, download this project code code with `git clone` into wherever you want to have the files on your computer.
