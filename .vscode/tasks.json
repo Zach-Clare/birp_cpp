@@ -39,8 +39,8 @@
                 "${workspaceFolder}/main.cpp",
                 "-o",
                 "${workspaceFolder}/main.exe",
-                "${workspaceFolder}/Classes/DataCube.cpp",
-                "${workspaceFolder}/Classes/Camera.cpp",
+                "${workspaceFolder}/DataCube.cpp",
+                "${workspaceFolder}/Camera.cpp",
                 "${workspaceFolder}/Helper.cpp",
                 // "-lEleFits"
             ],

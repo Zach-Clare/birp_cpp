@@ -14,15 +14,6 @@
 # EXTERNAL cache entries
 ########################
 
-//Value Computed by CMake
-BIRP_BINARY_DIR:STATIC=/home/zc/code/birp/cpp/build_cmake
-
-//Value Computed by CMake
-BIRP_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-BIRP_SOURCE_DIR:STATIC=/home/zc/code/birp/cpp
-
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=/usr/bin/addr2line
 
@@ -138,6 +129,9 @@ CMAKE_MODULE_LINKER_FLAGS_RELEASE:STRING=
 // RELWITHDEBINFO builds.
 CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 
+//No help, variable specified on the command line.
+CMAKE_MODULE_PATH:UNINITIALIZED=../EleFits/cmake/modules
+
 //Path to a program.
 CMAKE_NM:FILEPATH=/usr/bin/nm
 
@@ -238,9 +232,6 @@ ELEFITS_INCLUDE_DIR:PATH=/usr/local/include
 
 //Path to a library.
 ELEFITS_LIBRARY:FILEPATH=/usr/local/lib/libEleFits.so
-
-//The directory containing a CMake configuration file for EleFitS.
-EleFitS_DIR:PATH=EleFitS_DIR-NOTFOUND
 
 //The directory containing a CMake configuration file for EleFits.
 EleFits_DIR:PATH=EleFits_DIR-NOTFOUND
@@ -361,7 +352,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=2
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

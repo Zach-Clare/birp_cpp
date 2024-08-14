@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/home/zc/code/birp/cpp/build_cmake -I/home/zc/code/birp/cpp/build_cmake/Classes
+CXX_INCLUDES = -I/home/zc/code/birp/cpp/src -I/home/zc/code/birp/cpp/include
 
 CXX_FLAGS = 
 

@@ -1,6 +1,12 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/birp.dir/main.cpp.o"
-  "CMakeFiles/birp.dir/main.cpp.o.d"
+  "CMakeFiles/birp.dir/src/Camera.cpp.o"
+  "CMakeFiles/birp.dir/src/Camera.cpp.o.d"
+  "CMakeFiles/birp.dir/src/DataCube.cpp.o"
+  "CMakeFiles/birp.dir/src/DataCube.cpp.o.d"
+  "CMakeFiles/birp.dir/src/Helper.cpp.o"
+  "CMakeFiles/birp.dir/src/Helper.cpp.o.d"
+  "CMakeFiles/birp.dir/src/main.cpp.o"
+  "CMakeFiles/birp.dir/src/main.cpp.o.d"
   "birp"
   "birp.pdb"
 )
