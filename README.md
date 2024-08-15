@@ -59,13 +59,15 @@ Once each coordinate (apart from the z coordinate) is multiplied by this factor,
 Just as a quick note before we move on, if any of this didn't make sense, or you'd like a more in-depth explaintion, I found [ScratchPixel's explaination for camera ray generation](https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html) really useful. The diagrams especially are very useful for understanding this concept.
 
 ### Converting those rays to world-space
-These rays are accurate in relation to the camera, but unfortunately we need to put the camera in the right place and point it where we want to see. The placement of the camera is a fairly simple translation, but this pointing business is a bit more tricky. I originally used a spherical rotation system and converted between spherical and cartesian, but the rays were squashed together toward the bottom and the top of the view (as spherical coordinates bulge at the equator). I then came up with another system of approaching the rotation of the camera as two seperate 2D rotations. I really wanted that to work and I drew a _lot_ of diagrams to wrap my head around it, but in the end I figured it was best to use something that was industry-standard. There would be support for it and, with any luck, programmers and physicists (and anyone else for that matter) that read the code might be able to recognise it from elsewhere and that may aid their undertanding.
+These rays are accurate in relation to the camera, but unfortunately we need to put the camera in the right place and point it where we want to see. The placement of the camera is a fairly simple translation, but this pointing business is a bit more tricky. I originally used a spherical rotation system and converted between spherical and cartesian, but the rays were squashed together toward the bottom and the top of the view (as spherical coordinates bulge at the equator). I then came up with another system of approaching the rotation of the camera as two seperate 2D rotations. I really wanted that to work and I drew a _lot_ of diagrams to wrap my head around it (and I've edited this readme.md a lot of times because of that), but in the end it's working with rotation matricies and two 2D rotations.
 
-The method used in ths program is to calculate the rotation angles, plug them into a set of well-defined rotation matrices, unify those matrices into one rotation matrix, and perfrom matrix multiplication on our camera ray with that rotation matrix to find the new ray direction. The best way I've come to understand what our rotation angles are specifically is - well let's say our camera is pointed exactly where we want it at the very beginning, how do we rotate the camera so that it's orientation agrees with GSEs definition of where x, y, and z are? I realise there's a bit going on here so let's go one step at a time.
+In a nutshell, the method used in ths program is to calculate the rotation angles, plug them into a set of well-defined rotation matrices, unify those matrices into one rotation matrix, find the inverse of that matrix, and perfrom matrix multiplication on our camera ray with that rotation matrix to find the new ray direction. The best way I've come to understand what our rotation angles are specifically is - well let's say our camera is pointed exactly where we want it to be pointed at the very beginning, how do we rotate the camera so that it's orientation agrees with GSEs definition of where x, y, and z are? I realise there's a bit going on here so let's go one step at a time.
 
-Let's go through an example here - we'll use a specific moment in orbit where the position of the spacecraft in xyz GSE coordinates are `[5.9, 6.7, 17.7]`. For this orbit position, we are given the aimpoint of `[7.8, 0, 0]`. So for perspective, the spacecraft is quite high up above the earth, and is in front and to the side. We are finding the angles to rotate along each axis if we reverse the camera's orientation when the negative z axis points directly at the aimpoint which lies at some point between the sun and the earth. 
+We can use an example - we'll use a specific moment in orbit where the position of the spacecraft in xyz GSE coordinates are `[5.9, 6.7, 17.7]`. For this orbit position, we are given the aimpoint of `[7.8, 0, 0]`. So for perspective, the spacecraft is quite high up above the earth, and is in front and to the side. We are finding the angles to rotate along each axis if we reverse the camera's orientation when the negative z axis points directly at the aimpoint which lies at some point between the sun and the earth. 
 
-Let's define our first angle of rotation along the spacecraft's x axis. Remember that the spacecraft's x axis goes from left to right across the image plane. Rotating along the x axis looks (from the camera's perspective) as if we are panning the shot up and down. Here is a a not-to-scale diagram showing the value we're trying to get. By using the coordinates available to us already, we can create another oh-so-handy ad hoc right-angle triangle (shown in green). By constructing this right-angle triangle and using SOHCAHTOA rules, we can find the angle we're interested in. We know the adjacent side, as that is simply the spacecraft's z coordinate. In order to find the opposite length (along the bottom), we'll need to create another triangle. This new triangle is a right-angled triangle along the x-y plane flat as if on the floor (shown in blue). Notice that the opposite length we're trying to find here is actually the hypotenuse of our newer on-the-floor-triangle. By squaring, summing, and then square root-ing these lengths, we can find the legnth of that hypotenuse and, therefore, the opposite length of our stood-up triangle with arctan.
+![correct_rotations_colour](https://github.com/user-attachments/assets/b3b15c88-12e2-43e0-896a-2c63f1c8b8e5)
+
+Let's define our first angle of rotation along the spacecraft's x axis. Remember that the spacecraft's x axis goes from side to side across the image plane. Rotating along the x axis looks (from the camera's perspective) as if we are panning the shot up and down. Here is a a not-to-scale diagram showing the value we're trying to get. By using the coordinates available to us already, we can create another oh-so-handy ad hoc right-angle triangle (shown in blue). By constructing this right-angle triangle and using SOHCAHTOA rules, we can find the angle we're interested in. We know the adjacent side, as that is simply the spacecraft's z coordinate. In order to find the opposite length (along the bottom), we'll need to create another triangle. This new triangle is a right-angled triangle along the x-y plane flat as if on the floor (shown in pink). Notice that the opposite length we're trying to find here is actually the hypotenuse of our newer on-the-floor-triangle. By squaring, summing, and then square root-ing these lengths, we can find the legnth of that hypotenuse and, therefore, the opposite length of our stood-up triangle with arctan. And just for fun, here's another angle.
 
 ![3noscale_enhanced_colour](https://github.com/Zach-Clare/birp_cpp/assets/41343750/ad73bb19-0aeb-4fac-96f0-87956ce0cde9)
 
@@ -127,7 +129,7 @@ There we have our angle in radians. To calculate the rotation matrix, simply plu
 
 There we have our $R_{x}(\theta)$. Now that we've defined a rotation matrix that rotates our vectors and rays around their x axis, I want to explain where I went wrong on the next step where we calculate rotation along the y axis.
 
-Now imagine that we are floating directly above the earth looking down through GSEs negative z axis, after having already reversed our camera's rotation about its x axis. That means the camera'z z now agrees with GSEs z. We next need to align the x and y axis of the spacecraft to the GSE x and y axis, but the y axis is currently pointing in the direction of the aimpoint still and the x axis is 90 degrees right of that. Remember that we are trying to reverse this transformation so it goes back to GSE. To get y back to GSEs, see that we can define that with the same figures we used to calculate the hypotenuse of the flat blue traingle. Namely:
+Now imagine that we are floating directly above the earth looking down through GSEs negative z axis, after having already reversed our camera's rotation about its x axis. That means the camera'z z now agrees with GSEs z. We next need to align the x and y axis of the spacecraft to the GSE x and y axis, but the y axis is currently pointing in the direction of the aimpoint still and the x axis is 90 degrees right of that. Remember that we are trying to reverse this transformation so it goes back to GSE. To get y back to GSEs, see that we can define that with the same figures we used to calculate the hypotenuse of the flat pink traingle. Namely:
 ```math
 \begin{aligned}
 &&R_{z}(\theta) = &\arctan{\frac{1.9}{6.7}}\\ 
@@ -135,41 +137,9 @@ Now imagine that we are floating directly above the earth looking down through G
 &&              = &15.8323 degrees\\ 
 \end{aligned}
 ```
+And if we use that angle in the same way using the appropriate 3D rotation matrix, we get the below:
 
-Looking at this, it's easy to see why that seems reasonable, but if we use these values in the rotation matrix, we'll see we slightly overcook it and pan too far up the x axis. That's because when the camera is so high up, that angle is far too big and we haven't taken that height into account. If we take into account the height of the spacecraft during this calculation by constructing a triangle outlined in orange, you can see how the angle might become significantly more acute:
-
-![smile orbit rotations](https://github.com/Zach-Clare/birp_cpp/assets/41343750/029aa458-02bc-47e8-a3dd-8f4a18f2bd95)
-
-Our previous on-the-floor triangle (in a light blue) has a wider angle under the spacecraft than our new orange triangle. How do we calculate the angle at the orange triangle? It might be a bit hard to notice from this angle, but that orange triangle is a right-angle triangle (again!). By finding the length along the side and the distance along the x axis (the latter of which we already have) we can find the smaller angle that we need. To find the length of the adjacent side, we can use pythagoras theorum and we just square, sum, and square root the lengths. That looks like this:
-```math
-\begin{aligned}
-&&hypotenuse = &\sqrt{spacecraft_ {y} ^2 + spacecraft_ {z}^2}\\
-\\
-&&            = &\sqrt{6.7^2 + 17.7^2}\\
-\\
-&&            = &\sqrt{44.89 + 313.29}\\
-\\
-&&            = &\sqrt{358.18}\\
-\\
-&&            = &18.92
-\end{aligned}
-```
-
-And then we use that in yet another $\tan$ calculation:
-```math
-\begin{aligned}
-&& \theta = &\arctan{\frac{opposite}{hypotenuse}}\\
-\\
-&&       = &\arctan{\frac{1.9}{18.92}}\\
-\\
-&&       = &\arctan{0.100422}\\
-\\
-&&       = &0.10008728 radians\\
-\\
-&&       = &5.73457881 &deg;\\
-\end{aligned}
-```
-And if we use that angle instead of our earlier mis-calculated one, we'll end up with a perfect setup for another rotation matrix. On that note, he's the rotation matrix for a rotation about the z axis with our new value being plugged in:
+THESE NUMBERS ARE WRONG - CHANGE THESE, THEY@RE INCORRECT CALCULATIONS!!
 ```math
 \begin{aligned}
 &&R_{x}(\theta) = &\begin{bmatrix}
@@ -202,12 +172,12 @@ And if we use that angle instead of our earlier mis-calculated one, we'll end up
 
 ```
 
-Now that we have both sets of rotation matraces, we need to use matrix multiplication to create a single matrix. Now, as I stated earlier, I'm not a mathematician, so I'm a bit fuzzy on the details, but I have managed to arrange this step in a way that works. Basically, matraces aren't commutative, meaning it matters which way round you multiply them. They also have to be done in reverse if you're rotating the coordinate system and not the vector itself. You will also need to get the inverse of that vector, and then you multiply it by your vector and it works. The program does $R_{y} \times R_{x}$ then gets the inversion and multiplys it with the vector for each pixel, and that seems to work perfectly.
+Now that we have both sets of rotation matraces, we need to use matrix multiplication to create a single matrix. Now, as I stated earlier, I'm not a mathematician, but I am confident this is correct. As you might know, matraces aren't commutative, meaning it matters which way round you multiply them so we need to pay attention to which one we calculated first in our example. Once you've done the multiplication, you will need to use the inverse of that vector to multiply it by the pixel vector when you want to find that vector in world space. The program does $R_{y} \times R_{x}$, finds the inverse and multiplies it with the vector for each pixel, and that seems to work perfectly.
 
-Once we have that resultant vector, we make it into a unit vector and then multiply it by a uniformly increasing set of factors in order to get a vector with a specific distance. We take the sample at each of these points and add them all to a running total flux level for that pixel. Once we've reached the end of the ray, we move onto the next pixel, and once we've completed the last pixel, we're done! The SXI unit rotates itself so that the sun-earth line (our x axis) is perpendicular to the sides of the image. There's a great visualisation of this that makes that really easy to understand, but I'm not sure where it is. Once I do, I'll post a link here. For us, all we need to do is rotate our image along the z axis by 90 degrees. We create a rotation matrix using the standard z rotation matrix and 90 degrees in radians as theta, then multiply that with matrix y, and then multiply the result with matrix x. That will result in a perfectly centred and rotated image!
+Once we have that resultant vector, we make it into a unit vector and then multiply it by a uniformly increasing set of factors in order to get a vector with a specific distance. We minus the spacecrafts position from each vector which will give us a 3D coordinate. We take the sample at each of these coordinates and add them all to a running total flux level for that pixel. Once we've reached the end of the ray, we move onto the next pixel, and once we've completed the last pixel, we're done! The SXI unit rotates itself so that the sun-earth line (our x axis) is perpendicular to the sides of the image. There's a great visualisation of this that makes that really easy to understand, but I'm not sure where it is. Once I do, I'll post a link here. For us, all we need to do is rotate our image along the z axis by 90 degrees. We create a rotation matrix using the standard z rotation matrix and 90 degrees in radians as theta, then multiply that with matrix y, and then multiply the result with matrix x. That will result in a perfectly centred and rotated image!
 
 ## Reading the data
-To see the data in the way we usually want to, we need to convert it to a FITS image. I use a Python program I created, reading from an intermediary data file to get from C++ to Python. I did try creating it as one unit in C++ but it seemed very finnicky. 
+To see the data in the way we usually want to, we need to convert it to a FITS image. ~~I use a Python program I created, reading from an intermediary data file to get from C++ to Python. I did try creating it as one unit in C++ but it seemed very finnicky.~~ I have since fixed this and included the EleFits library so that FITS exports can all be done in C++. 
 
 # Build Instructions
 ## Pre-requisites
