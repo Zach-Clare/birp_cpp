@@ -26,7 +26,7 @@ target_include_directories(birp
 
 
 target_link_libraries(birp
-    PUBLIC EleFits EleCfitsioWrapper cfitsio EleFitsData # need ffppr
+    PRIVATE EleFits EleCfitsioWrapper cfitsio EleFitsData # need ffppr
     # PRIVATE Classes
 )
 

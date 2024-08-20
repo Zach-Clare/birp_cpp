@@ -1,3 +1,0 @@
-/home/zc/code/birp/cpp/build_cmake/CMakeFiles/birp.dir
-/home/zc/code/birp/cpp/build_cmake/CMakeFiles/edit_cache.dir
-/home/zc/code/birp/cpp/build_cmake/CMakeFiles/rebuild_cache.dir
