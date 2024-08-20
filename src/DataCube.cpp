@@ -97,6 +97,10 @@ void DataCube::Load(std::string filename, int data_begin, bool debug = false) {
 		}
 	}
 
+	if (slices.size() == 0) {
+		throw std::invalid_argument("Datacube is invalid, inaccessible, or malformed.");
+	}
+
 	std::cout << "Datacube loaded.\n";
 }
 
