@@ -21,7 +21,13 @@ int main(int argc, char** argv)
     std::string output;
     bool batch;
 
-    while ((c = getopt(argc, argv, "i:o:")) != -1)
+    // spacecraft position defaults
+    float pos_x = 5.91813f;
+    float pos_y = 6.74116f;
+    float pos_z = 17.7067f;
+    float aim = 7.81768f;
+
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:")) != -1)
     {
         switch (c)
         {
@@ -42,6 +48,30 @@ int main(int argc, char** argv)
                 // this should be a directory, but it might be worth checking
                 output = optarg;
                 std::cout << "output folder passed";
+                break;
+            }
+            case 'x':
+            {
+                std::string fs(optarg);
+                pos_x = std::stof(optarg);
+                break;
+            }
+            case 'y':
+            {
+                std::string fs(optarg);
+                pos_y = std::stof(optarg);
+                break;
+            }
+            case 'z':
+            {  
+                std::string fs(optarg);
+                pos_z = std::stof(optarg);
+                break;
+            }
+            case 'a':
+            {
+                std::string fs(optarg);
+                aim = std::stof(optarg);
                 break;
             }
         }
@@ -76,8 +106,8 @@ int main(int argc, char** argv)
         cube.Load(input, 82, false);
 
         Camera camera(cube, pixel_size_deg, plot_fov);
-        camera.SetPosition(5.91813f, 6.74116f, 17.7067f);
-        camera.SetAim(7.81768f, 0.f, 0.f);
+        camera.SetPosition(pos_x, pos_y, pos_z);
+        camera.SetAim(aim, 0.f, 0.f);
 
         camera.Render();
         std::cout << "Rendered image.\n";
@@ -88,5 +118,5 @@ int main(int argc, char** argv)
 
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(end - start);
-    std::cout << duration.count();
+    std::cout << duration.count() << std::endl;
 }
