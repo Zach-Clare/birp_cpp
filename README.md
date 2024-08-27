@@ -46,15 +46,15 @@ For example, the typical development flow may look like this:
 This area describes (without code) the maths behind how this program works. There's a bit of trigonometry, but nothing too intense. With that all said, I'm a programmer - not a mathemetician. If you see a failing in this method please get in touch and discuss it with me. However, this method does produce demonstratably good results and I'm confident this is correct.
 
 ### Generating rays in camera-space
-Okay, how does this work? The main idea revolves around an image plane placed 1 unit away from the camera. The program is given an FOV from which it can calculate how tall (y) and wide (x) this image plane is. It is also provided with an image dimension in pixels. The centre pixel (if it exists, which it won't if there are an even number of pixels) will be pixel 0, 0. The x value increases to the right, and the y value increases upwards. So, the top left pixel has the coordinate -1, 1, as it is left (-1) and up (1). The top right is 1, 1 because it is positive in both directions. The bottom left is -1, -1 and finally the bottom right is 1, -1. Remember that this plane is physically placed 1 unit away from the camera in 3d space. By convention, the plane is located 1 unit along the -z (negative z) axis. It is possible to place it 1 unit away in the positive z, or the negative x, or anywhere for that matter. You just have to account for it elsewhere. In this program, like many many others, we will be placing it -1z away.
+Okay, how does this part work in a nutshell? The main idea revolves around an image plane placed 1 unit away from the camera. The program is given an FOV from which it can calculate how tall (y) and wide (x) this image plane is. It is also provided with an image dimension in pixels. The centre pixel (if it exists, which it won't if there are an even number of pixels) will be pixel 0, 0. The x value increases to the right, and the y value increases upwards. So, the top left pixel has the coordinate -1, 1, as it is left (-1) and up (1). The top right is 1, 1 because it is positive in both directions. The bottom left is -1, -1 and finally the bottom right is 1, -1. Remember that this plane is physically placed 1 unit away from the camera in 3d space. By convention, the plane is located 1 unit along the -z (negative z) axis. It is possible to place it 1 unit away in the positive z, or the negative x, or anywhere for that matter. You just have to account for it elsewhere. In this program, like many many others, we will be placing it -1z away.
 
 ![grids](https://github.com/user-attachments/assets/91d3db49-aefc-464e-92c9-b8842fcc14f9)
 
-Each pixel needs a vector (called a ray in computer graphics) that originates from the camera and goes through the centre of that specific pixel on the image plane. This means that we will be generating H x W amount of rays. To generate this vector, we need to know the origin of the camera and the location of that pixel in space. We are defining a local space where the camera is the origin, so the camera is 0, 0, 0. We can get the x, y coordinates of the pixel by first normalising the pixel number into [0, 1] space. To do this, we add 0.5 to the pixel index (ensuring we're calculating the position of the centre of the pixel, not where the pixel begins), and divide it by our total number of pixels along that dimension. So for the fourth pixel along our top row in an image that's 144 pixels wide (remembering that arrays start at zero), we do (3 + 0.5) / 144 = 0.024305 which is our x value. Since the pixel is in the top row (which is our final row if this coordinate system begins in the bottom left), we can do (143 + 0.5) / 144 = 0.996527. To convert this into our [-1, -1] space, we can simply double it and minus 1. That puts those coordinates at -0.951388 and 0.993055 respectively.
+To explain more clearly, each pixel needs a vector (called a ray in computer graphics) that originates from the camera and goes through the centre of that specific pixel on the image plane. This means that we will be generating H x W amount of rays. To find out where on the -1 to +1 scale our pixel is, we need to do a few things. We first need to know the origin of the camera - we are defining a local space where the camera is the origin, so the camera is 0, 0, 0. We can get the x, y coordinates of the pixel by first normalising the pixel number (as in, pixel number 1, number 2, etc. until we finish that row) into [0, 1] space. To do this, we add 0.5 to the pixel index (ensuring we're calculating the position of the centre of the pixel, not where the pixel begins), and divide it by our total number of pixels along that dimension. So for the fourth pixel along our top row in an image that's 144 pixels wide (remembering that arrays start at zero), we do (3 + 0.5) / 144 = 0.024305 which is our x value. Since the pixel is in the top row (which is our final row if this coordinate system begins in the bottom left), we can do (143 + 0.5) / 144 = 0.996527. To convert this into our [-1, -1] space, we can simply double it and minus 1. That puts those coordinates at x-0.951388 and y0.993055.
 
-We could use this to get our pixel ray, but we need to account for the FOV first. Notice that the FOV is the angle between the each side of the image (usually referring to the right and left, but since our image here is square, it refers to the angle between each side of the image and it's opposite side). Notice, too, that half of that FOV angle will take us from the middle to one of the sides. We've touched already about how the centre pixel's coordinates will be 0, 0, -1. I hope you can see how the distance covered by that vector is simply 1 unit. The plane is at a right angle to this centre vector and goes upwards (and downwards) 1 unit. We can construct an ad-hoc right-angle triangle with the line between the camera and the plane acting as our adjacent side and the top holf of the image plane acting as our opposite side. Here, the pixel ray will act as the hypotenuse. Thankfully, because our opposite and adjacent sides are 1 unit, it's as simple as multiplying the coordinate value with _tan(FOV / 2)_.
+We could use this to get our pixel ray, but we need to account for the FOV first. Notice that the FOV is the angle between the each side of the image (usually referring to the right and left, but since our image here is square, it refers to the angle between each side of the image and it's opposite side). Notice, too, that half of that FOV angle will take us from the middle to one of the sides. We've touched already about how the centre pixel's coordinates will be 0, 0, -1. One can see how the distance covered by the vector describing the camera origin to the centre pixel is simply 1 unit. The plane is at a right angle to this centre vector and goes upwards (and downwards) 1 unit. We can construct an ad-hoc right-angle triangle with the line between the camera and the plane acting as our adjacent side and the top half of the image plane acting as our opposite side. There's a great diagram linked just below. Here, the pixel ray will act as the hypotenuse. Thankfully, because our opposite and adjacent sides are 1 unit, it's as simple as multiplying the coordinate value with _tan(FOV / 2)_.
 
-Once each coordinate (apart from the z coordinate) is multiplied by this factor,we're left with a 3D vector. That vector, originating from the origin point of our camera (which is not the same origin as our pixel grid, which would be the earth), describes the line of sight for each pixel of our grid. That's great, but leads us onto our next problem...
+Once each coordinate (apart from the z coordinate) is multiplied by this factor, we're left with a 3D vector. That vector, originating from the origin point of our camera (which is not the same origin as our pixel grid, which would be the earth), describes the line of sight for each pixel of our grid. That's great, but leads us onto our next problem...
 
 Just as a quick note before we move on, if any of this didn't make sense, or you'd like a more in-depth explaintion, I found [ScratchPixel's explaination for camera ray generation](https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-generating-camera-rays/generating-camera-rays.html) really useful. The diagrams especially are very useful for understanding this concept.
 
@@ -63,13 +63,11 @@ These rays are accurate in relation to the camera, but unfortunately we need to 
 
 In a nutshell, the method used in ths program is to calculate the rotation angles, plug them into a set of well-defined rotation matrices, unify those matrices into one rotation matrix, find the inverse of that matrix, and perfrom matrix multiplication on our camera ray with that rotation matrix to find the new ray direction. The best way I've come to understand what our rotation angles are specifically is - well let's say our camera is pointed exactly where we want it to be pointed at the very beginning, how do we rotate the camera so that it's orientation agrees with GSEs definition of where x, y, and z are? I realise there's a bit going on here so let's go one step at a time.
 
-We can use an example - we'll use a specific moment in orbit where the position of the spacecraft in xyz GSE coordinates are `[5.9, 6.7, 17.7]`. For this orbit position, we are given the aimpoint of `[7.8, 0, 0]`. So for perspective, the spacecraft is quite high up above the earth, and is in front and to the side. We are finding the angles to rotate along each axis if we reverse the camera's orientation when the negative z axis points directly at the aimpoint which lies at some point between the sun and the earth. 
+We can use an example - we'll use a specific moment in orbit where the position of the spacecraft in xyz GSE coordinates are `[5.9, 6.7, 17.7]`. For this orbit position, we are given the aimpoint of `[7.8, 0, 0]`. So for perspective, the spacecraft is quite high up above the earth, and is in front and to the side. We want to find how much we should rotate along each of the spacecraft's axis so that both sets of axes agree. 
 
 ![correct_rotations_colour](https://github.com/user-attachments/assets/b3b15c88-12e2-43e0-896a-2c63f1c8b8e5)
 
-Let's define our first angle of rotation along the spacecraft's x axis. Remember that the spacecraft's x axis goes from side to side across the image plane. Rotating along the x axis looks (from the camera's perspective) as if we are panning the shot up and down. Here is a a not-to-scale diagram showing the value we're trying to get. By using the coordinates available to us already, we can create another oh-so-handy ad hoc right-angle triangle (shown in blue). By constructing this right-angle triangle and using SOHCAHTOA rules, we can find the angle we're interested in. We know the adjacent side, as that is simply the spacecraft's z coordinate. In order to find the opposite length (along the bottom), we'll need to create another triangle. This new triangle is a right-angled triangle along the x-y plane flat as if on the floor (shown in pink). Notice that the opposite length we're trying to find here is actually the hypotenuse of our newer on-the-floor-triangle. By squaring, summing, and then square root-ing these lengths, we can find the legnth of that hypotenuse and, therefore, the opposite length of our stood-up triangle with arctan. And just for fun, here's another angle.
-
-![3noscale_enhanced_colour](https://github.com/Zach-Clare/birp_cpp/assets/41343750/ad73bb19-0aeb-4fac-96f0-87956ce0cde9)
+Let's focus on the diagram above and define our first angle of rotation along the spacecraft's x axis. Remember that the spacecraft's x axis goes from side to side across the image plane. Rotating along the x axis looks (from the camera's perspective) as if we are panning the shot up and down. By using the coordinates available to us already, we can create a right-angle triangle (shown in blue) that describes the angle of rotation between the spacecrafts x axis and GSE's x axis. By constructing this right-angle triangle and using SOHCAHTOA rules, we can find the actual angle. We know the adjacent side, as that is simply the spacecraft's z coordinate - it's height. In order to find the opposite length (along the bottom, in the XY plane), we'll need to create another triangle. This new triangle is a right-angled triangle along the XY plane flat as if on the floor (shown in pink). Notice that the blue triangle's opposite length we're trying to find here is actually the hypotenuse of our newer pink triangle. By squaring, summing, and then square root-ing these lengths, we can find the legnth of that hypotenuse and, therefore, the opposite length of our stood-up triangle with arctan. 
 
 $$opposite = \sqrt{(x_ {aim} - x_ {spacecraft})^2 + (y_ {aim} - y_ {spacecraft}) ^2}$$
 
@@ -94,7 +92,7 @@ If we were to calculate this for our example, where $\theta$ is $\angle z_{s}z$:
 && = & 6.96419...\\
 \end{aligned}
 ```
-Now we have the opposite length, we use $tan$ from SOHCAHTOA on the $opposite$ over the $adjacent$:
+Now we have the opposite length, we use $arctan$ from SOHCAHTOA on the $opposite$ over the $adjacent$:
 ```math
 \begin{aligned}
 &&\theta = &\arctan({\frac{6.96419}{17.7}})\\
@@ -127,9 +125,9 @@ There we have our angle in radians. To calculate the rotation matrix, simply plu
 \end{aligned}
 ```
 
-There we have our $R_{x}(\theta)$. Now that we've defined a rotation matrix that rotates our vectors and rays around their x axis, I want to explain where I went wrong on the next step where we calculate rotation along the y axis.
+There we have our $R_{x}(\theta)$. Now that we've defined a rotation matrix that rotates our vectors and rays around their x axis, Let's have a look at the next angle.
 
-Now imagine that we are floating directly above the earth looking down through GSEs negative z axis, after having already reversed our camera's rotation about its x axis. That means the camera'z z now agrees with GSEs z. We next need to align the x and y axis of the spacecraft to the GSE x and y axis, but the y axis is currently pointing in the direction of the aimpoint still and the x axis is 90 degrees right of that. Remember that we are trying to reverse this transformation so it goes back to GSE. To get y back to GSEs, see that we can define that with the same figures we used to calculate the hypotenuse of the flat pink traingle. Namely:
+Now imagine that we are floating directly above the earth looking down through GSEs negative z axis, after having already reversed our camera's rotation about its x axis. That means the camera'z z now agrees with GSEs z and both of these axes are pointing up out the page towards us. We next need to align the x and y axis of the spacecraft to the GSE x and y axis, but the y axis is currently pointing in the direction of the aimpoint and the x axis is 90 degrees right of that. We'll need to calcuate the rotation through the movement similar to a spinning top. To get the spacecraft's y back to GSE's y, see that we can define that with the same figures we used to calculate the hypotenuse of the flat pink traingle. Namely:
 ```math
 \begin{aligned}
 &&R_{z}(\theta) = &\arctan{\frac{1.9}{6.7}}\\ 
@@ -139,25 +137,24 @@ Now imagine that we are floating directly above the earth looking down through G
 ```
 And if we use that angle in the same way using the appropriate 3D rotation matrix, we get the below:
 
-THESE NUMBERS ARE WRONG - CHANGE THESE, THEY@RE INCORRECT CALCULATIONS!!
 ```math
 \begin{aligned}
-&&R_{x}(\theta) = &\begin{bmatrix}
+&&R_{z}(\theta) = &\begin{bmatrix}
        \cos{\theta} & -\sin{\theta} &  0  \\[0.3em]
        \sin{\theta} &  \cos{\theta} &  0  \\[0.3em]
                   0 &             0 &  1
      \end{bmatrix}\\
 \\
 && = &\begin{bmatrix}
-        \cos{0.10008728} & -\sin{0.10008728} &  0  \\[0.3em]
-        \sin{0.10008728} &  \cos{0.10008728} &  0  \\[0.3em]
-                       0 &                 0 &  1
+        \cos{0.27632} & -\sin{0.27632} &  0  \\[0.3em]
+        \sin{0.27632} &  \cos{0.27632} &  0  \\[0.3em]
+                    0 &           0 &  1
      \end{bmatrix}\\
 \\
 && = &\begin{bmatrix}
-       0.99499545 & -0.09992026 &  0  \\[0.3em]
-       0.09992026 &  0.99499545 &  0  \\[0.3em]
-                0 &           0 &  1
+       0.96206592 & -0.2728171 &  0  \\[0.3em]
+        0.2728171 & 0.96206592 &  0  \\[0.3em]
+                0 &          0 &  1
      \end{bmatrix}
 \end{aligned}
 ```
@@ -165,14 +162,14 @@ THESE NUMBERS ARE WRONG - CHANGE THESE, THEY@RE INCORRECT CALCULATIONS!!
 ```math
 
 \begin{bmatrix}
-       0.96 & -0.25 &  -0.10  \\[0.3em]
-       0.27 &  0.90 &  0.35  \\[0.3em]
-       0    & -0.37 &  0.93
+       0.962 & -0.273 &  0.00  \\[0.3em]
+       0.256 &  0.889 & -0.383  \\[0.3em]
+       0.105 & -0.369 &  0.924
 \end{bmatrix}
 
 ```
 
-Now that we have both sets of rotation matraces, we need to use matrix multiplication to create a single matrix. Now, as I stated earlier, I'm not a mathematician, but I am confident this is correct. As you might know, matraces aren't commutative, meaning it matters which way round you multiply them so we need to pay attention to which one we calculated first in our example. Once you've done the multiplication, you will need to use the inverse of that vector to multiply it by the pixel vector when you want to find that vector in world space. The program does $R_{y} \times R_{x}$, finds the inverse and multiplies it with the vector for each pixel, and that seems to work perfectly.
+Now that we have both sets of rotation matraces, we need to use matrix multiplication to create a single matrix. Now, as I stated earlier, I'm not a mathematician, but I am confident this is correct. As you might know, matraces aren't commutative, meaning it matters which way round you multiply them so we need to pay attention to which one we calculated first in our example. Once you've done the multiplication, you will need to use the inverse of that vector to multiply it by the pixel vector when you want to find that vector in world space. The program does $R_{x} \times R_{z}$, finds the inverse and multiplies it with the vector for each pixel, and that seems to work perfectly.
 
 Once we have that resultant vector, we make it into a unit vector and then multiply it by a uniformly increasing set of factors in order to get a vector with a specific distance. We minus the spacecrafts position from each vector which will give us a 3D coordinate. We take the sample at each of these coordinates and add them all to a running total flux level for that pixel. Once we've reached the end of the ray, we move onto the next pixel, and once we've completed the last pixel, we're done! The SXI unit rotates itself so that the sun-earth line (our x axis) is perpendicular to the sides of the image. There's a great visualisation of this that makes that really easy to understand, but I'm not sure where it is. Once I do, I'll post a link here. For us, all we need to do is rotate our image along the z axis by 90 degrees. We create a rotation matrix using the standard z rotation matrix and 90 degrees in radians as theta, then multiply that with matrix y, and then multiply the result with matrix x. That will result in a perfectly centred and rotated image!
 
