@@ -23,12 +23,6 @@ private:
         float y;
         float z;
     } aim;
-    float dist[3];
-    float aimpoint_unit_vector[3];
-    float north_vector[3];
-    float right_vector[3];
-    float angle_sun;
-    float plac;
     std::vector<float> ray_dist;
     float ray_width;
     int ray_samples;
@@ -39,8 +33,8 @@ private:
     void GetRayStepDistances(int);
     void Integrate();
 
-    void Orient();
-    std::vector<float> PointToPlane(std::vector<float>, float, float);
+    float Orient();
+    std::vector<float> PointToPlane(std::vector<float>, float, float, std::vector<float> distance_vec, std::vector<float> unit_vec, std::vector<float> north, std::vector<float> right);
 
 public:
     DataCube dataCube;

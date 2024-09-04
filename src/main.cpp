@@ -92,8 +92,8 @@ int main(int argc, char** argv)
             cube.Load(entry.path(), 82, false);
 
             Camera camera(cube, pixel_size_deg, plot_fov);
-            camera.SetPosition(5.91813f, 6.74116f, 17.7067f);
-            camera.SetAim(7.81768f, 0.f, 0.f);
+            camera.SetPosition(pos_x, pos_y, pos_z);
+            camera.SetAim(aim, 0.f, 0.f);
 
             camera.Render();
             std::cout << "Rendered image.\n";
