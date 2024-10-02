@@ -206,7 +206,12 @@ void Camera::Integrate()
                         continue;
                     }
 
-                    float width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
+                    if (pxk == 0) {
+                        float width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
+                    } else {
+                        float width_factor = ray_widths[pxk] * ray_widths[pxk] * (ray_dist[pxk] - ray_dist[pxk - 1]);
+                    }
+                    
 
                     float sample = dataCube.slices.at(z_index).at(y_index).at(x_index);
                     // sample = (sample * width_factor * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
