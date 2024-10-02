@@ -19,7 +19,7 @@ Just some quick organisational points that keep us all on the same page.
 
 The `main` branch should always hold the most stable and reliable version of BIRP. Branch names may be prefixed with a keyword:
 - `speed/` branches hold new optimisation methods that will "speed" up the rendering process, for example `speed/matrix_multiplication` might describe a branch that enhances the speed certain calculations by utilising matrix operations.
-- `refine/` branches will reduce or eliminate rendering artefacts, thereby "refining" the image.
+- `refine/` branches will reduce or eliminate rendering artefacts or improve scientific accuracy, thereby "refining" the image.
 - `feature/` branches introduce a new non-science "feature" (or features). For example, `feature/position_as_day` could describe a branch that adds support for specifying the position of the camera as a day of orbit rather than an [x,y,z] coordinate, and `feature/HDF5` might add support for exporting as an HDF5 image.
 - `fix/` branches "fix" bugs that aren't necessarily science-related, though they may be related to science components of the code.
 
