@@ -206,10 +206,11 @@ void Camera::Integrate()
                         continue;
                     }
 
+                    float width_factor;
                     if (pxk == 0) {
-                        float width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
+                        width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
                     } else {
-                        float width_factor = ray_widths[pxk] * ray_widths[pxk] * (ray_dist[pxk] - ray_dist[pxk - 1]);
+                        width_factor = ray_widths[pxk] * ray_widths[pxk] * (ray_dist[pxk] - ray_dist[pxk - 1]);
                     }
                     
 
