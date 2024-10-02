@@ -16,6 +16,7 @@ Camera::Camera(DataCube cube, float pixel_size_deg, int plot_fov)
 {
     ray_samples = 200;
     fov = plot_fov;
+    pixel_size_rad = pixel_size_deg * (M_PI / 180.f);
 
     dataCube = cube;
     image_dimension = std::round(plot_fov / pixel_size_deg);
@@ -42,14 +43,17 @@ void Camera::Render()
 {
     // this->Orient();
     // this->GetSky();
-    this->GetRayStepDistances(44);
+    this->GenerateRayDistWidth(44);
     this->Integrate();
 }
 
-void Camera::GetRayStepDistances(int max)
+void Camera::GenerateRayDistWidth(int max)
 {
+    float dist;
     for (int i = 0; i < ray_samples; i++) {
-        ray_dist.push_back(max * ((i + 0.5f) / ray_samples));
+        dist = max * ((i + 0.5f) / ray_samples);
+        ray_dist.push_back(dist);
+        ray_widths.push_back((sin(pixel_size_rad / 2) * dist) * 2);
     }
 
     ray_width = ray_dist[1] - ray_dist[0];
@@ -202,13 +206,17 @@ void Camera::Integrate()
                         continue;
                     }
 
+                    float width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
+
                     float sample = dataCube.slices.at(z_index).at(y_index).at(x_index);
+                    // sample = (sample * width_factor * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
                     sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
 
-                    if (y_coord < 0.1f && y_coord > -0.1f &&
-                        z_coord < 0.1f && z_coord > -0.1f) {
-                            sample = 70;
-                    }
+                    ////// DEBUG ONLY - this shows the x line in the final render
+                    // if (y_coord < 0.1f && y_coord > -0.1f &&
+                    //     z_coord < 0.1f && z_coord > -0.1f) {
+                    //         sample = 70;
+                    // }
 
                     image[i][j] = image[i][j] + sample;
                     sample_vector.clear();

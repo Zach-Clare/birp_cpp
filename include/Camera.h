@@ -24,13 +24,16 @@ private:
         float z;
     } aim;
     std::vector<float> ray_dist;
+    std::vector<float> ray_widths;
+    float pixel_size_deg;
+    float pixel_size_rad;
     float ray_width;
     int ray_samples;
 
     void BuildLatLon(float, int);
     void GenerateSky(float);
     void GetSky();
-    void GetRayStepDistances(int);
+    void GenerateRayDistWidth(int);
     void Integrate();
 
     float Orient();
