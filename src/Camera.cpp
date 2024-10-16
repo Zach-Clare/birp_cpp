@@ -67,7 +67,7 @@ void Camera::Integrate()
     float to_deg = 180.f / M_PI;
 
     float angle_sun = Camera::Orient();
-    float angle_sun_corrected = 360.f - Camera::Orient();
+    float angle_sun_corrected = 360.f - angle_sun;
 
     // Let's calculate some angles. Firstly, a rotation about the z axis so that y points towards the aimpoint
     float x_diff = aim.x - position.x;
@@ -75,34 +75,8 @@ void Camera::Integrate()
     // float rotation_z = ((180 - (to_deg * theta)) * to_rad) + (20 * to_rad);
     float hypotenuse = std::sqrt(std::pow(x_diff, 2) + std::pow(position.y, 2));
 
-    // This is wrong
-    // float xh = std::sqrt(std::pow(position.y, 2) + std::pow(position.z, 2));
-    // float angle = std::atan2(x_diff, xh);
-
-    // Construct a right angle triangle the opposite side of the x-axis spanning from pos.x to aim.x
-    // The hypotenuse of this triangle aligns on on the plane where x'z' intersects with xy. That hypotenuse is len.
-    // float len = std::sqrt(std::pow(x_diff, 2) + std::pow(hypotenuse - position.y, 2));
-    // float adjacent = std::sqrt(std::pow(hypotenuse, 2) + std::pow(position.z, 2));
-    // float angle = std::atan2(len, adjacent);
-    // Wrong again!
-
-    // Third time's a charm
-    // float a = 90.f - (to_deg * std::atan2(position.y, x_diff));
-    // float far_y = x_diff * std::tan(a);
-    // float far_y_hypotenuse = std::sqrt(std::pow(far_y, 2) + std::pow(x_diff, 2));
-    // float total_y = std::abs(far_y) + std::abs(position.y);
-    // float back_hypotenuse = std::sqrt(std::pow(total_y, 2) + std::pow(position.z, 2));
-    // float angle = (2 * M_PI) - std::asin(far_y_hypotenuse / back_hypotenuse);
-    
+    // Then calculate the rotation about the x axis
     float phi = std::atan2(hypotenuse, position.z);
-
-    float elevation_angle = std::atan2(position.z, hypotenuse);
-    elevation_angle = (M_PI / 2) - elevation_angle;
-
-    float thing = atan2(position.y, x_diff);
-    float result = (elevation_angle * thing) / 2;
-
-    std::cout << std::to_string(result * to_deg) << std::endl;
 
     float rotation_z = 0.f * to_rad;
     std::vector<std::vector<float>> rz = {
@@ -136,10 +110,6 @@ void Camera::Integrate()
 
     // Then we need to do matrix multiplication
     // https://en.wikipedia.org/wiki/Rotation_matrix#General_3D_rotations
-
-    // std::vector<std::vector<float>> rotation = Helper::MatrixMultiply(rx, rz);
-    // // std::vector<std::vector<float>> rotation2 = Helper::MatrixMultiply(rotation, rz);
-    // std::vector<std::vector<float>> rotation_inverse = Helper::GetInverse(rotation);
     
     std::vector<std::vector<float>> rotation = Helper::MatrixMultiply(rz2, rx);
     std::vector<std::vector<float>> rotation2 = Helper::MatrixMultiply(rotation, rz);
@@ -289,6 +259,8 @@ float Camera::Orient()
     // out how to rotate the camera so that the x-line is 
     // perpendicular to the sides of the image.
 
+    // I was going to refactor this, but it takes less than 1ms.
+
     float to_rad = M_PI / 180.f;
     float to_deg = 180.f / M_PI;
 
@@ -299,7 +271,7 @@ float Camera::Orient()
         aim.z - position.z
     };
 
-    float distance = std::sqrt(pow(distance_vec[0], 2) + pow(distance_vec[1], 2) + pow(distance_vec[2], 2));
+    float distance = Helper::VectorDistance(&distance_vec[0]);
     std::vector<float> unit_vec = {
         distance_vec[0] / distance,
         distance_vec[1] / distance,
