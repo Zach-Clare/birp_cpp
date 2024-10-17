@@ -34,7 +34,8 @@ private:
     void GenerateSky(float);
     void GetSky();
     void GenerateRayDistWidth(int);
-    void Integrate();
+    void Integrate(bool trilinear);
+    float NNSample();
 
     float Orient();
     std::vector<float> PointToPlane(std::vector<float>, float, float, std::vector<float> distance_vec, std::vector<float> unit_vec, std::vector<float> north, std::vector<float> right);

@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(birp VERSION 1.0) # create the project handle
 
+set(CMAKE_CXX_STANDARD 23) 
+
 # let's add the elefits library so we can create .FITS files
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 find_package(EleFits REQUIRED)
