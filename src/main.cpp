@@ -27,11 +27,15 @@ int main(int argc, char** argv)
     float pos_z = 17.7067f;
     float aim = 7.81768f;
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:")) != -1)
+    // should the renderer use trilinear interpolation
+    // default false. opt-in
+    bool interpolate = false;
+
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:t")) != -1)
     {
         switch (c)
         {
-            case 'i':
+            case 'i': // input
             {
                 input = optarg;
                 if (input.find(".dat") != std::string::npos) { // if arguements is a .dat file (a bit nieve)
@@ -43,35 +47,40 @@ int main(int argc, char** argv)
                 }
                 break;
             }
-            case 'o':
+            case 'o': // output
             {
                 // this should be a directory, but it might be worth checking
                 output = optarg;
                 std::cout << "output folder passed";
                 break;
             }
-            case 'x':
+            case 'x': // x spacecraft pos
             {
                 std::string fs(optarg);
                 pos_x = std::stof(optarg);
                 break;
             }
-            case 'y':
+            case 'y': // y spacecraft pos
             {
                 std::string fs(optarg);
                 pos_y = std::stof(optarg);
                 break;
             }
-            case 'z':
+            case 'z': // z spacecraft pos
             {  
                 std::string fs(optarg);
                 pos_z = std::stof(optarg);
                 break;
             }
-            case 'a':
+            case 'a': // aim
             {
                 std::string fs(optarg);
                 aim = std::stof(optarg);
+                break;
+            }
+            case 't': // trilinear - used as a flag
+            {
+                interpolate = true;
                 break;
             }
         }
@@ -95,7 +104,7 @@ int main(int argc, char** argv)
             camera.SetPosition(pos_x, pos_y, pos_z);
             camera.SetAim(aim, 0.f, 0.f);
 
-            camera.Render();
+            camera.Render(interpolate);
             std::cout << "Rendered image.\n";
             std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
             camera.ToFITS(output + base_filename);
@@ -109,7 +118,7 @@ int main(int argc, char** argv)
         camera.SetPosition(pos_x, pos_y, pos_z);
         camera.SetAim(aim, 0.f, 0.f);
 
-        camera.Render();
+        camera.Render(interpolate);
         std::cout << "Rendered image.\n";
         std::string base_filename = input.substr(input.find_last_of("/\\") + 1);
         camera.ToFITS(output + base_filename);

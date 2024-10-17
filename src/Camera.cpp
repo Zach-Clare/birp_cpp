@@ -39,12 +39,12 @@ void Camera::SetAim(float x, float y, float z)
     aim.z = z;
 }
 
-void Camera::Render()
+void Camera::Render(bool interpolate = false)
 {
     // this->Orient();
     // this->GetSky();
     this->GenerateRayDistWidth(44);
-    this->Integrate(true);
+    this->Integrate(interpolate);
 }
 
 void Camera::GenerateRayDistWidth(int max)

@@ -54,7 +54,7 @@ public:
 
     void SetPosition(float, float, float);
     void SetAim(float, float, float);
-    void Render();
+    void Render(bool interpolate);
     int ToDat(std::string filename);
     int ToFITS(std::string filename);
 };
