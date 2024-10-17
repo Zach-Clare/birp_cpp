@@ -8,7 +8,6 @@
 #include "DataCube.h"
 
 void DataCube::Load(std::string filename, int data_begin, bool debug = false) {
-	std::cout << "Loading datacube...\n";
 
 	std::fstream ifs(filename); // create filestream from filename
 	std::string line; // create space for line data to go
@@ -100,8 +99,6 @@ void DataCube::Load(std::string filename, int data_begin, bool debug = false) {
 	if (slices.size() == 0) {
 		throw std::invalid_argument("Datacube is invalid, inaccessible, or malformed.");
 	}
-
-	std::cout << "Datacube loaded.\n";
 }
 
 void DataCube::InitSpacing() {

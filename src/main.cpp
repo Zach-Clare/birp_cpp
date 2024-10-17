@@ -40,10 +40,10 @@ int main(int argc, char** argv)
                 input = optarg;
                 if (input.find(".dat") != std::string::npos) { // if arguements is a .dat file (a bit nieve)
                     batch = false;
-                    std::cout << "non-batch";
+                    std::cout << "Using non-batch mode\n";
                 } else {
                     batch = true;
-                    std::cout << "batch";
+                    std::cout << "Using batch mode\n";
                 }
                 break;
             }
@@ -51,7 +51,6 @@ int main(int argc, char** argv)
             {
                 // this should be a directory, but it might be worth checking
                 output = optarg;
-                std::cout << "output folder passed";
                 break;
             }
             case 'x': // x spacecraft pos
@@ -98,34 +97,38 @@ int main(int argc, char** argv)
         // std::string batch_path = "/home/zc/code/birp/cpp/data/batch";
         for (const auto & entry : std::filesystem::directory_iterator(input)) {
             std::string path = entry.path().string();
+            std::cout << "Loading datacube..." << std::flush;
             cube.Load(entry.path(), 82, false);
+            std::cout << "Datacube loaded.\nRendering..." << std::flush;
 
             Camera camera(cube, pixel_size_deg, plot_fov);
             camera.SetPosition(pos_x, pos_y, pos_z);
             camera.SetAim(aim, 0.f, 0.f);
 
             camera.Render(interpolate);
-            std::cout << "Rendered image.\n";
+            std::cout << "Completed rendering.\nExporting..." << std::flush;
             std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
             camera.ToFITS(output + base_filename);
-            std::cout << "Exported.\n";
+            std::cout << "Exported." << std::flush;
             // std::cout << entry.path() << std::endl;
         }
     } else {
+        std::cout << "Loading datacube...\t" << std::flush;
         cube.Load(input, 82, false);
+        std::cout << "Datacube loaded.\nRendering...\t\t" << std::flush;
 
         Camera camera(cube, pixel_size_deg, plot_fov);
         camera.SetPosition(pos_x, pos_y, pos_z);
         camera.SetAim(aim, 0.f, 0.f);
 
         camera.Render(interpolate);
-        std::cout << "Rendered image.\n";
+        std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
         std::string base_filename = input.substr(input.find_last_of("/\\") + 1);
         camera.ToFITS(output + base_filename);
-        std::cout << "Exported.\n";
+        std::cout << "Exported.\n" << std::flush;
     }
 
     auto end = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(end - start);
-    std::cout << duration.count() << std::endl;
+    std::cout << "Entire operation took " << duration.count() << "ms" << std::endl;
 }
