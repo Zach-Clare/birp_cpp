@@ -13,6 +13,7 @@ add_executable(birp
     ${CMAKE_SOURCE_DIR}/src/Camera.cpp
     ${CMAKE_SOURCE_DIR}/src/DataCube.cpp
     ${CMAKE_SOURCE_DIR}/src/Helper.cpp
+    ${CMAKE_SOURCE_DIR}/src/Cmem.cpp
 )
 
 # set where available includes can come from
