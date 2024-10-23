@@ -1,5 +1,10 @@
 data/steve.dat
 main.exe
-build
-build/
-data/output/
+build/*
+data/output/*
+data/*.dat
+data/batch/
+doc/*
+*.Identifier
+.vs
+.vscode
