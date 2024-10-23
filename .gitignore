@@ -5,3 +5,4 @@ data/output/*
 data/*.dat
 data/batch/
 doc/*
+*.Identifier
