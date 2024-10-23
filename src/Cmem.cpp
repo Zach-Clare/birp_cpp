@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 void CMEM::Init() {
     std::cout << "please" << std::endl; // please :(
@@ -36,6 +37,7 @@ float CMEM::LinScaled(
         float& p3
     ) {
         // This function calculates r using the Lin model.
+        return 0.1f;
 }
 
 std::vector<float> CMEM::ShueCoords(float x, float y, float z) {

@@ -1,6 +1,8 @@
 #pragma once
 #include "Space.h"
 
+#include <vector>
+
 class CMEM : public Space {
 public:
     void Init();
