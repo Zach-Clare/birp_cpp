@@ -25,6 +25,12 @@ class Helper
             ltrim(s);
         }
 
+        // ends_with courtesy of https://stackoverflow.com/a/2072890
+        inline static bool ends_with(std::string const & value, std::string const & ending) {
+            if (ending.size() > value.size()) return false;
+            return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+        }
+
         static std::vector<float> explode_float(std::string const & s, char delim);
         static std::vector<std::vector<float>> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<std::vector<float>> b);
         static std::vector<float> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<float> b);
@@ -45,5 +51,6 @@ class Helper
         static std::vector<float> XYZToSpherical(float*, int);
         static std::vector<float> XYZToSphericalAlt(float*, int);
         static float VectorDistance(float* xyz);
+        static float VectorDistance2D(float* xy);
         
 };

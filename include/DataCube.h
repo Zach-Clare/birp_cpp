@@ -3,9 +3,15 @@
 #include <iostream>
 #include <vector>
 
-class DataCube {
+#include "Space.h"
+
+class DataCube : public Space {
 public:
+	void Init();
+	void Init(std::string&, int, bool debug);
 	void Load(std::string, int, bool debug);
+	float GetSample(float x, float y, float z);
+	void SetTrilinear(bool);
 
 	std::vector<float> coords_x;
 	std::vector<float> coords_y;
@@ -26,4 +32,5 @@ private:
 	void InitOriginCoords();
 	void InitSize();
 	float GetAxisSpacing(std::vector<float> coords);
+	bool trilinear;
 };

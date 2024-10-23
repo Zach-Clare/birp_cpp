@@ -1,5 +1,9 @@
 #include "DataCube.h"
 
+//!  Camera can generate sightlines and sample from the given Space object 
+/*!
+  A more elaborate class description.
+*/
 class Camera
 {
 private:
@@ -41,7 +45,7 @@ private:
     std::vector<float> PointToPlane(std::vector<float>, float, float, std::vector<float> distance_vec, std::vector<float> unit_vec, std::vector<float> north, std::vector<float> right);
 
 public:
-    DataCube dataCube;
+    Space* dataCube;
     float image[144][144] {0}; // image is square, it's size will be image_dimension^2 
     
     std::vector<float> sky1;
@@ -49,10 +53,11 @@ public:
     std::vector<float> xsky;
     std::vector<float> ysky;
 
-    Camera(DataCube cube, float pixel_size_deg, int plot_fov);
+    // Note cube is passed by reference for efficiency
+    Camera(Space& cube, float pixel_size_deg, int plot_fov);
     ~Camera();
 
-    void SetPosition(float, float, float);
+    void SetPosition(float&, float&, float&);
     void SetAim(float, float, float);
     void Render(bool interpolate);
     int ToDat(std::string filename);

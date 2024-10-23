@@ -13,7 +13,7 @@
 
 #include "Helper.h"
 
-std::vector<float> Helper::explode_float(std::string const & s, char delim)
+std::vector<float> Helper::explode_float(std::string const& s, char delim)
 {
     std::vector<float> result;
     std::istringstream iss(s);
@@ -547,7 +547,14 @@ std::vector<float> Helper::XYZToSphericalAlt(float* xyz, int size)
     return {phi, theta, r};
 }
 
+// Calculate distance of 3D vector
 float Helper::VectorDistance(float* xyz)
 {
     return std::sqrt(std::pow(xyz[0], 2) + std::pow(xyz[1], 2) + std::pow(xyz[2], 2));
+}
+
+// Calculate distance of 2D vector
+float Helper::VectorDistance2D(float* xy)
+{
+    return std::sqrt(std::pow(xy[0], 2) + std::pow(xy[1], 2));
 }
