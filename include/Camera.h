@@ -1,8 +1,11 @@
 #include "DataCube.h"
 
+
 //!  Camera can generate sightlines and sample from the given Space object 
 /*!
-  A more elaborate class description.
+  Camera aims to simulate the SXI camera located onboard the SMILE spacecraft.
+  It will generate rays and smaple the given Space object, whether that's a
+  DataCube-like object or a CMEM-like function.
 */
 class Camera
 {
