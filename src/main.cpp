@@ -121,24 +121,12 @@ int main(int argc, char** argv)
         }
     } else { // non-batch
 
-        // std::unique_ptr<Space> space(NULL);
-        // if (!use_cmem) {
-        //     std::string path = entry.path().string();
-        //     std::cout << "Loading datacube..." << std::flush;
-        //     space.reset(new DataCube);
-        //     // space.Init(input);
-        //     space.Init(input, 82, false);
-        //     std::cout << "Datacube loaded.\nRendering..." << std::flush;
-        // } else {
-        //     // this is where CMEM is used - we don't need to load any datacube and we can just generate our rays
-        //     // we'll refer to our cmem object as our "cube", unless we generalise to "space"
-        //     space.reset(new CMEM);
-        //     space.Init();
-        // }
+        std::string base_filename;
 
         Space *space; // Create a Space-shaped pointer
         if (!use_cmem) {
             std::string path = input;
+            base_filename = input.substr(input.find_last_of("/\\") + 1);
             std::cout << "Loading datacube...\t" << std::flush;
             DataCube* cube = new DataCube(); // Create the datacube object and get the pointer
             space = cube; // Save the pointer to DataCube in our Space-shaped hole
@@ -147,6 +135,7 @@ int main(int argc, char** argv)
             std::cout << "Datacube loaded.\nRendering...\t\t" << std::flush;
         } else {
             // this is where CMEM is used - no need to load data
+            base_filename = "birpcmem";
             CMEM* cmem = new CMEM();
             space = cmem;
             cmem->Init();
@@ -159,7 +148,6 @@ int main(int argc, char** argv)
         camera.Render(interpolate);
         delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
-        std::string base_filename = input.substr(input.find_last_of("/\\") + 1);
         camera.ToFITS(output + base_filename);
         std::cout << "Exported.\n" << std::flush;
     }
