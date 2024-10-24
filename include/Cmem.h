@@ -46,7 +46,6 @@ private:
     float LinScaled(
         float& theta,
         float& phi,
-        float& charlie,
         float& dn,
         float& ds,
         float& theta_n,

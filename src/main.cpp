@@ -29,12 +29,13 @@ int main(int argc, char** argv)
     float pos_y = 6.74116f;
     float pos_z = 17.7067f;
     float aim = 7.81768f;
+    // float aim = 4.f; // for debugging
 
     // should the renderer use trilinear interpolation
     // default false. opt-in
     bool interpolate = false;
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:t")) != -1)
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:t:c")) != -1)
     {
         switch (c)
         {
@@ -47,10 +48,16 @@ int main(int argc, char** argv)
                 } else if (Helper::ends_with(input, "/")) { // if arg ends with "/"
                     batch = true;
                     std::cout << "Using batch mode\n";
-                } else { // no usable datacube given. Use CMEM
-                    batch = false;
-                    use_cmem = true;
+                } else { // no usable datacube given.
+                    std::cout << "Please provide valid datacube or use -c." << std::endl;
+                    exit(3);
                 }
+                break;
+            }
+            case 'c': // using CMEM
+            {
+                batch = false;
+                use_cmem = true;
                 break;
             }
             case 'o': // output
@@ -135,7 +142,7 @@ int main(int argc, char** argv)
             std::cout << "Datacube loaded.\nRendering...\t\t" << std::flush;
         } else {
             // this is where CMEM is used - no need to load data
-            base_filename = "birpcmem";
+            base_filename = "cmembirp";
             CMEM* cmem = new CMEM();
             space = cmem;
             cmem->Init();

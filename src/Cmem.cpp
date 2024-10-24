@@ -51,7 +51,7 @@ float CMEM::GetSample(float x, float y, float z) {
     // convert {x, y, z} to {r, theta, and phi}
     std::vector<float> shue = CMEM::ShueCoords(x, y, z);
 
-    float radius_mp = LinScaled(shue[1], shue[2], charlie, dn, ds, theta_n, theta_s, r0_lin, p0, p1, p2, p3);
+    float radius_mp = LinScaled(shue[1], shue[2], dn, ds, theta_n, theta_s, r0_lin, p0, p1, p2, p3);
     float radius_bs = ShueModel(shue[1], shue[2], bs, ay_bs, az_bs);
 
     if (shue[0] < radius_mp) {
@@ -66,7 +66,6 @@ float CMEM::GetSample(float x, float y, float z) {
 float CMEM::LinScaled(
         float& theta,
         float& phi,
-        float& charlie,
         float& dn,
         float& ds,
         float& theta_n,
@@ -138,7 +137,7 @@ void CMEM::DefineLinearCoeffs() {
     };
 
     // next, get charlie n and s coeffs, which are equal
-    charlie = std::pow(a[14] * (pressure_dynamic + pressure_magnetic), a[15]);
+    charlie = a[14] * std::pow((pressure_dynamic + pressure_magnetic), a[15]);
 
     // get delta coeffs - north and south?
     // not identical, look carefully
