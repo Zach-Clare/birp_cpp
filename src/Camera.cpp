@@ -153,8 +153,13 @@ void Camera::Integrate(bool trilinear = false)
 
                     // auto t_inner = std::chrono::high_resolution_clock::now();
                     
+                    // // Reverse ray direction, start at the back
+                    // This is to debug the rendering process
+                    // float debug_dist =  44 - ray_dist[pxk];
+
                     // vector to sample point
                     std::vector<float> sample_vector = Helper::MatrixScalarMultiply(world_unit_vector, ray_dist[pxk]);
+                    // std::vector<float> sample_vector = Helper::MatrixScalarMultiply(world_unit_vector, debug_dist); // if wanting to reverse
 
                     // x coordinate of sample point
                     float x_coord = sample_vector[0] + position.x; // use nearest neighbour

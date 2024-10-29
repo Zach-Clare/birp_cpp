@@ -31,6 +31,12 @@ int main(int argc, char** argv)
     float aim = 7.81768f;
     // float aim = 4.f; // for debugging
 
+    // // DEBUG
+    // float pos_x = 5.91813f;
+    // float pos_y = 20.f;
+    // float pos_z = 0.f;
+    // float aim = 5.f;
+
     // should the renderer use trilinear interpolation
     // default false. opt-in
     bool interpolate = false;
@@ -49,7 +55,7 @@ int main(int argc, char** argv)
                     batch = true;
                     std::cout << "Using batch mode\n";
                 } else { // no usable datacube given.
-                    std::cout << "Please provide valid datacube or use -c." << std::endl;
+                    std::cout << "Please provide valid datacube or use -c to use CMEM." << std::endl;
                     exit(3);
                 }
                 break;
@@ -100,6 +106,11 @@ int main(int argc, char** argv)
 
     // cube.Load("/home/zc/code/birp/cpp/Batch/px_uni_0911.dat", 82, false);
     
+    // // Double fov - for debug and furthr context in renders
+    // int plot_fov = 72;
+    // float pixel_size_deg = .5f;
+
+    // normal fov settings
     int plot_fov = 36;
     float pixel_size_deg = .25f;
 
