@@ -38,6 +38,12 @@ void CMEM::Init() {
     p1 = 1;
     p2 = 3;
     p3 = 4;
+
+    // New init methods
+    bs = -0.12 * density + 13.24;
+    A1 = 0.0000027 * density - 0.0000063;
+    A2 = 0.0000009 * density - 0.0000010;
+    p0 = 0.0022 * density + 0.7753;
     
     CalcInitialAlpha();
 
@@ -193,7 +199,7 @@ void CMEM::CalcMagneticPressure() {
 }
 
 void CMEM::CalcInitialAlpha() {
-    float val = (0.58f - 0.010 * b[2]) * (1 + 0.010f * pressure_dynamic);
+    float val = (0.58f - 0.010 * b[2]) * (1 + 0.010f * pressure_dynamic) + 0.2f;
 
     ay_bs = val;
     az_bs = val;
