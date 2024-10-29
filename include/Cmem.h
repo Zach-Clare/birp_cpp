@@ -3,6 +3,10 @@
 
 #include <vector>
 
+//! CMEM is a sample-able function space
+
+/*! An alternative to a datacube, CMEM generates emission values mathematically.*/
+
 class CMEM : public Space {
 public:
     void Init();

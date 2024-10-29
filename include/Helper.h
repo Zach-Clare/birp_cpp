@@ -3,7 +3,10 @@
 #include <vector>
 #include <algorithm>
 
-// Trim functions work in place
+//! A collection of functions that don't belong to any of the existing classes.
+
+/*! Think of this as a workbook, or a collection of generic math helpers. */
+
 class Helper 
 {
     public:
