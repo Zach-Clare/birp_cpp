@@ -97,7 +97,7 @@ float CMEM::LinScaled(
         float f = std::pow(std::cos(theta / 2) + a[5] * std::sin(2 * theta) * (1 - std::exp( - theta)), (p1 * (beta_c[0] + beta_c[1] * std::cos(phi) + beta_c[3] * std::pow(std::sin(phi), 2))));
 
         // what is q?
-        float q = p2 * charlie * std::exp(dn * (std::pow(phi_n, a[21])) + p2 * charlie * std::exp(ds * (std::pow(phi_s, a[21]))));
+        float q = p2 * charlie * std::exp(dn * (std::pow(phi_n, a[21]))) + p2 * charlie * std::exp(ds * (std::pow(phi_s, a[21])));
 
         float r = p0 * r0_lin * f + q;
 

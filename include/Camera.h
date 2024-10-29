@@ -12,7 +12,6 @@ class Camera
 private:
     int image_dimension; //!< in pixels, how tall and wide the resultant render should be
     int fov; //!< Used with pixel_size_deg to calculate fov of th render
-    int pxn_dist = 200; //!< Number of samples to take along each ray
     struct {
         float x;
         float y;
@@ -28,7 +27,7 @@ private:
     float pixel_size_deg; //!< Along with FOV, decides the field of view of the camera
     float pixel_size_rad; //!< Calculated from pizel_size_width
     float ray_width;
-    int ray_samples;
+    int ray_samples; //!< Number of samples to take along each ray
 
     void GenerateRayDistWidth(int);
     void Integrate(bool trilinear);
