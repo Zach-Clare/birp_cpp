@@ -31,6 +31,11 @@ int main(int argc, char** argv)
     float aim = 7.81768f;
     // float aim = 4.f; // for debugging
 
+    // float pos_x = -2.12f;
+    // float pos_y = -1.08f;
+    // float pos_z = 9.01f;
+    // float aim = 5.4f;
+
     // // DEBUG
     // float pos_x = 5.91813f;
     // float pos_y = 20.f;
@@ -107,8 +112,8 @@ int main(int argc, char** argv)
     // cube.Load("/home/zc/code/birp/cpp/Batch/px_uni_0911.dat", 82, false);
     
     // // Double fov - for debug and furthr context in renders
-    // int plot_fov = 72;
-    // float pixel_size_deg = .5f;
+    // int plot_fov = 108;
+    // float pixel_size_deg = .75f;
 
     // normal fov settings
     int plot_fov = 36;
@@ -134,7 +139,7 @@ int main(int argc, char** argv)
             std::cout << "Completed rendering.\nExporting..." << std::flush;
             std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
             camera.ToFITS(output + base_filename);
-            std::cout << "Exported." << std::flush;
+            std::cout << "Exported to " << output + base_filename << ".fits\n" << std::flush;
             // std::cout << entry.path() << std::endl;
         }
     } else { // non-batch
@@ -154,23 +159,26 @@ int main(int argc, char** argv)
         } else {
             // this is where CMEM is used - no need to load data
             base_filename = "cmembirp";
+            std::cout << "Initialising CMEM...\t" << std::flush;
             CMEM* cmem = new CMEM();
             space = cmem;
             cmem->Init();
+            std::cout << "Initialised.\nRendering...\t\t" << std::flush;
         }
 
         Camera camera(*space, pixel_size_deg, plot_fov); // Init camera with pointer to space rather than copying the whole object over
         camera.SetPosition(pos_x, pos_y, pos_z);
-        camera.SetAim(aim, 0.f, 0.f);
+        camera.SetAim(aim, 0.f, 8.f);
 
         camera.Render(interpolate);
         delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
         camera.ToFITS(output + base_filename);
-        std::cout << "Exported.\n" << std::flush;
+        std::cout << "Exported to " << output << base_filename << ".fits\n" << std::flush;
     }
 
     auto end = high_resolution_clock::now();
-    auto duration = duration_cast<milliseconds>(end - start);
-    std::cout << "Entire operation took " << duration.count() << "ms" << std::endl;
+    auto duration_ms = duration_cast<milliseconds>(end - start);
+    auto duration_s = duration_cast<seconds>(end - start);
+    std::cout << "Entire operation took " << duration_ms.count() << "ms or " << duration_s.count() << "s" << std::endl;
 }

@@ -5,6 +5,11 @@
 
 #include "Space.h"
 
+//! DataCube can read and hold an exported MHD file, while providing a "getter" sampling funtion
+
+/*! As a derived class of Space, DataCube holds and provides data about a pre-computed
+MHD cube rather than a function space. */
+
 class DataCube : public Space {
 public:
 	void Init();
@@ -28,9 +33,9 @@ public:
 	std::vector<std::vector<std::vector<float>>> slices; // needs to be of length k (or coords_z?)
 
 private:
-	void InitSpacing();
-	void InitOriginCoords();
-	void InitSize();
-	float GetAxisSpacing(std::vector<float> coords);
-	bool trilinear;
+	void InitSpacing(); //!< Detect spacing size for all axis
+	void InitOriginCoords(); //!< Detect origin coordinates for offset
+	void InitSize(); //!< Detect shape of given datacube
+	float GetAxisSpacing(std::vector<float> coords); //!< Detect spacing size for single axis
+	bool trilinear; //!< If true, Trilinear interpolation is used. If false, nearest neighbour is used.
 };

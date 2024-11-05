@@ -3,6 +3,7 @@
 #include <memory>
 #include <fstream>
 #include <chrono>
+#include <filesystem>
 
 #include "DataCube.h"
 #include "Cmem.h"
@@ -16,7 +17,7 @@
 
 Camera::Camera(Space &cube, float pixel_size_deg, int plot_fov)
 {
-    ray_samples = 200;
+    ray_samples = 200; // now many samples to take along each ray
     fov = plot_fov;
     pixel_size_rad = pixel_size_deg * (M_PI / 180.f);
 
@@ -43,8 +44,6 @@ void Camera::SetAim(float x, float y, float z)
 
 void Camera::Render(bool interpolate = false)
 {
-    // this->Orient();
-    // this->GetSky();
     this->GenerateRayDistWidth(44);
     this->Integrate(interpolate);
 }
@@ -148,7 +147,7 @@ void Camera::Integrate(bool trilinear = false)
             int pxk_ok = 1;
             int pxk_yes = 0;
 
-            for (int pxk = 0; pxk < pxn_dist; ++pxk) {
+            for (int pxk = 0; pxk < ray_samples; ++pxk) {
                 if (pxk_ok == 1) {
 
                     // auto t_inner = std::chrono::high_resolution_clock::now();
@@ -235,11 +234,19 @@ int Camera::ToFITS(std::string filename)
     long height = 144;
     long width = 144;
     auto raster = Fits::makeRaster(output_vector, height, width);
-    Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
-    // f.write("rho", "0", "t", "comment");
-    // Fits::Record<std::string> record("rho", "0", "t", "comment");
-    // f.write(record, raster);
-    f.writeRaster(raster);
+    
+    try {
+        Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
+        // f.write("rho", "0", "t", "comment");
+        // Fits::Record<std::string> record("rho", "0", "t", "comment");
+        // f.write(record, raster);
+        f.writeRaster(raster);
+    } catch (Euclid::Cfitsio::CfitsioError) {
+        std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
+        std::filesystem::remove(filename);
+        Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
+        f.writeRaster(raster);
+    }
     
     // auto raster = Fits::makeRaster(outs, (long(144), long(144)));
     // Fits::MefFile f(filename, Fits::FileMode::Create);
@@ -257,6 +264,7 @@ float Camera::Orient()
     // perpendicular to the sides of the image.
 
     // I was going to refactor this, but it takes less than 1ms.
+    // It's just maths with no loops so it's quick
 
     float to_rad = M_PI / 180.f;
     float to_deg = 180.f / M_PI;

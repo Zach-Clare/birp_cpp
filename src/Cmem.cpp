@@ -38,6 +38,12 @@ void CMEM::Init() {
     p1 = 1;
     p2 = 3;
     p3 = 4;
+
+    // New init methods
+    bs = -0.12 * density + 13.24;
+    A1 = 0.0000027 * density - 0.0000063;
+    A2 = 0.0000009 * density - 0.0000010;
+    p0 = 0.0022 * density + 0.7753;
     
     CalcInitialAlpha();
 
@@ -91,11 +97,7 @@ float CMEM::LinScaled(
         float f = std::pow(std::cos(theta / 2) + a[5] * std::sin(2 * theta) * (1 - std::exp( - theta)), (p1 * (beta_c[0] + beta_c[1] * std::cos(phi) + beta_c[3] * std::pow(std::sin(phi), 2))));
 
         // what is q?
-<<<<<<< Updated upstream
-        float q = p2 * charlie * std::exp(dn * (std::pow(phi_n, a[21])) + p2 * charlie * std::exp(ds * (std::pow(phi_s, a[21]))));
-=======
         float q = p2 * charlie * std::exp(p3 * dn * (std::pow(phi_n, a[21]))) + p2 * charlie * std::exp(p3 * ds * (std::pow(phi_s, a[21])));
->>>>>>> Stashed changes
 
         float r = p0 * r0_lin * f + q;
 
@@ -197,7 +199,7 @@ void CMEM::CalcMagneticPressure() {
 }
 
 void CMEM::CalcInitialAlpha() {
-    float val = (0.58f - 0.010 * b[2]) * (1 + 0.010f * pressure_dynamic);
+    float val = (0.58f - 0.010 * b[2]) * (1 + 0.010f * pressure_dynamic) + 0.2f;
 
     ay_bs = val;
     az_bs = val;

@@ -45,6 +45,8 @@ For example, the typical development flow may look like this:
 ## The method
 This area describes (without code) the maths behind how this program works. There's a bit of trigonometry, but nothing too intense. With that all said, I'm a programmer - not a mathemetician. If you see a failing in this method please get in touch and discuss it with me. However, this method does produce demonstratably good results and I'm confident this is correct.
 
+> **Images and mathematics may not display correctly in the Doxygen documentation. For best results, read these docs through the [GitHub repo](www.github.com/Zach-Clare/birp_cpp).**
+
 ### Generating rays in camera-space
 Okay, how does this part work in a nutshell? The main idea revolves around an image plane placed 1 unit away from the camera. The program is given an FOV from which it can calculate how tall (y) and wide (x) this image plane is. It is also provided with an image dimension in pixels. The centre pixel (if it exists, which it won't if there are an even number of pixels) will be pixel 0, 0. The x value increases to the right, and the y value increases upwards. So, the top left pixel has the coordinate -1, 1, as it is left (-1) and up (1). The top right is 1, 1 because it is positive in both directions. The bottom left is -1, -1 and finally the bottom right is 1, -1. Remember that this plane is physically placed 1 unit away from the camera in 3d space. By convention, the plane is located 1 unit along the -z (negative z) axis. It is possible to place it 1 unit away in the positive z, or the negative x, or anywhere for that matter. You just have to account for it elsewhere. In this program, like many many others, we will be placing it -1z away.
 
