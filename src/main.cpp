@@ -31,6 +31,11 @@ int main(int argc, char** argv)
     float aim = 7.81768f;
     // float aim = 4.f; // for debugging
 
+    // float pos_x = -2.12f;
+    // float pos_y = -1.08f;
+    // float pos_z = 9.01f;
+    // float aim = 5.4f;
+
     // // DEBUG
     // float pos_x = 5.91813f;
     // float pos_y = 20.f;
@@ -107,8 +112,8 @@ int main(int argc, char** argv)
     // cube.Load("/home/zc/code/birp/cpp/Batch/px_uni_0911.dat", 82, false);
     
     // // Double fov - for debug and furthr context in renders
-    // int plot_fov = 72;
-    // float pixel_size_deg = .5f;
+    // int plot_fov = 108;
+    // float pixel_size_deg = .75f;
 
     // normal fov settings
     int plot_fov = 36;

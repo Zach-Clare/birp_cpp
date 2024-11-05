@@ -17,7 +17,7 @@
 
 Camera::Camera(Space &cube, float pixel_size_deg, int plot_fov)
 {
-    ray_samples = 200;
+    ray_samples = 200; // now many samples to take along each ray
     fov = plot_fov;
     pixel_size_rad = pixel_size_deg * (M_PI / 180.f);
 
@@ -147,7 +147,7 @@ void Camera::Integrate(bool trilinear = false)
             int pxk_ok = 1;
             int pxk_yes = 0;
 
-            for (int pxk = 0; pxk < pxn_dist; ++pxk) {
+            for (int pxk = 0; pxk < ray_samples; ++pxk) {
                 if (pxk_ok == 1) {
 
                     // auto t_inner = std::chrono::high_resolution_clock::now();
