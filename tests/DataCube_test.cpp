@@ -7,6 +7,7 @@ TEST(DataCube, correctSample) {
     DataCube* cube = new DataCube;
     std::string path = "../data/px_uni_1000.dat";
     cube->Init(path, 82, false);
+    cube->SetTrilinear(false);
 
     float sample = cube->GetSample(9.f, 0.f, 0.f);
     float expected = 0.000144541002;

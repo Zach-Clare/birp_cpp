@@ -174,6 +174,7 @@ int main(int argc, char** argv)
         delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
         camera.ToFITS(output + base_filename);
+        camera.ToDat(output + base_filename);
         std::cout << "Exported to " << output << base_filename << ".fits\n" << std::flush;
     }
 

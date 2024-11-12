@@ -72,7 +72,9 @@ target_include_directories(tests
     PRIVATE ${CMAKE_SOURCE_DIR}/src # holds .cpp source files
     PRIVATE ${CMAKE_SOURCE_DIR}/include # holds the .h header files for the classes
 )
+
+
 # include(CTest)
 # include(GoogleTest)
-gtest_discover_tests(tests)
+gtest_discover_tests(tests DISCOVERY_TIMEOUT 600)
 # add_test(hellotest hellotest) # This is the crucial part. Without this, CTest has no idea the GTests exist

@@ -204,7 +204,7 @@ void Camera::Integrate(bool trilinear = false)
 
 int Camera::ToDat(std::string filename)
 {
-    std::ofstream outfile("../python/" + filename + ".dat");
+    std::ofstream outfile(filename + ".dat");
 
     for (int i = 0; i < 144; ++i) {
         for (int j = 0; j < 144; ++j) {
@@ -213,6 +213,8 @@ int Camera::ToDat(std::string filename)
         }
         outfile << "\n";
     }
+
+    outfile.close();
 
     return 1;
 }
