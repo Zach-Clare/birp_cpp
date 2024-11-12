@@ -184,7 +184,7 @@ void Camera::Integrate(bool trilinear = false)
                         continue;
                     }
 
-                    ////// DEBUG ONLY - this shows the x line in the final render
+                    // //// DEBUG ONLY - this shows the x line in the final render
                     // if (y_coord < 0.1f && y_coord > -0.1f &&
                     //     z_coord < 0.1f && z_coord > -0.1f) {
                     //         sample = 70;
@@ -315,25 +315,25 @@ float Camera::Orient()
         std::sin(phi)
     };
 
-    if (unit_vec[0] > 0 && unit_vec[1] > 0 && unit_vec[2] > 0) {
+    if (unit_vec[0] >= 0 && unit_vec[1] >= 0 && unit_vec[2] >= 0) {
         north[0] = -1.f * std::abs(north[0]);
         north[1] = -1.f * std::abs(north[1]);
-    } else if (unit_vec[0] > 0 && unit_vec[1] > 0 && unit_vec[2] < 0) {
+    } else if (unit_vec[0] >= 0 && unit_vec[1] >= 0 && unit_vec[2] < 0) {
         north[0] = 1.f * std::abs(north[0]);
         north[1] = 1.f * std::abs(north[1]);
-    } else if (unit_vec[0] > 0 && unit_vec[1] < 0 && unit_vec[2] > 0) {
+    } else if (unit_vec[0] >= 0 && unit_vec[1] < 0 && unit_vec[2] >= 0) {
         north[0] = -1.f * std::abs(north[0]);
         north[1] = 1.f * std::abs(north[1]);
-    } else if (unit_vec[0] > 0 && unit_vec[1] < 0 && unit_vec[2] < 0) {
+    } else if (unit_vec[0] >= 0 && unit_vec[1] < 0 && unit_vec[2] < 0) {
         north[0] = 1.f * std::abs(north[0]);
         north[1] = -1.f * std::abs(north[1]);
-    } else if (unit_vec[0] < 0 && unit_vec[1] > 0 && unit_vec[2] > 0) {
+    } else if (unit_vec[0] < 0 && unit_vec[1] >= 0 && unit_vec[2] >= 0) {
         north[0] = 1.f * std::abs(north[0]);
         north[1] = -1.f * std::abs(north[1]);
-    } else if (unit_vec[0] < 0 && unit_vec[1] > 0 && unit_vec[2] < 0) {
+    } else if (unit_vec[0] < 0 && unit_vec[1] >= 0 && unit_vec[2] < 0) {
         north[0] = -1.f * std::abs(north[0]);
         north[1] = 1.f * std::abs(north[1]);
-    } else if (unit_vec[0] < 0 && unit_vec[1] < 0 && unit_vec[2] > 0) {
+    } else if (unit_vec[0] < 0 && unit_vec[1] < 0 && unit_vec[2] >= 0) {
         north[0] = 1.f * std::abs(north[0]);
         north[1] = 1.f * std::abs(north[1]);
     } else if (unit_vec[0] < 0 && unit_vec[1] < 0 && unit_vec[2] < 0) {
@@ -341,7 +341,7 @@ float Camera::Orient()
         north[1] = -1.f * std::abs(north[1]);
     }
 
-    north[2] = 1.f * std::abs(north[2]);
+    north[2] = std::abs(north[2]);
 
     // calculate the right vector
     std::vector<float> right = {

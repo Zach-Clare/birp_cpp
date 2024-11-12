@@ -31,10 +31,10 @@ int main(int argc, char** argv)
     float aim = 7.81768f;
     // float aim = 4.f; // for debugging
 
-    // float pos_x = -2.12f;
-    // float pos_y = -1.08f;
-    // float pos_z = 9.01f;
-    // float aim = 5.4f;
+    // float pos_x = -1.07f;
+    // float pos_y = 0.26f;
+    // float pos_z = 12.42f;
+    // float aim = 6.05f;
 
     // // DEBUG
     // float pos_x = 5.91813f;
@@ -168,7 +168,7 @@ int main(int argc, char** argv)
 
         Camera camera(*space, pixel_size_deg, plot_fov); // Init camera with pointer to space rather than copying the whole object over
         camera.SetPosition(pos_x, pos_y, pos_z);
-        camera.SetAim(aim, 0.f, 8.f);
+        camera.SetAim(aim, 0.f, 0.f);
 
         camera.Render(interpolate);
         delete space;
