@@ -1,3 +1,4 @@
+#pragma once
 #include "DataCube.h"
 
 //!  Camera can generate sightlines then sample from the given Space object 

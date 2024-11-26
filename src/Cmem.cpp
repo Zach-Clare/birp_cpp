@@ -6,40 +6,77 @@
 #include <cmath>
 #include <vector>
 
+void CMEM::Init()
+{
+    /* Space.h has an pure virtual Init function for DataCube and
+    CMEM to implement that's called by main.cpp to kick stuff off. 
+    We have parameters for CMEM, but they're all optional and we have defaults
+    for all of them. This means the signatures of Space's Init function and the
+    actual Init function we need are different. Thus, without this Init function
+    here, CMEM supposedly has an unimplemented pure virtual funtion, making the
+    whole class virtual and making the compiler cry silly little tears.
+
+    Now we can call Init without any parameters, and that will call our actual
+    Init function. We use the single required bool parameter to prevent the inevitable
+    recursion loop of this function calling itself endlessly.
+    */
+
+    this->Init(true);
+}
+
 /* This will initialise function parameters necessary for the CMEM calculations.
 */
-void CMEM::Init() {
+void CMEM::Init(
+    bool hack, // horrible hack to fool the compiler. explaination in other Init func
+    int v_passed[3], 
+    int b_passed[3], 
+    float dipole_passed,
+    int p1_passed,
+    int p2_passed,
+    int p3_passed,
+    float B_passed,
+    float alpha_passed,
+    float beta_passed
+) {
 
     // These numbers are magic numbers from Sam's code. I don't know what these numbers do, but I know their value. Or at least Sam does.
 
-    // v is some sort of vector that we need to calculate the dynamic pressure
-    v[0] = 400; // x
-    v[1] = 0;   // y
-    v[2] = 0;   // z
+    if (!v_passed) {
+        // v is some sort of vector that we need to calculate the dynamic pressure
+        v[0] = 400; // x
+        v[1] = 0;   // y
+        v[2] = 0;   // z
+    } else {
+        v[0] = v_passed[0]; // x
+        v[1] = v_passed[1];   // y
+        v[2] = v_passed[2];   // z
+    }
 
-    // z is v but for magnetic pressure
-    b[0] = 0;   // x
-    b[1] = 0;   // y
-    b[2] = 5;   // z
+    if (!b_passed) {
+        // // z is v but for magnetic pressure
+        b[0] = 0;   // x
+        b[1] = 0;   // y
+        b[2] = 5;   // z
+    } else {
+        b[0] = b_passed[0]; // x
+        b[1] = b_passed[1];   // y
+        b[2] = b_passed[2];   // z
+    }
 
     CalcDynamicPressure();
     CalcMagneticPressure();
 
-    dipole = 0.f;
+    dipole = dipole_passed;
 
     // Initialise parameters for...models? Probbaly Shue or Jorgensen?
-    p0 = 1;
-    bs = r0_lin + 3;
-    A1 = 0.000015f;
-    A2 = 0.000013f;
-    B = 2.f;
-    alpha = 2.5f;
-    beta = -1.6f;
-    p1 = 1;
-    p2 = 3;
-    p3 = 4;
+    B = B_passed;
+    alpha = alpha_passed;
+    beta = beta_passed;
+    p1 = p1_passed;
+    p2 = p2_passed;
+    p3 = p3_passed;
 
-    // New init methods
+    // Initialise other parameters using calculated density value
     bs = -0.12 * density + 13.24;
     A1 = 0.0000027 * density - 0.0000063;
     A2 = 0.0000009 * density - 0.0000010;

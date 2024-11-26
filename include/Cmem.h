@@ -9,6 +9,17 @@
 
 class CMEM : public Space {
 public:
+    void Init(
+        bool hack,
+        int v_passed[3] = nullptr, 
+        int b_passed[3] = nullptr, 
+        float dipole_passed = 0.f,
+        int p1_passed = 1.f,
+        int p2_passed = 3.f,
+        int p3_passed = 4.f,
+        float B_passed = 2.f,
+        float alpha_passed = 2.5f,
+        float beta_passed = -1.6f);
     void Init();
     float GetSample(float x, float y, float z);
 
