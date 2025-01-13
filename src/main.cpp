@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     bool batch;
     bool use_cmem = false;
 
-    // spacecraft position defaults
+    // // spacecraft position defaults
     float pos_x = 5.91813f;
     float pos_y = 6.74116f;
     float pos_z = 17.7067f;
@@ -45,8 +45,27 @@ int main(int argc, char** argv)
     // should the renderer use trilinear interpolation
     // default false. opt-in
     bool interpolate = false;
+    
+    // camera properties defaults
+    float pixel_size_deg = .25f;
+    // int plot_fov = 108; // Double fov - for debug and furthr context in renders
+    // float pixel_size_deg = .75f; // double
+    float plot_fov_h = 36.f; // normal fov settings
+    float plot_fov_w = 36.f; // normal
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:t:c")) != -1)
+    // Init CMEM params 
+    std::vector<int> v; // int(3)
+    std::vector<int> b; // int(3)
+    float dipole = NULL; // dipole tilt
+    std::vector<float> p = {1.f, 3.f, 4.f}; // float (3)
+    float B = NULL; // captial B param
+    float alpha = NULL; // They should name these differently
+    float beta = NULL;  // because that's a bit confusing
+    float bs = NULL; // stands for Bow Shock, location of bow shock
+    float A1 = NULL; // parameter values, unsure what these do
+    float A2 = NULL;
+
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:")) != -1)
     {
         switch (c)
         {
@@ -60,7 +79,7 @@ int main(int argc, char** argv)
                     batch = true;
                     std::cout << "Using batch mode\n";
                 } else { // no usable datacube given.
-                    std::cout << "Please provide valid datacube or use -c to use CMEM." << std::endl;
+                    std::cout << "Please provide valid .dat datacube or use -c to use CMEM." << std::endl;
                     exit(3);
                 }
                 break;
@@ -106,18 +125,88 @@ int main(int argc, char** argv)
                 interpolate = true;
                 break;
             }
+            case 's': // pixel size in degrees
+            {
+                std::string fs(optarg);
+                pixel_size_deg = std::stof(optarg);
+                break;
+            }
+            case 'h': // height FOV of image
+            {
+                std::string fs(optarg);
+                plot_fov_h = std::stof(optarg);
+                break;
+            }
+            case 'w': // width FOV of image
+            {
+                std::string fs(optarg);
+                plot_fov_w = std::stof(optarg);
+                break;
+            }
+            case 'v': // v solar wind param for CMEM
+            {
+                std::string fs(optarg);
+                v = Helper::explode_int(fs, ','); // process, split by comma
+                break;
+            }
+            case 'b': // b solar wind param for CMEM
+            {
+                std::string fs(optarg);
+                b = Helper::explode_int(fs, ','); // process, split by comma
+                break;
+            }
+            case 'd': // dipole tilt for CMEM
+            {
+                std::string fs(optarg);
+                dipole = std::stof(fs);
+                break;
+            }
+            case 'p': // solar wind param for CMEM
+            {
+                std::string fs(optarg);
+                p = Helper::explode_float(fs, ','); // process, split by comma
+                break;
+            }
+            case 'q': // running out of letters, maps to B param
+            {
+                std::string fs(optarg);
+                B = std::stof(fs);
+                break;
+            } 
+            case 'r': // maps to alpha
+            {
+                std::string fs(optarg);
+                alpha = std::stof(fs);
+                break;
+            }
+            case 'f': // maps to beta
+            {  
+                std::string fs(optarg);
+                beta = std::stof(fs);
+                break;
+            }
+            case 'e':
+            {
+                std::string fs(optarg);
+                bs = std::stof(fs);
+                break;
+            }
+            case 'g':
+            {
+                std::string fs(optarg);
+                A1 = std::stof(fs);
+                break;
+            }
+            case 'u':
+            {
+                std::string fs(optarg);
+                A2 = std::stof(fs);
+                break;
+            }
         }
     }
 
     // cube.Load("/home/zc/code/birp/cpp/Batch/px_uni_0911.dat", 82, false);
-    
-    // // Double fov - for debug and furthr context in renders
-    // int plot_fov = 108;
-    // float pixel_size_deg = .75f;
-
-    // normal fov settings
-    int plot_fov = 36;
-    float pixel_size_deg = .25f;
 
     // Process in batch here
     if (batch) {
@@ -128,14 +217,15 @@ int main(int argc, char** argv)
             std::cout << "Loading datacube..." << std::flush;
             DataCube cube;
             cube.Load(entry.path(), 82, false);
+            cube.SetTrilinear(interpolate);
             // space.Init(entry.path(), 82, false);
             std::cout << "Datacube loaded.\nRendering..." << std::flush;
 
-            Camera camera(cube, pixel_size_deg, plot_fov);
+            Camera camera(cube, pixel_size_deg, plot_fov_h, plot_fov_w);
             camera.SetPosition(pos_x, pos_y, pos_z);
             camera.SetAim(aim, 0.f, 0.f);
 
-            camera.Render(interpolate);
+            camera.Render();
             std::cout << "Completed rendering.\nExporting..." << std::flush;
             std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
             camera.ToFITS(output + base_filename);
@@ -162,16 +252,27 @@ int main(int argc, char** argv)
             std::cout << "Initialising CMEM...\t" << std::flush;
             CMEM* cmem = new CMEM();
             space = cmem;
-            cmem->Init();
+            if (dipole != NULL ||
+                B != NULL ||
+                alpha != NULL ||
+                beta != NULL || 
+                !v.empty() ||
+                !b.empty() ||
+                !p.empty()
+            ) {
+                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2);
+            } else {
+                cmem->Init();
+            }
             std::cout << "Initialised.\nRendering...\t\t" << std::flush;
         }
 
-        Camera camera(*space, pixel_size_deg, plot_fov); // Init camera with pointer to space rather than copying the whole object over
+        Camera camera(*space, pixel_size_deg, plot_fov_h, plot_fov_w); // Init camera with pointer to space rather than copying the whole object over
         camera.SetPosition(pos_x, pos_y, pos_z);
         camera.SetAim(aim, 0.f, 0.f);
 
-        camera.Render(interpolate);
-        delete space;
+        camera.Render();
+        // delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
         camera.ToFITS(output + base_filename);
         camera.ToDat(output + base_filename);

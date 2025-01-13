@@ -28,6 +28,21 @@ std::vector<float> Helper::explode_float(std::string const& s, char delim)
     return result;
 }
 
+std::vector<int> Helper::explode_int(std::string const& s, char delim)
+{
+    std::vector<int> result;
+    std::istringstream iss(s);
+
+    for (std::string token; std::getline(iss, token, delim); )
+    {
+        if (!token.empty()) {
+            result.push_back(std::move(std::stoi(token)));
+        }
+    }
+
+    return result;
+}
+
 std::vector<std::vector<float>> Helper::MatrixMultiply(std::vector<std::vector<float>> a, std::vector<std::vector<float>> b)
 {
     // WARNING
@@ -61,7 +76,7 @@ std::vector<std::vector<float>> Helper::MatrixMultiply(std::vector<std::vector<f
 std::vector<float> Helper::MatrixMultiply(std::vector<std::vector<float>> a, std::vector<float> b) {
     int rows = a.size(); // a is 2D
     int a_columns = a[0].size();
-    int columns = b.size(); // b is 1D
+    // int columns = b.size(); // b is 1D
     float result[4] = {0}; // fixed size
     for (int row = 0; row < rows; row++) {
         for (int col = 0; col < a_columns; col++) {
@@ -272,7 +287,7 @@ std::vector<std::vector<float>> Helper::Gei2GseTransforms()
     date = date - 2400000.5f; // modify to be relative to 17th Nov 1858
     float t0 = (date - 51544.5f) / 36525; // convert into julian centuries
 
-    float theta = 100.461f + 36000.770f * t0;
+    // float theta = 100.461f + 36000.770f * t0;
     float epsilon = 23.439f - 0.013f * t0;
     float m = 357.528 + 35999.050f * t0;
     float lambda = 280.460 + 36000.772 * t0;
@@ -488,7 +503,7 @@ int Helper::findNearestNeighbourIndex( float value, std::vector< float > &x )
     return idx;
 }
 
-std::vector<float> Helper::XYZToSpherical(float* xyz, int size)
+std::vector<float> Helper::XYZToSpherical(float* xyz)
 {
     float x = xyz[0];
     float y = xyz[1];
@@ -509,7 +524,7 @@ std::vector<float> Helper::XYZToSpherical(float* xyz, int size)
     return {phi, theta, r};
 }
 
-std::vector<float> Helper::XYZToSphericalAlt(float* xyz, int size)
+std::vector<float> Helper::XYZToSphericalAlt(float* xyz)
 {
     float x = xyz[0];
     float y = xyz[1];

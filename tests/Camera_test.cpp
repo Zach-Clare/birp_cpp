@@ -22,14 +22,15 @@ class CubeFake : public Space {
 TEST(Camera, ToDatCreatesFiles) {
     Space* cube = new CubeFake;
     float pixel_size_deg = 0.25f;
-    float plot_fov = 36.f;
-    Camera camera(*cube, pixel_size_deg, plot_fov);
+    float plot_fov_h = 36.f;
+    float plot_fov_w = 36.f;
+    Camera camera(*cube, pixel_size_deg, plot_fov_h, plot_fov_w);
     float x = 1.f;
     float y = 1.f;
     float z = 1.f;
     camera.SetPosition(x, y, z);
     camera.SetAim(1, 0, 0);
-    camera.Render(false);
+    camera.Render();
     std::filesystem::remove("/home/zc/code/birp/cpp/data/output/testout.dat");
 
     camera.ToDat("/home/zc/code/birp/cpp/data/output/testout");
@@ -44,14 +45,15 @@ TEST(Camera, ToFITSCreatesFile) {
     // We are just testing if it creates a file with a fits extension in the specified place.
     Space* cube = new CubeFake;
     float pixel_size_deg = 0.25f;
-    float plot_fov = 36.f;
-    Camera camera(*cube, pixel_size_deg, plot_fov);
+    float plot_fov_h = 36.f;
+    float plot_fov_w = 36.f;
+    Camera camera(*cube, pixel_size_deg, plot_fov_h, plot_fov_w);
     float x = 1.f;
     float y = 1.f;
     float z = 1.f;
     camera.SetPosition(x, y, z);
     camera.SetAim(1, 0, 0);
-    camera.Render(false);
+    camera.Render();
     std::filesystem::remove("/home/zc/code/birp/cpp/data/output/testout.fits");
 
     camera.ToFITS("/home/zc/code/birp/cpp/data/output/testout");
@@ -69,14 +71,15 @@ TEST(Camera, RendersAccurateMHD) {
     cube->Init(path, 82, false);
     cube->SetTrilinear(false);
     float pixel_size_deg = 0.25f;
-    float plot_fov = 36.f;
-    Camera camera(*space, pixel_size_deg, plot_fov);
+    float plot_fov_h = 36.f;
+    float plot_fov_w = 36.f;
+    Camera camera(*cube, pixel_size_deg, plot_fov_h, plot_fov_w);
     float x = 1.f;
     float y = 1.f;
     float z = 1.f;
     camera.SetPosition(x, y, z);
     camera.SetAim(1, 0, 0);
-    camera.Render(false);
+    camera.Render();
     std::filesystem::remove("/home/zc/code/birp/cpp/data/output/testoutMHD.dat"); // remove residual files
 
     camera.ToDat("/home/zc/code/birp/cpp/data/output/testoutMHD"); // out in readable format
@@ -99,6 +102,8 @@ TEST(Camera, RendersAccurateMHD) {
     float sample2 = std::stof(row[751]);
     float expected2 = 24.165386f;
     EXPECT_EQ(expected2, sample2);
+
+    // EXPECT_EQ(2, 2);
 }
 
 TEST(Camera, RendersAccurateCMEM) {
@@ -107,14 +112,15 @@ TEST(Camera, RendersAccurateCMEM) {
     space = cube;
     cube->Init();
     float pixel_size_deg = 0.25f;
-    float plot_fov = 36.f;
-    Camera camera(*space, pixel_size_deg, plot_fov);
+    float plot_fov_h = 36.f;
+    float plot_fov_w = 36.f;
+    Camera camera(*cube, pixel_size_deg, plot_fov_h, plot_fov_w);
     float x = 1.f;
     float y = 1.f;
     float z = 1.f;
     camera.SetPosition(x, y, z);
     camera.SetAim(1, 0, 0);
-    camera.Render(false);
+    camera.Render();
     std::filesystem::remove("/home/zc/code/birp/cpp/data/output/testoutCMEM.dat"); // remove residual files
 
     camera.ToDat("/home/zc/code/birp/cpp/data/output/testoutCMEM"); // out in readable format

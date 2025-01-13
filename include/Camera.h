@@ -12,7 +12,10 @@ class Camera
 {
 private:
     int image_dimension; //!< in pixels, how tall and wide the resultant render should be
-    int fov; //!< Used with pixel_size_deg to calculate fov of th render
+    int image_dimension_x;
+    int image_dimension_y;
+    float fov_x; //!< Used with pixel_size_deg to calculate fov of th render
+    float fov_y;
     struct {
         float x;
         float y;
@@ -31,21 +34,22 @@ private:
     int ray_samples; //!< Number of samples to take along each ray
 
     void GenerateRayDistWidth(int);
-    void Integrate(bool trilinear);
+    void Integrate();
     float Orient();
     std::vector<float> PointToPlane(std::vector<float>, float, float, std::vector<float> distance_vec, std::vector<float> unit_vec, std::vector<float> north, std::vector<float> right);
 
 public:
     Space* dataCube; // dataCube is a misleading name since it could be a CMEM object
-    float image[144][144] {0}; // image is square, it's size will be image_dimension^2 
+    // float image[144][144] {0}; // image is square, it's size will be image_dimension^2 
+    std::vector<std::vector<float>> image;
 
     // Note cube is passed by reference for efficiency
-    Camera(Space& cube, float pixel_size_deg, int plot_fov);
+    Camera(Space& cube, float pixel_size_deg, float plot_fov_h, float plot_fov_w);
     ~Camera();
 
     void SetPosition(float&, float&, float&); //!< Set the position of the camera in GSE space
     void SetAim(float, float, float); //!< Set the aimpoint of the camera in GSE space. Only non-zero x values are supported
-    void Render(bool interpolate); //!< Begin the rendering process
+    void Render(); //!< Begin the rendering process
     int ToDat(std::string filename); //!< Export to a simple CSV file with a .dat file extension
     int ToFITS(std::string filename); //!< Eport the image to a FITS file
 };

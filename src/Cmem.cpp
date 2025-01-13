@@ -28,20 +28,24 @@ void CMEM::Init()
 */
 void CMEM::Init(
     bool hack, // horrible hack to fool the compiler. explaination in other Init func
-    int v_passed[3], 
-    int b_passed[3], 
+    std::vector<int> v_passed, 
+    std::vector<int> b_passed, 
     float dipole_passed,
+    float p0_passed,
     int p1_passed,
     int p2_passed,
     int p3_passed,
     float B_passed,
     float alpha_passed,
-    float beta_passed
+    float beta_passed,
+    float bs_passed,
+    float A1_passed,
+    float A2_passed
 ) {
 
     // These numbers are magic numbers from Sam's code. I don't know what these numbers do, but I know their value. Or at least Sam does.
 
-    if (!v_passed) {
+    if (v_passed.empty()) {
         // v is some sort of vector that we need to calculate the dynamic pressure
         v[0] = 400; // x
         v[1] = 0;   // y
@@ -52,7 +56,7 @@ void CMEM::Init(
         v[2] = v_passed[2];   // z
     }
 
-    if (!b_passed) {
+    if (b_passed.empty()) {
         // // z is v but for magnetic pressure
         b[0] = 0;   // x
         b[1] = 0;   // y
@@ -72,18 +76,15 @@ void CMEM::Init(
     B = B_passed;
     alpha = alpha_passed;
     beta = beta_passed;
+    p0 = p0_passed;
     p1 = p1_passed;
     p2 = p2_passed;
     p3 = p3_passed;
-
-    // Initialise other parameters using calculated density value
-    bs = -0.12 * density + 13.24;
-    A1 = 0.0000027 * density - 0.0000063;
-    A2 = 0.0000009 * density - 0.0000010;
-    p0 = 0.0022 * density + 0.7753;
+    bs = bs_passed;
+    A1 = A1_passed;
+    A2 = A2_passed;
     
     CalcInitialAlpha();
-
     DefineLinearCoeffs();
 
     return;

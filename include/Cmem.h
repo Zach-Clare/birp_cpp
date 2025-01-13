@@ -11,15 +11,19 @@ class CMEM : public Space {
 public:
     void Init(
         bool hack,
-        int v_passed[3] = nullptr, 
-        int b_passed[3] = nullptr, 
+        std::vector<int> v_passed = {}, 
+        std::vector<int> b_passed = {}, 
         float dipole_passed = 0.f,
+        float p0_passed = 0.786300004f,
         int p1_passed = 1.f,
         int p2_passed = 3.f,
         int p3_passed = 4.f,
         float B_passed = 2.f,
         float alpha_passed = 2.5f,
-        float beta_passed = -1.6f);
+        float beta_passed = -1.6f,
+        float bs_passed = 12.6400003f,
+        float A1_passed = 7.2e-06f,
+        float A2_passed = 3.5000000000000004e-06f);
     void Init();
     float GetSample(float x, float y, float z);
 

@@ -40,8 +40,8 @@ TEST(CMEM, BasicSamples) {
 TEST(CMEM, InitParamsSamples) {
     // we wanna test the getsample method with various parameter initilisations
 
-    int v[3] = {500, 0, 0}; // 400, 0, 0
-    int b[3] = {0, 0, 4}; // 0, 0, 5
+    std::vector<int> v = {400, 0, 0}; // 400, 0, 0
+    std::vector<int> b = {0, 0, 4}; // 0, 0, 5
     float dipole = 0.f; // 0.f
     int p1 = 1; // 1
     int p2 = 4; // 3

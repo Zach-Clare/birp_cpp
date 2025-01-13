@@ -15,17 +15,23 @@
 #include <EleFits/SifFile.h>
 #include <EleFits/MefFile.h>
 
-Camera::Camera(Space &cube, float pixel_size_deg, int plot_fov)
+Camera::Camera(Space &cube, float pixel_size_deg, float plot_fov_h, float plot_fov_w)
 {
     ray_samples = 200; // now many samples to take along each ray
-    fov = plot_fov;
+    fov_x = plot_fov_w;
+    fov_y = plot_fov_h;
     pixel_size_rad = pixel_size_deg * (M_PI / 180.f);
 
     dataCube = &cube;
-    image_dimension = std::round(plot_fov / pixel_size_deg);
-    float image_data[image_dimension * image_dimension];
+    image_dimension_y = std::round(plot_fov_h / pixel_size_deg);
+    image_dimension_x = std::round(plot_fov_w / pixel_size_deg);
+    // image_dimension_x = image_x;
+    // image_dimension_y = image_y;
+    // float image_data[image_dimension_x * image_dimension_y];
     // we woudl usually make the image array here, but we'll fill it dynamically
 
+    std::vector<std::vector<float>> image_whatevs(image_dimension_y, std::vector<float>(image_dimension_x, 0.f));
+    image = image_whatevs;
 }
 
 void Camera::SetPosition(float& x, float& y, float& z)
@@ -42,10 +48,10 @@ void Camera::SetAim(float x, float y, float z)
     aim.z = z;
 }
 
-void Camera::Render(bool interpolate = false)
+void Camera::Render()
 {
     this->GenerateRayDistWidth(44);
-    this->Integrate(interpolate);
+    this->Integrate();
 }
 
 void Camera::GenerateRayDistWidth(int max)
@@ -62,13 +68,13 @@ void Camera::GenerateRayDistWidth(int max)
     return;
 }
 
-void Camera::Integrate(bool trilinear = false) 
+void Camera::Integrate() 
 {
     float to_rad = M_PI / 180.f;
-    float to_deg = 180.f / M_PI;
+    // float to_deg = 180.f / M_PI; // uncomment if using
 
     float angle_sun = Camera::Orient();
-    float angle_sun_corrected = 360.f - angle_sun;
+    float angle_sun_corrected = 180.f - angle_sun; /// CHANGED 360 TO 180
 
     // Let's calculate some angles. Firstly, a rotation about the z axis so that y points towards the aimpoint
     float x_diff = aim.x - position.x;
@@ -79,7 +85,7 @@ void Camera::Integrate(bool trilinear = false)
     // Then calculate the rotation about the x axis
     float phi = std::atan2(hypotenuse, position.z);
 
-    float rotation_z = 0.f * to_rad;
+    // float rotation_z = 0.f * to_rad; // would be used in rz matrix
     std::vector<std::vector<float>> rz = {
         {std::cos(theta), - std::sin(theta), 0},
         {std::sin(theta), std::cos(theta), 0},
@@ -116,16 +122,21 @@ void Camera::Integrate(bool trilinear = false)
     std::vector<std::vector<float>> rotation2 = Helper::MatrixMultiply(rotation, rz);
     std::vector<std::vector<float>> rotation_inverse = Helper::GetInverse(rotation2);
 
-    
+    float aspect_ratio = (float)image_dimension_x / (float)image_dimension_y;
+
     // serial method first, no parallelisation yet
-    for (int i = 0; i < image_dimension; ++i) {
-        for (int j = 0; j < image_dimension; ++j) {
+    for (int j = 0; j < image_dimension_y; ++j) {
+        for (int i = 0; i < image_dimension_x; ++i) {
+
+            // i and j are raster space (total number of pixels)
+            // device_x and _y are NDC space (normalised from 0 - 1)
+            // screen_x and _y are screen space (normalised from -1 - 1)
 
             // Calculate pixel position
-            float device_x = (j + 0.5f) / (image_dimension);
-            float device_y = (i + 0.5f) / (image_dimension);
-            float screen_x = ((2 * device_x) - 1) * std::tan(to_rad * (fov / 2));
-            float screen_y = (1 - (2 * device_y)) * std::tan(to_rad * (fov / 2));
+            float device_x = (i + 0.5f) / (image_dimension_x);
+            float device_y = (j + 0.5f) / (image_dimension_y);
+            float screen_x = ((2 * device_x) - 1) * std::tan(to_rad * (fov_x / 2)) * aspect_ratio;
+            float screen_y = (1 - (2 * device_y)) * std::tan(to_rad * (fov_y / 2));
             float screen_vec[3] = {screen_x, screen_y, -1};
 
             float new_distance = Helper::VectorDistance(screen_vec);
@@ -145,7 +156,7 @@ void Camera::Integrate(bool trilinear = false)
             }; // and now we have the unit vector in world space!
 
             int pxk_ok = 1;
-            int pxk_yes = 0;
+            // int pxk_yes = 0;
 
             for (int pxk = 0; pxk < ray_samples; ++pxk) {
                 if (pxk_ok == 1) {
@@ -167,15 +178,16 @@ void Camera::Integrate(bool trilinear = false)
 
                     float sample = dataCube->GetSample(x_coord, y_coord, z_coord);
 
-                    float width_factor;
-                    if (pxk == 0) {
-                        width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
-                    } else {
-                        width_factor = ray_widths[pxk] * ray_widths[pxk] * (ray_dist[pxk] - ray_dist[pxk - 1]);
-                    }
+                    // float width_factor;
+                    // if (pxk == 0) {
+                    //     width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
+                    // } else {
+                    //     width_factor = ray_widths[pxk] * ray_widths[pxk] * (ray_dist[pxk] - ray_dist[pxk - 1]);
+                    // }
 
                     // sample = (sample * width_factor * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
 	                sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
+                    // sample = sample * 3;
 
                     // if sample is negative, location is out of bounds
                     // ignore remainder of this ray
@@ -190,10 +202,15 @@ void Camera::Integrate(bool trilinear = false)
                     //         sample = 70;
                     // }
 
-                    image[i][j] = image[i][j] + sample;
+                    // if (i == 0 && j == 0) {
+                    //     sample = 0.1f;
+                    // }
+
+                    // image[i][j] = image[i][j] + sample;
+                    image[j][i] = image[j][i] + sample; // one of these needs to be commented out?
                     sample_vector.clear();
 
-                    pxk_yes = 1;
+                    // pxk_yes = 1;
 
                 }
             }
@@ -206,9 +223,9 @@ int Camera::ToDat(std::string filename)
 {
     std::ofstream outfile(filename + ".dat");
 
-    for (int i = 0; i < 144; ++i) {
-        for (int j = 0; j < 144; ++j) {
-            outfile << std::to_string(image[i][j]);
+    for (int j = 0; j < image_dimension_y; ++j) {
+        for (int i = 0; i < image_dimension_x; ++i) {
+            outfile << std::to_string(image[j][i]);
             outfile << ",";
         }
         outfile << "\n";
@@ -224,18 +241,13 @@ int Camera::ToFITS(std::string filename)
     using namespace Euclid;
 
     std::vector<float> output_vector;
-    for (int i = 0; i < image_dimension; i++) {
-        for (int j = 0; j < image_dimension; j++) {
-            output_vector.push_back(image[i][j]);
+    for (int j = 0; j < image_dimension_y; j++) {
+        for (int i = 0; i < image_dimension_x; i++) {
+            output_vector.push_back(image[j][i]);
         }
     }
 
-    float* outs = &output_vector[0];
-
-    // // auto record = Fits::Record("rho", "1", "t", "emission from x-ray");
-    long height = 144;
-    long width = 144;
-    auto raster = Fits::makeRaster(output_vector, height, width);
+    auto raster = Fits::makeRaster(output_vector, image_dimension_x, image_dimension_y);
     
     try {
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);

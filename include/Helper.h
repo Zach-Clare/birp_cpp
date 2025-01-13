@@ -35,6 +35,7 @@ class Helper
         }
 
         static std::vector<float> explode_float(std::string const & s, char delim);
+        static std::vector<int> explode_int(std::string const & s, char delim);
         static std::vector<std::vector<float>> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<std::vector<float>> b);
         static std::vector<float> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<float> b);
         static std::vector<std::vector<float>> MatrixScalarMultiply(std::vector<std::vector<float>>, float);
@@ -51,8 +52,8 @@ class Helper
         static std::vector<float> XYToRaDec(float, float, std::vector<float>, std::vector<float>, std::vector<float>, std::vector<float>, float);
         static std::vector<float> Interp1( std::vector< float > &x, std::vector< float > &y, std::vector< float > x_new );
         static int findNearestNeighbourIndex( float value, std::vector< float > &x );
-        static std::vector<float> XYZToSpherical(float*, int);
-        static std::vector<float> XYZToSphericalAlt(float*, int);
+        static std::vector<float> XYZToSpherical(float*);
+        static std::vector<float> XYZToSphericalAlt(float*);
         static float VectorDistance(float* xyz);
         static float VectorDistance2D(float* xy);
         
