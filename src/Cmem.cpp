@@ -40,7 +40,9 @@ void CMEM::Init(
     float beta_passed,
     float bs_passed,
     float A1_passed,
-    float A2_passed
+    float A2_passed,
+    float ay_bs_passed,
+    float az_bs_passed
 ) {
 
     // These numbers are magic numbers from Sam's code. I don't know what these numbers do, but I know their value. Or at least Sam does.
@@ -76,15 +78,26 @@ void CMEM::Init(
     B = B_passed;
     alpha = alpha_passed;
     beta = beta_passed;
-    p0 = p0_passed;
-    p1 = p1_passed;
-    p2 = p2_passed;
-    p3 = p3_passed;
-    bs = bs_passed;
-    A1 = A1_passed;
-    A2 = A2_passed;
+    p0 = p0_passed == 0 ? 0.786300004f : p0_passed; // is it 0? if so, use default, otherwise use passed
+    p1 = p1_passed == 0 ? 1.f : p1_passed;
+    p2 = p2_passed == 0 ? 3.f : p3_passed;
+    p3 = p3_passed == 0 ? 4.f : p3_passed;
+    bs = bs_passed == 0 ? 12.64f : bs_passed;
+    A1 = A1_passed == 0 ? 7.2e-06f : A1_passed;
+    A2 = A2_passed == 0 ? 3.5e-06f : A2_passed;
+
+    // used passed parameters for bowshock flaring. If not passed, calculate from existing parameters
+    if (ay_bs_passed == NULL) {
+        ay_bs = CalcInitialAlpha();
+    } else {
+        ay_bs = ay_bs_passed;
+    }
+    if (az_bs_passed == NULL) {
+        az_bs = CalcInitialAlpha();
+    } else {
+        az_bs = az_bs_passed;
+    }
     
-    CalcInitialAlpha();
     DefineLinearCoeffs();
 
     return;
@@ -236,9 +249,9 @@ void CMEM::CalcMagneticPressure() {
     
 }
 
-void CMEM::CalcInitialAlpha() {
-    float val = (0.58f - 0.010 * b[2]) * (1 + 0.010f * pressure_dynamic) + 0.2f;
+float CMEM::CalcInitialAlpha() {
+    return (0.58f - 0.010 * b[2]) * (1 + 0.010f * pressure_dynamic) + 0.2f;
 
-    ay_bs = val;
-    az_bs = val;
+    // ay_bs = val;
+    // az_bs = val;
 }

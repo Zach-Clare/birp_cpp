@@ -57,15 +57,17 @@ int main(int argc, char** argv)
     std::vector<int> v; // int(3)
     std::vector<int> b; // int(3)
     float dipole = NULL; // dipole tilt
-    std::vector<float> p = {1.f, 3.f, 4.f}; // float (3)
+    std::vector<float> p = {1.f, 1.f, 3.f, 4.f}; // float (3)
     float B = NULL; // captial B param
     float alpha = NULL; // They should name these differently
     float beta = NULL;  // because that's a bit confusing
     float bs = NULL; // stands for Bow Shock, location of bow shock
     float A1 = NULL; // parameter values, unsure what these do
     float A2 = NULL;
+    float ay_bs = NULL; // flaring parameters for bowshock
+    float az_bs = NULL;
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:")) != -1)
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:")) != -1) //JKLMN remain. Time for Boost.program_options?
     {
         switch (c)
         {
@@ -143,64 +145,76 @@ int main(int argc, char** argv)
                 plot_fov_w = std::stof(optarg);
                 break;
             }
-            case 'v': // v solar wind param for CMEM
+            case 'v': // v solar wind param for CMEM ///////////////////////////////////////////////////// unused?
             {
                 std::string fs(optarg);
                 v = Helper::explode_int(fs, ','); // process, split by comma
                 break;
             }
-            case 'b': // b solar wind param for CMEM
+            case 'b': // b solar wind param for CMEM ////////////////////////////////////////////////////// unused?
             {
                 std::string fs(optarg);
                 b = Helper::explode_int(fs, ','); // process, split by comma
                 break;
             }
-            case 'd': // dipole tilt for CMEM
+            case 'd': // dipole tilt for CMEM ///////////////////////////////////////////////////////////// unused?
             {
                 std::string fs(optarg);
                 dipole = std::stof(fs);
                 break;
             }
-            case 'p': // solar wind param for CMEM
+            case 'p': // (p0, p1, p2, p3) solar wind param for CMEM // scaling factor for bs distance, mp flaring, and mp indentation, and unknown
             {
                 std::string fs(optarg);
                 p = Helper::explode_float(fs, ','); // process, split by comma
                 break;
             }
-            case 'q': // running out of letters, maps to B param
+            case 'q': // B running out of letters //  CMEM-specific maps to B param "big B"
             {
                 std::string fs(optarg);
                 B = std::stof(fs);
                 break;
             } 
-            case 'r': // maps to alpha
+            case 'r': // alpha // CMEM-specific
             {
                 std::string fs(optarg);
                 alpha = std::stof(fs);
                 break;
             }
-            case 'f': // maps to beta
+            case 'f': // beta // CMEM-specific
             {  
                 std::string fs(optarg);
                 beta = std::stof(fs);
                 break;
             }
-            case 'e':
+            case 'e': // bs bowshock distance // CMEM-specific
             {
                 std::string fs(optarg);
                 bs = std::stof(fs);
                 break;
             }
-            case 'g':
+            case 'g': // A1 CMEM-specific
             {
                 std::string fs(optarg);
                 A1 = std::stof(fs);
                 break;
             }
-            case 'u':
+            case 'u': // A2 CMEM-specific
             {
                 std::string fs(optarg);
                 A2 = std::stof(fs);
+                break;
+            }
+            case 'j': // A2 CMEM-specific
+            {
+                std::string fs(optarg);
+                ay_bs = std::stof(fs);
+                break;
+            }
+            case 'k': // A2 CMEM-specific
+            {
+                std::string fs(optarg);
+                az_bs = std::stof(fs);
                 break;
             }
         }
@@ -260,7 +274,7 @@ int main(int argc, char** argv)
                 !b.empty() ||
                 !p.empty()
             ) {
-                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2);
+                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs);
             } else {
                 cmem->Init();
             }
@@ -275,7 +289,7 @@ int main(int argc, char** argv)
         // delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
         camera.ToFITS(output + base_filename);
-        camera.ToDat(output + base_filename);
+        // camera.ToDat(output + base_filename);
         std::cout << "Exported to " << output << base_filename << ".fits\n" << std::flush;
     }
 

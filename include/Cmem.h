@@ -23,7 +23,9 @@ public:
         float beta_passed = -1.6f,
         float bs_passed = 12.6400003f,
         float A1_passed = 7.2e-06f,
-        float A2_passed = 3.5000000000000004e-06f);
+        float A2_passed = 3.5000000000000004e-06f,
+        float ay_bs_passed = NULL,
+        float az_bs_passed = NULL);
     void Init();
     float GetSample(float x, float y, float z);
 
@@ -80,6 +82,6 @@ private:
     static float ShueModel(float theta, float phi, float r0, float ay, float az);
     void CalcDynamicPressure();
     void CalcMagneticPressure();
-    void CalcInitialAlpha();
+    float CalcInitialAlpha();
 
 };
