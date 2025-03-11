@@ -14,6 +14,7 @@
 #include <EleFits/FitsFile.h>
 #include <EleFits/SifFile.h>
 #include <EleFits/MefFile.h>
+#include <EleFitsData/Raster.h>
 
 Camera::Camera(Space &cube, float pixel_size_deg, float plot_fov_h, float plot_fov_w)
 {
@@ -247,25 +248,26 @@ int Camera::ToFITS(std::string filename)
         }
     }
 
-    auto raster = Fits::makeRaster(output_vector, image_dimension_x, image_dimension_y);
+    auto raster = Fits::makeRaster(std::move(output_vector), image_dimension_x, image_dimension_y);
     
     try {
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
-        // f.write("rho", "0", "t", "comment");
-        // Fits::Record<std::string> record("rho", "0", "t", "comment");
-        // f.write(record, raster);
-        f.writeRaster(raster);
+        Fits::Record<std::string> record("rho", "0", "t", "comment");
+        f.write(record, raster);
+
     } catch (Euclid::Cfitsio::CfitsioError) {
+        // Error here is either an error with EleFits or the file exists already
+        // So let's attempt to delete an existing file and try again
+        // If the file does not exist already, there's a problem with EleFits, good luck
+
         std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
         std::filesystem::remove(filename);
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
-        f.writeRaster(raster);
-    }
-    
-    // auto raster = Fits::makeRaster(outs, (long(144), long(144)));
-    // Fits::MefFile f(filename, Fits::FileMode::Create);
+        
+        Fits::Record<std::string> record("rho", "0", "t", "comment");
+        f.write(record, raster);
 
-    // const auto& image1 = f.append_image("IMAGE1", {}, raster);
+    }
 
     return 1;
 }
