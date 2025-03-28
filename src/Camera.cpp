@@ -14,14 +14,16 @@
 #include <EleFits/FitsFile.h>
 #include <EleFits/SifFile.h>
 #include <EleFits/MefFile.h>
+#include <EleFits/Header.h>
 #include <EleFitsData/Raster.h>
 
-Camera::Camera(Space &cube, float pixel_size_deg, float plot_fov_h, float plot_fov_w)
+Camera::Camera(Space &cube, float pixel_size_degrees, float plot_fov_h, float plot_fov_w)
 {
     ray_samples = 200; // now many samples to take along each ray
     fov_x = plot_fov_w;
     fov_y = plot_fov_h;
     pixel_size_rad = pixel_size_deg * (M_PI / 180.f);
+    pixel_size_deg = pixel_size_degrees;
 
     dataCube = &cube;
     image_dimension_y = std::round(plot_fov_h / pixel_size_deg);
@@ -249,10 +251,21 @@ int Camera::ToFITS(std::string filename)
     }
 
     auto raster = Fits::makeRaster(std::move(output_vector), image_dimension_x, image_dimension_y);
+    Fits::Record<std::string> record("rho", "0", "t", "comment");
+    Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", ""};
+    Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", ""};
+    Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", ""};
+    Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", ""};
+
     
     try {
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
-        Fits::Record<std::string> record("rho", "0", "t", "comment");
+        // f.write(crval1, raster);
+        // f.write(cdelt1, raster);
+        // f.write(crval2, raster);
+        // f.write(cdelt2, raster);
+        // Fits::Header()
+        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2);
         f.write(record, raster);
 
     } catch (Euclid::Cfitsio::CfitsioError) {
@@ -263,8 +276,12 @@ int Camera::ToFITS(std::string filename)
         std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
         std::filesystem::remove(filename);
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
+        // f.write(crval1, raster);
+        // f.write(cdelt1, raster);
+        // f.write(crval2, raster);
+        // f.write(cdelt2, raster);
         
-        Fits::Record<std::string> record("rho", "0", "t", "comment");
+        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2);
         f.write(record, raster);
 
     }

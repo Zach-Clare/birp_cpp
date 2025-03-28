@@ -205,13 +205,13 @@ int main(int argc, char** argv)
                 A2 = std::stof(fs);
                 break;
             }
-            case 'j': // A2 CMEM-specific
+            case 'j': // bs flaring parameter in y CMEM-specific
             {
                 std::string fs(optarg);
                 ay_bs = std::stof(fs);
                 break;
             }
-            case 'k': // A2 CMEM-specific
+            case 'k': // bs flaring parameter in z CMEM-specific
             {
                 std::string fs(optarg);
                 az_bs = std::stof(fs);
