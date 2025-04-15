@@ -182,6 +182,23 @@ Now that we have both sets of rotation matraces, we need to use matrix multiplic
 
 Once we have that resultant vector, we make it into a unit vector and then multiply it by a uniformly increasing set of factors in order to get multiple vectors with specific distances. These are vectors from our spcaecraft to our sample points. We minus the spacecrafts position from each vector which will give us their 3D coordinate. We take the sample at each of these coordinates and add them all to a running total flux level for that pixel. Once we've taken samples from all the vectors, we've reached the end of the ray and we move onto the next pixel. Once we've completed the last pixel, we're done! The SXI unit rotates itself so that the sun-earth line (our x axis) is perpendicular to the sides of the image. There's a great visualisation of this that makes that really easy to understand, but I'm not sure where it is. Once I do, I'll post a link here. To do this, we project the position of the sun onto a 2D plane of the image, and then calculate how much to rotate the image by based on that. That's all in Orient and Point2Plane and needs refactoring for clarity.
 
+## Datacube and CMEM
+When passed an `-i` flag, the renderer will step through and sample the datacube passed. When given the `-c` flag, the renderer will use CMEM to calculate emission levels. Below is a full list of CMEM input parameters:
+x, y, z, a – GSE position and aimpoint where aimpoint = (a, 0, 0) 
+s – pixel size in degrees 
+v – solar wind velocity 
+b – magnetic parameter (I may be mistaken here) 
+d – dipole tilt 
+p0, p1, p2, p3 – CMEM parameters 
+q – CMEM B 
+r – CMEM alpha 
+f – CMEM beta 
+e – CMEM bs 
+g – CMEM A1 
+u – CMEM A2 
+j – CMEM bs_ay bowshock flaring 
+k – CMEM bs_az bowshock flaring 
+
 ## Reading the data
 To see the data in the way we usually want to, we need to convert it to a FITS image. ~~I use a Python program I created, reading from an intermediary data file to get from C++ to Python. I did try creating it as one unit in C++ but it seemed very finnicky.~~ I have since fixed this and included the EleFits library so that FITS exports can all be done in C++. 
 
