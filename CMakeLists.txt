@@ -1,3 +1,12 @@
+#
+#-----------------------------------------------------------
+#    This file contains the Unpublished Intellectual Property of
+#    University College London and All Rights Are Reserved.
+#    Copyright (c) University College London, 2024
+#-----------------------------------------------------------
+#
+
+
 cmake_minimum_required(VERSION 3.10)
 project(birp VERSION 1.0) # create the project handle
 

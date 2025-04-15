@@ -1,3 +1,12 @@
+/*
+-----------------------------------------------------------
+    This file contains the Unpublished Intellectual Property of
+    University College London and All Rights Are Reserved.
+    Copyright (c) University College London, 2024
+-----------------------------------------------------------
+*/
+
+
 #include "Space.h"
 #include "Cmem.h"
 #include "Helper.h"
