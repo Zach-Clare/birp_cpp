@@ -184,20 +184,20 @@ Once we have that resultant vector, we make it into a unit vector and then multi
 
 ## Datacube and CMEM
 When passed an `-i` flag, the renderer will step through and sample the datacube passed. When given the `-c` flag, the renderer will use CMEM to calculate emission levels. Below is a full list of CMEM input parameters:
-x, y, z, a – GSE position and aimpoint where aimpoint = (a, 0, 0) 
-s – pixel size in degrees 
-v – solar wind velocity 
-b – magnetic parameter (I may be mistaken here) 
-d – dipole tilt 
-p0, p1, p2, p3 – CMEM parameters 
-q – CMEM B 
-r – CMEM alpha 
-f – CMEM beta 
-e – CMEM bs 
-g – CMEM A1 
-u – CMEM A2 
-j – CMEM bs_ay bowshock flaring 
-k – CMEM bs_az bowshock flaring 
+- x, y, z, a – GSE position and aimpoint where aimpoint = (a, 0, 0) 
+- s – pixel size in degrees 
+- v – solar wind velocity 
+- b – magnetic parameter (I may be mistaken here) 
+- d – dipole tilt 
+- p0, p1, p2, p3 – CMEM parameters 
+- q – CMEM B 
+- r – CMEM alpha 
+- f – CMEM beta 
+- e – CMEM bs 
+- g – CMEM A1 
+- u – CMEM A2 
+- j – CMEM bs_ay bowshock flaring 
+- k – CMEM bs_az bowshock flaring 
 
 ## Reading the data
 To see the data in the way we usually want to, we need to convert it to a FITS image. ~~I use a Python program I created, reading from an intermediary data file to get from C++ to Python. I did try creating it as one unit in C++ but it seemed very finnicky.~~ I have since fixed this and included the EleFits library so that FITS exports can all be done in C++. 
