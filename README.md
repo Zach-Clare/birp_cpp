@@ -212,11 +212,3 @@ To run this, you need to have installed <a href="https://github.com/CNES/EleFits
 3. Next we'll prepare the files for compilation. Do this with `cmake -DCMAKE_MODULE_PATH=../EleFits/cmake/modules ..`. We're calling cmake and giving it a flag, telling it where it can find the modules needed. This path, in this project specifically, points to a cmake file that tells cmake where to look for EleFits. It's not an ideal way of doing this but this is down to the EleFits developers as far as I'm aware. If you know a bit about C++ compilation with C++ and know a better way of doing this, please reach out.
 4. Now we will actually build the files with `cmake --build .`. Passing the build flag to cmake means we also need to give it a location to put the files which, since we're currently in the build directory, is `.`.
 5. That will create a `birp` executable. You can place the batch files in the `data/batch` folder and run `./birp` to run it. Your output FITS files will be in `data/output`.
-
-
-
----------------
-
-By defining the rotations with a series of rotational matrices, we can calculate a single matrix and perform the rotation for our ray in a single step. The [wikipedia page for 3D rotations](https://en.wikipedia.org/wiki/Rotation_matrix#In_three_dimensions) contains a really useful record of the rotational matrices for each axis of rotation, and by calculating the angles to rotate by in each axis (or maybe only a couple), we can calculate the rotation matrix specific for this position in orbit and aimpoint. Then, through the magic of matrix multiplication (with caveats), we can calculate the new vector for each ray.
-
-We will label the line connecting the spacecraft's x-y projection (the point below the spacecraft) to the main x axis (whose length is equivalent to the spacecraft's y coordinate) the adjacent side. That would make the side where y = 0 the opposite side. 
