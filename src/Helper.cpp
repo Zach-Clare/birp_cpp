@@ -52,6 +52,21 @@ std::vector<int> Helper::explode_int(std::string const& s, char delim)
     return result;
 }
 
+std::vector<std::string> explode_string(std::string const & s, char delim)
+{
+    std::vector<std::string> result;
+    std::stringstream iss(s);
+
+    for (std::string token; std::getline(iss, token, delim);)
+    {
+        if (!token.empty()) {
+            result.push_back(std::move(token));
+        }
+    }
+
+    return result;
+}
+
 std::vector<std::vector<float>> Helper::MatrixMultiply(std::vector<std::vector<float>> a, std::vector<std::vector<float>> b)
 {
     // WARNING
@@ -581,4 +596,27 @@ float Helper::VectorDistance(float* xyz)
 float Helper::VectorDistance2D(float* xy)
 {
     return std::sqrt(std::pow(xy[0], 2) + std::pow(xy[1], 2));
+}
+
+// steps should be a list of distanecs from one element of the list/vector to the next
+bool Helper::EqualDistance(std::vector<float> steps)
+{
+    // we need to take this list of distances and account for floating point errors.
+    // to do this, we can loop through each element and see if it's within a certain distance of it's neighbour.
+    for (std::vector<float>::iterator i = steps.begin(); i != steps.end(); ++i) {
+        // as soon as one of them isn't we return false
+        if (i == steps.end() - 1) {
+            // final element
+            break;
+        }
+
+        // continue;
+
+        if (i - std::next(i) > 0.00001f) {
+            return false;
+        }
+    }
+    
+    // if that doesn't happen, we return true
+    return true;
 }

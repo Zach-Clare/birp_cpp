@@ -45,6 +45,7 @@ class Helper
 
         static std::vector<float> explode_float(std::string const & s, char delim);
         static std::vector<int> explode_int(std::string const & s, char delim);
+        static std::vector<std::string> explode_string(std::string const & s, char delim);
         static std::vector<std::vector<float>> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<std::vector<float>> b);
         static std::vector<float> MatrixMultiply(std::vector<std::vector<float>> a, std::vector<float> b);
         static std::vector<std::vector<float>> MatrixScalarMultiply(std::vector<std::vector<float>>, float);
@@ -65,5 +66,6 @@ class Helper
         static std::vector<float> XYZToSphericalAlt(float*);
         static float VectorDistance(float* xyz);
         static float VectorDistance2D(float* xy);
+        static bool EqualDistance(std::vector<float> steps);
         
 };

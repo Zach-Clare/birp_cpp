@@ -35,12 +35,17 @@ void DataCube::Load(std::string filename, int data_begin, bool debug) {
 	std::vector<float> coord_buffer;
 	int buffer_i = 0;
 	std::vector<float> data_buffer;
+	std::vector<int> coord_array;
 
 	int i = 0;
 	int j = 0;
 	int k = 0;
 
 	slices.push_back(std::vector<std::vector<float>> {});
+
+	bool parsed_coords = false;
+	bool check_parse = false;
+	bool parsed_space = false;
 
 	while(std::getline(ifs, line)) {
 		++line_num; // incrememnt line number
@@ -49,41 +54,84 @@ void DataCube::Load(std::string filename, int data_begin, bool debug) {
 			meta = line;
 		}
 
+		if (line_num == 10){
+			coord_array = Helper::explode_int(line, ' ');
+			check_parse = true; // this prevents a segfault when we check against the intended coord size
+
+		}
+
 		// this area describes the coord array
-		if ((11 <= line_num) && (line_num <= (data_begin - 1))) {
+		if (check_parse // check parse prevents segfault
+			&& coords_x.size() == coord_array[0]
+			&& coords_y.size() == coord_array[1]
+			&& coords_z.size() == coord_array[2]) {
+			parsed_coords = true; // use this as a marker. Previously, this used a line number, but it was very inelastic
+		}
+		// if ((11 <= line_num) && (line_num <= (data_begin - 1))) {
+		if ((11 <= line_num) && !parsed_coords) {
 			line_buffer = Helper::explode_float(line, ' ');
+
+			// bool new_coord = false;
+			// try {
+			// 	new_coord = coord_buffer[coord_buffer.size() - 1] > line_buffer[0];
+			// } catch (...) {
+			// 	new_coord = false;
+			// }
 			coord_buffer.insert(coord_buffer.end(), line_buffer.begin(), line_buffer.end());
 
-			if (line_buffer.size() < 6) {
-				if (buffer_i == 0) {
-					coords_x = coord_buffer;
-				} else if (buffer_i == 1)
-				{
-					coords_y = coord_buffer;
-				} else if (buffer_i == 2)
-				{
-					coords_z = coord_buffer;
-				}
-
-				++buffer_i;
+			if (coords_x.size() == 0 && coord_buffer.size() == coord_array[0]) { // if no x coords yet and coord buffer is correct size, use it.
+				coords_x = coord_buffer;
+				coord_buffer.clear();
+			} else if (coords_y.size() == 0 && coord_buffer.size() == coord_array[1]) {
+				coords_y = coord_buffer;
+				coord_buffer.clear();
+			} else if (coords_z.size() == 0 && coord_buffer.size() == coord_array[2]) {
+				coords_z = coord_buffer;
 				coord_buffer.clear();
 			} else {
-				line_buffer.clear();
+				// something wrong? Nope, just building coord_buffer still
 			}
+
+
+
+
+			// int coord_size = coord_buffer.size();
+			// int line_size = line_buffer.size();
+			// if (new_coord) { // i.e. coordinate has decreased between lines
+			// 	if (buffer_i == 0) {
+			// 		coords_x = coord_buffer;
+			// 	} else if (buffer_i == 1)
+			// 	{
+			// 		coords_y = coord_buffer;
+			// 	} else if (buffer_i == 2)
+			// 	{
+			// 		coords_z = coord_buffer;
+			// 	}
+
+			// 	++buffer_i;
+			// 	coord_buffer.clear();
+			// } else {
+			// 	line_buffer.clear();
+			// }
+
+			// new_coord = false;
 		}
 
 		// we have all coord values. Initialise meta-coord values
-		if (line_num == data_begin) {
+		// if we do this without checking if we've parsed the coordinates, we'll try and parse the space before we've built any of the necessary arrays.
+		if (parsed_coords && !parsed_space) {
 			this->InitSpacing();
 			this->InitOriginCoords();
 			this->InitSize();
+			parsed_space = true;
 		}
 
 		// All coord-related arrays built. Now build slices with actual data
-		if (line_num >= (data_begin - 1)) {
+		if (parsed_coords) { // make sure we're at the correct part of the input file - all coordinate arrays should be built by now
 			// trim line. 
 			Helper::trim(line);
-			if (line == "") {
+			// if (line == "") {
+			if (slices[k].size() == coord_array[1]) {
 				k++;
 				j = 0;
 				slices.push_back(std::vector<std::vector<float>> {});
@@ -91,11 +139,12 @@ void DataCube::Load(std::string filename, int data_begin, bool debug) {
 			}
 
 			// process volume
-			if (line_num >= data_begin) {
+			if (parsed_coords) {
 				std::vector<float> inter = Helper::explode_float(line, '  '); // split line into individual elements
 				data_buffer.insert(data_buffer.end(), inter.begin(), inter.end());
 
-				if (inter.size() < 6) { // end of this thread, meaning data buffer is full. Add the thread
+				// if (inter.size() < 6) { // end of this thread, meaning data buffer is full. Add the thread
+				if (data_buffer.size() == coord_array[0]) { ///////////////////////////////////////////////////////////// here is the error I think?
 					slices[k].push_back(data_buffer);
 				
 					data_buffer.clear();
@@ -141,7 +190,8 @@ float DataCube::GetAxisSpacing(std::vector<float> coords) {
 	// now check that all the distances are the same
 	// shamelessly taken from Raxvan via StackOverflow:
 	// https://stackoverflow.com/questions/20287095/checking-if-all-elements-of-a-vector-are-equal-in-c
-	if (!std::equal(distances.begin() + 1, distances.end(), distances.begin())) {
+	// if (!std::equal(distances.begin() + 1, distances.end(), distances.begin())) {
+	if (!Helper::EqualDistance(distances)) {
 		//all equal
 		throw std::invalid_argument("non-uniform grid given");
 	}
