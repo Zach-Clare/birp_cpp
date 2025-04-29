@@ -239,7 +239,7 @@ int main(int argc, char** argv)
             std::string path = entry.path().string();
             std::cout << "Loading datacube..." << std::flush;
             DataCube cube;
-            cube.Load(entry.path(), 82, false);
+            cube.Load(entry.path(), false);
             cube.SetTrilinear(interpolate);
             // space.Init(entry.path(), 82, false);
             std::cout << "Datacube loaded.\nRendering..." << std::flush;
@@ -266,7 +266,7 @@ int main(int argc, char** argv)
             std::cout << "Loading datacube...\t" << std::flush;
             DataCube* cube = new DataCube(); // Create the datacube object and get the pointer
             space = cube; // Save the pointer to DataCube in our Space-shaped hole
-            cube->Init(path, 82, false); // Use as cube, not space (due to Object Slicing)
+            cube->Init(path, false); // Use as cube, not space (due to Object Slicing)
             cube->SetTrilinear(interpolate); // save command-line option to object
             std::cout << "Datacube loaded.\nRendering...\t\t" << std::flush;
         } else {

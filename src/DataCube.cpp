@@ -21,19 +21,18 @@ void DataCube::Init() {
 	return;
 }
 
-void DataCube::Init(std::string &filename, int data_begin, bool debug = false) {
-	this->Load(filename, data_begin, debug);
+void DataCube::Init(std::string &filename, bool debug = false) {
+	this->Load(filename, debug);
 }
 
-void DataCube::Load(std::string filename, int data_begin, bool debug) {
+void DataCube::Load(std::string filename, bool debug) {
 
 	std::fstream ifs(filename); // create filestream from filename
 	std::string line; // create space for line data to go
 	int line_num = 0; // start at line zero
 	std::string meta;
-	std::vector<float> line_buffer;
-	std::vector<float> coord_buffer;
-	int buffer_i = 0;
+	std::vector<float> line_buffer; // This holds values from each line
+	std::vector<float> coord_buffer; // This holds all values belonging to one axis (and gets reset)
 	std::vector<float> data_buffer;
 	std::vector<int> coord_array;
 
@@ -67,54 +66,24 @@ void DataCube::Load(std::string filename, int data_begin, bool debug) {
 			&& coords_z.size() == coord_array[2]) {
 			parsed_coords = true; // use this as a marker. Previously, this used a line number, but it was very inelastic
 		}
-		// if ((11 <= line_num) && (line_num <= (data_begin - 1))) {
+		
+		// now we have the intended size of the datacube, start parsing the coordinate values
 		if ((11 <= line_num) && !parsed_coords) {
-			line_buffer = Helper::explode_float(line, ' ');
-
-			// bool new_coord = false;
-			// try {
-			// 	new_coord = coord_buffer[coord_buffer.size() - 1] > line_buffer[0];
-			// } catch (...) {
-			// 	new_coord = false;
-			// }
-			coord_buffer.insert(coord_buffer.end(), line_buffer.begin(), line_buffer.end());
+			line_buffer = Helper::explode_float(line, ' '); // get this line and...
+			coord_buffer.insert(coord_buffer.end(), line_buffer.begin(), line_buffer.end()); // add it to the overall buffer
 
 			if (coords_x.size() == 0 && coord_buffer.size() == coord_array[0]) { // if no x coords yet and coord buffer is correct size, use it.
 				coords_x = coord_buffer;
 				coord_buffer.clear();
-			} else if (coords_y.size() == 0 && coord_buffer.size() == coord_array[1]) {
+			} else if (coords_y.size() == 0 && coord_buffer.size() == coord_array[1]) { // or maybe it's time to fill Y?
 				coords_y = coord_buffer;
 				coord_buffer.clear();
-			} else if (coords_z.size() == 0 && coord_buffer.size() == coord_array[2]) {
+			} else if (coords_z.size() == 0 && coord_buffer.size() == coord_array[2]) { // or z?
 				coords_z = coord_buffer;
 				coord_buffer.clear();
 			} else {
-				// something wrong? Nope, just building coord_buffer still
+				// No action required, just keep building coord_buffer
 			}
-
-
-
-
-			// int coord_size = coord_buffer.size();
-			// int line_size = line_buffer.size();
-			// if (new_coord) { // i.e. coordinate has decreased between lines
-			// 	if (buffer_i == 0) {
-			// 		coords_x = coord_buffer;
-			// 	} else if (buffer_i == 1)
-			// 	{
-			// 		coords_y = coord_buffer;
-			// 	} else if (buffer_i == 2)
-			// 	{
-			// 		coords_z = coord_buffer;
-			// 	}
-
-			// 	++buffer_i;
-			// 	coord_buffer.clear();
-			// } else {
-			// 	line_buffer.clear();
-			// }
-
-			// new_coord = false;
 		}
 
 		// we have all coord values. Initialise meta-coord values
@@ -128,14 +97,15 @@ void DataCube::Load(std::string filename, int data_begin, bool debug) {
 
 		// All coord-related arrays built. Now build slices with actual data
 		if (parsed_coords) { // make sure we're at the correct part of the input file - all coordinate arrays should be built by now
-			// trim line. 
-			Helper::trim(line);
-			// if (line == "") {
-			if (slices[k].size() == coord_array[1]) {
-				k++;
-				j = 0;
-				slices.push_back(std::vector<std::vector<float>> {});
-				continue;
+			Helper::trim(line); // trim line with custom function
+			
+			if (slices[k].size() == coord_array[1]) { // if our slices are the correct size, move  onto filling the next slice
+				k++; // This increases in z direction I think
+				j = 0; // reset Y counter
+				slices.push_back(std::vector<std::vector<float>> {}); // create new vector for next set of values
+				if (line == "") {
+					continue;
+				}
 			}
 
 			// process volume
@@ -143,8 +113,7 @@ void DataCube::Load(std::string filename, int data_begin, bool debug) {
 				std::vector<float> inter = Helper::explode_float(line, '  '); // split line into individual elements
 				data_buffer.insert(data_buffer.end(), inter.begin(), inter.end());
 
-				// if (inter.size() < 6) { // end of this thread, meaning data buffer is full. Add the thread
-				if (data_buffer.size() == coord_array[0]) { ///////////////////////////////////////////////////////////// here is the error I think?
+				if (data_buffer.size() == coord_array[0]) { // end of this thread, meaning data buffer is full. Add the thread
 					slices[k].push_back(data_buffer);
 				
 					data_buffer.clear();
