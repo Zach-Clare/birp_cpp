@@ -120,13 +120,46 @@ float CMEM::GetSample(float x, float y, float z) {
     float radius_mp = LinScaled(shue[1], shue[2], dn, ds, theta_n, theta_s, r0_lin, p0, p1, p2, p3);
     float radius_bs = ShueModel(shue[1], shue[2], bs, ay_bs, az_bs);
 
-    if (shue[0] < radius_mp) {
+    // Here, this seperation below makes this program, when operated as a function, inderivable.
+    // Sam has added a "thinkness" to the walls that seperate these branches.
+    // Add this glue and make it smooth between sections
+
+    //////// Add thickness onto end of radius_bs, not on the front
+
+    float thickness = 0.5f;
+    float half_thickness = thickness / 2;
+
+    if (shue[0] < radius_mp - half_thickness) {
         return 0;
-    } else if (shue[0] >= radius_mp && (shue[0] < radius_bs)) {
+    } else if (shue[0] >= radius_mp - half_thickness && shue[0] <= radius_mp + half_thickness) {
+        // find direction and magnitude of x from boundary
+        float shue_norm = (shue[0] - (radius_mp - half_thickness)) / (radius_mp + half_thickness); // normalise distance to 0, 1, with 1 being thickness
+        float b0 = 0; // boundary zero, pre-mp
+        float b1 = A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));;// boundary 1, inside mp
+
+        // now we have both values, we can lineraly interpolate
+        return std::lerp(b0, b1, shue_norm);
+    } else if (shue[0] > radius_mp + half_thickness && shue[0] < radius_bs - half_thickness) {
         return A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));
-    } else {
+    } else if (shue[0] >= radius_bs - half_thickness && shue[0] <= radius_bs + half_thickness) {
+        // find direction and magnitude of x from boundary
+        float shue_norm = (shue[0] - (radius_bs - half_thickness)) / (radius_bs + half_thickness); // normalise distance to 0, 1, with 1 being thickness        
+        float b1 = A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));;// boundary 1, inside mp
+        float b2 = A2 * (std::pow(shue[0] / 10, -3));
+
+        // now we have both values, we can lineraly interpolate
+        return std::lerp(b1, b2, shue_norm);
+    } else { //beyond the bow shock
         return A2 * (std::pow(shue[0] / 10, -3));
     }
+
+    // if (shue[0] < radius_mp) {
+    //     return 0;
+    // } else if (shue[0] > radius_mp && shue[0] < radius_bs) {
+    //     return A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));
+    // } else { //beyond the bow shock
+    //     return A2 * (std::pow(shue[0] / 10, -3));
+    // }
 }
 
 float CMEM::LinScaled(
