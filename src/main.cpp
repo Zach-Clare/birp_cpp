@@ -75,8 +75,9 @@ int main(int argc, char** argv)
     float A2 = NULL;
     float ay_bs = NULL; // flaring parameters for bowshock
     float az_bs = NULL;
+    float density = NULL;
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:")) != -1) //JKLMN remain. Time for Boost.program_options?
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:")) != -1) //JKLMN remain. Time for Boost.program_options?
     {
         switch (c)
         {
@@ -172,7 +173,7 @@ int main(int argc, char** argv)
                 dipole = std::stof(fs);
                 break;
             }
-            case 'p': // (p0, p1, p2, p3) solar wind param for CMEM // scaling factor for bs distance, mp flaring, and mp indentation, and unknown
+            case 'p': // (p0, p1, p2, p3) solar wind param for CMEM // scaling factor for mp distance, mp flaring, and mp indentation, and unknown
             {
                 std::string fs(optarg);
                 p = Helper::explode_float(fs, ','); // process, split by comma
@@ -224,6 +225,12 @@ int main(int argc, char** argv)
             {
                 std::string fs(optarg);
                 az_bs = std::stof(fs);
+                break;
+            }
+            case 'l': // bs flaring parameter in z CMEM-specific
+            {
+                std::string fs(optarg);
+                density = std::stof(fs);
                 break;
             }
         }
@@ -281,9 +288,10 @@ int main(int argc, char** argv)
                 beta != NULL || 
                 !v.empty() ||
                 !b.empty() ||
-                !p.empty()
+                !p.empty() ||
+                density != NULL
             ) {
-                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs);
+                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs, density);
             } else {
                 cmem->Init();
             }

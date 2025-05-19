@@ -51,7 +51,8 @@ void CMEM::Init(
     float A1_passed,
     float A2_passed,
     float ay_bs_passed,
-    float az_bs_passed
+    float az_bs_passed,
+    float density_passed
 ) {
 
     // These numbers are magic numbers from Sam's code. I don't know what these numbers do, but I know their value. Or at least Sam does.
@@ -78,9 +79,6 @@ void CMEM::Init(
         b[2] = b_passed[2];   // z
     }
 
-    CalcDynamicPressure();
-    CalcMagneticPressure();
-
     dipole = dipole_passed;
 
     // Initialise parameters for...models? Probbaly Shue or Jorgensen?
@@ -94,6 +92,10 @@ void CMEM::Init(
     bs = bs_passed == 0 ? 12.64f : bs_passed;
     A1 = A1_passed == 0 ? 7.2e-06f : A1_passed;
     A2 = A2_passed == 0 ? 3.5e-06f : A2_passed;
+    density = density_passed == 0 ? 5 : density_passed;
+
+    CalcDynamicPressure();
+    CalcMagneticPressure();
 
     // used passed parameters for bowshock flaring. If not passed, calculate from existing parameters
     if (ay_bs_passed == NULL) {
@@ -120,13 +122,14 @@ float CMEM::GetSample(float x, float y, float z) {
     float radius_mp = LinScaled(shue[1], shue[2], dn, ds, theta_n, theta_s, r0_lin, p0, p1, p2, p3);
     float radius_bs = ShueModel(shue[1], shue[2], bs, ay_bs, az_bs);
 
-    // Here, this seperation below makes this program, when operated as a function, inderivable.
-    // Sam has added a "thinkness" to the walls that seperate these branches.
-    // Add this glue and make it smooth between sections
+    // The below is divided into five parts.
+    // subsolar point, where there is zero emission
+    // a smooth transition between boundaries
+    // mid boundary.
+    // another smooth transition layer
+    // the final post-bs layer
 
-    //////// Add thickness onto end of radius_bs, not on the front
-
-    float thickness = 0.5f;
+    float thickness = 0.05f;
     float half_thickness = thickness / 2;
 
     if (shue[0] < radius_mp - half_thickness) {
@@ -153,6 +156,7 @@ float CMEM::GetSample(float x, float y, float z) {
         return A2 * (std::pow(shue[0] / 10, -3));
     }
 
+    // // old formula
     // if (shue[0] < radius_mp) {
     //     return 0;
     // } else if (shue[0] > radius_mp && shue[0] < radius_bs) {

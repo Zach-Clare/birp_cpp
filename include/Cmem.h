@@ -34,7 +34,9 @@ public:
         float A1_passed = 7.2e-06f,
         float A2_passed = 3.5000000000000004e-06f,
         float ay_bs_passed = NULL,
-        float az_bs_passed = NULL);
+        float az_bs_passed = NULL,
+        float density_passed = NULL
+    );
     void Init();
     float GetSample(float x, float y, float z);
 
@@ -42,7 +44,6 @@ private:
 
     // Input parameters (I think?)
     int temp = 200000; // That's 200,000
-    float density = 5;
     float v[3];
     float b[3];
     float pressure_dynamic;
@@ -72,6 +73,7 @@ private:
     float p3; // scaling factor for ? parameter
     float ay_bs; // ay bowshock flaring parameter
     float az_bs; // az bowshock flaring parameter
+    float density; // Solar wind density
 
     float LinScaled(
         float& theta,
