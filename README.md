@@ -197,7 +197,8 @@ When passed an `-i` flag, the renderer will step through and sample the datacube
 - g – CMEM A1 
 - u – CMEM A2 
 - j – CMEM bs_ay bowshock flaring 
-- k – CMEM bs_az bowshock flaring 
+- k – CMEM bs_az bowshock flaring
+- l - CME solar wind density
 
 ## Reading the data
 To see the data in the way we usually want to, we need to convert it to a FITS image. ~~I use a Python program I created, reading from an intermediary data file to get from C++ to Python. I did try creating it as one unit in C++ but it seemed very finnicky.~~ I have since fixed this and included the EleFits library so that FITS exports can all be done in C++. 
