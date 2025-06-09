@@ -15,7 +15,7 @@
 TEST(DataCube, correctSample) {
     DataCube* cube = new DataCube;
     std::string path = "../data/px_uni_1000.dat";
-    cube->Init(path, 82, false);
+    cube->Init(path, false);
     cube->SetTrilinear(false);
 
     float sample = cube->GetSample(9.f, 0.f, 0.f);
@@ -30,7 +30,7 @@ TEST(DataCube, correctSample) {
 TEST(DataCube, correctSampleTrilinear) {
     DataCube* cube = new DataCube;
     std::string path = "../data/px_uni_1000.dat";
-    cube->Init(path, 82, false);
+    cube->Init(path, false);
     cube->SetTrilinear(true);
 
     float sample = cube->GetSample(9.f, 0.f, 0.f);
@@ -45,7 +45,7 @@ TEST(DataCube, correctSampleTrilinear) {
 TEST(DataCube, readDataFile) {
     DataCube* cube = new DataCube;
     std::string path = "../data/px_uni_1000.dat";
-    cube->Init(path, 82, false);
+    cube->Init(path, false);
 
     EXPECT_EQ(101, cube->size.x);
     EXPECT_EQ(161, cube->size.y);

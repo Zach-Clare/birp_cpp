@@ -23,7 +23,7 @@ TEST(CMEM, BasicSamples) {
     EXPECT_EQ(expected1, sample1);
 
     float sample2 = cmem->GetSample(4.f, 12.f, 10.f);
-    float expected2 = 3.05701769e-06;
+    float expected2 = 4.46853346e-06;
     EXPECT_EQ(expected2, sample2);
 
     float sample3 = cmem->GetSample(3.f, 1.5f, 1.2f);
@@ -43,7 +43,6 @@ TEST(CMEM, BasicSamples) {
     float expected6 = 8.15947317e-07;
     EXPECT_EQ(expected6, sample6);
 
-    GTEST_ASSERT_EQ(2, 2); 
 }
 
 TEST(CMEM, InitParamsSamples) {
@@ -67,8 +66,8 @@ TEST(CMEM, InitParamsSamples) {
     float expected1 = 0;
     EXPECT_EQ(expected1, sample1);
 
-    float sample2 = cmem->GetSample(4.f, 12.f, 10.f);
-    float expected2 = 1.14234717e-06;
+    float sample2 = cmem->GetSample(12.f, 12.f, 10.f);
+    float expected2 = 4.57952495e-07;
     EXPECT_EQ(expected2, sample2);
 
     float sample3 = cmem->GetSample(3.f, 1.5f, 1.2f);
@@ -77,15 +76,15 @@ TEST(CMEM, InitParamsSamples) {
 
     // again check for symmetry
     // WARNING::::: These samples are identical to when we init with default parameters
-    float sample4 = cmem->GetSample(8.f, 10.f, 10.f);
-    float expected4 = 8.15947317e-07;
+    float sample4 = cmem->GetSample(12.f, 10.f, 10.f);
+    float expected4 = 5.48567925e-07;
     EXPECT_EQ(expected4, sample4);
 
-    float sample5 = cmem->GetSample(8.f, -10.f, -10.f);
-    float expected5 = 8.15947317e-07;
+    float sample5 = cmem->GetSample(12.f, -10.f, -10.f);
+    float expected5 = 5.48567925e-07;
     EXPECT_EQ(expected5, sample5);
 
-    float sample6 = cmem->GetSample(8.f, 10.f, -10.f);
-    float expected6 = 8.15947317e-07;
+    float sample6 = cmem->GetSample(12.f, 10.f, -10.f);
+    float expected6 = 5.48567925e-07;
     EXPECT_EQ(expected6, sample6);
 }

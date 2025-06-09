@@ -199,6 +199,7 @@ void Camera::Integrate()
 
                     // sample = (sample * width_factor * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
 	                sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
+                    // sample = (sample * ray_width);
                     // sample = sample * 3;
 
                     // if sample is negative, location is out of bounds
