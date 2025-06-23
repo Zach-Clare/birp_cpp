@@ -298,7 +298,7 @@ int Camera::ToFITS(std::string filename)
         // f.write(crval2, raster);
         // f.write(cdelt2, raster);
         
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2);
+        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
         f.write(record, raster);
 
     }
