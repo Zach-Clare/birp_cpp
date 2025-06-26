@@ -49,28 +49,28 @@ TEST(Camera, ToDatCreatesFiles) {
     fclose(f);
 }
 
-TEST(Camera, ToFITSCreatesFile) {
-    // We currently aren't testing if the FITS file is malformed or otherwise wrong.
-    // We are just testing if it creates a file with a fits extension in the specified place.
-    Space* cube = new CubeFake;
-    float pixel_size_deg = 0.25f;
-    float plot_fov_h = 36.f;
-    float plot_fov_w = 36.f;
-    Camera camera(*cube, pixel_size_deg, plot_fov_h, plot_fov_w);
-    float x = 1.f;
-    float y = 1.f;
-    float z = 1.f;
-    camera.SetPosition(x, y, z);
-    camera.SetAim(1, 0, 0);
-    camera.Render();
-    std::filesystem::remove("/home/zc/code/birp/cpp/data/output/testout.fits");
+// TEST(Camera, ToFITSCreatesFile) {
+//     // We currently aren't testing if the FITS file is malformed or otherwise wrong.
+//     // We are just testing if it creates a file with a fits extension in the specified place.
+//     Space* cube = new CubeFake;
+//     float pixel_size_deg = 0.25f;
+//     float plot_fov_h = 36.f;
+//     float plot_fov_w = 36.f;
+//     Camera camera(*cube, pixel_size_deg, plot_fov_h, plot_fov_w);
+//     float x = 1.f;
+//     float y = 1.f;
+//     float z = 1.f;
+//     camera.SetPosition(x, y, z);
+//     camera.SetAim(1, 0, 0);
+//     camera.Render();
+//     std::filesystem::remove("/home/zc/code/birp/cpp/data/output/testout.fits");
 
-    camera.ToFITS("/home/zc/code/birp/cpp/data/output/testout");
+//     camera.ToFITS("/home/zc/code/birp/cpp/data/output/testout");
 
-    FILE* f = fopen("/home/zc/code/birp/cpp/data/output/testout.fits", "r");
-    ASSERT_TRUE(f != NULL);
-    fclose(f);
-}
+//     FILE* f = fopen("/home/zc/code/birp/cpp/data/output/testout.fits", "r");
+//     ASSERT_TRUE(f != NULL);
+//     fclose(f);
+// }
 
 ////////
 // I don't like the idea of taking a full render and checking individual pixels as the basis of a test

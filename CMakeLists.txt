@@ -21,9 +21,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(CMAKE_CXX_STANDARD 23) 
 
-# let's add the elefits library so we can create .FITS files
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
-find_package(EleFits REQUIRED)
+# Don't add Elefits in this companion version. Only for full version.
+# # let's add the elefits library so we can create .FITS files
+# list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
+# find_package(EleFits REQUIRED)
 
 # add files to be used as part of the executable
 add_executable(birp
@@ -45,11 +46,11 @@ target_include_directories(birp
 # set(CMAKE_CXX_EXTENSIONS OFF)
 # target_compile_features(birp PRIVATE cxx_std_13)
 
-
-target_link_libraries(birp
-    PRIVATE EleFits EleCfitsioWrapper cfitsio EleFitsData # need ffppr
-    # PRIVATE Classes
-)
+# Only for full version of BIRP. This is the companion version.
+# target_link_libraries(birp
+#     PRIVATE EleFits EleCfitsioWrapper cfitsio EleFitsData # need ffppr
+#     # PRIVATE Classes
+# )
 
 # add_subdirectory("${PROJECT_BINARY_DIR}../Classes")
 # add_library(Classes Classes/Camera.cpp Classes/DataCube.cpp Classes/Volume.cpp Helper.cpp)

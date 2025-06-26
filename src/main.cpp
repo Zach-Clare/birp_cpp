@@ -54,6 +54,7 @@ int main(int argc, char** argv)
     // should the renderer use trilinear interpolation
     // default false. opt-in
     bool interpolate = false;
+    bool dat = false;
     
     // camera properties defaults
     float pixel_size_deg = .25f;
@@ -77,7 +78,7 @@ int main(int argc, char** argv)
     float az_bs = NULL;
     float density = NULL;
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:")) != -1) //JKLMN remain. Time for Boost.program_options?
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:m")) != -1) //JKLMN remain. Time for Boost.program_options?
     {
         switch (c)
         {
@@ -233,6 +234,11 @@ int main(int argc, char** argv)
                 density = std::stof(fs);
                 break;
             }
+            case 'm': // bs flaring parameter in z CMEM-specific
+            {
+                dat = true;
+                break;
+            }
         }
     }
 
@@ -258,8 +264,8 @@ int main(int argc, char** argv)
             camera.Render();
             std::cout << "Completed rendering.\nExporting..." << std::flush;
             std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
-            camera.ToFITS(output + base_filename);
-            std::cout << "Exported to " << output + base_filename << ".fits\n" << std::flush;
+            camera.ToDat(output + base_filename);
+            std::cout << "Exported to " << output + base_filename << ".dat\n" << std::flush;
             // std::cout << entry.path() << std::endl;
         }
     } else { // non-batch
@@ -305,9 +311,13 @@ int main(int argc, char** argv)
         camera.Render();
         // delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
-        camera.ToFITS(output + base_filename);
-        // camera.ToDat(output + base_filename);
-        std::cout << "Exported to " << output << base_filename << ".fits\n" << std::flush;
+        // if (dat == false) {
+        //     camera.ToFITS(output + base_filename);
+        //     std::cout << "Exported to " << output << base_filename << ".fits\n" << std::flush;
+        // } else {        
+            camera.ToDat(output + base_filename);
+            std::cout << "Exported to " << output << base_filename << ".dat\nUse full BIRP version to output to FITS files." << std::flush;
+        // }
     }
 
     auto end = high_resolution_clock::now();

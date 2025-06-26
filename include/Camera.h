@@ -60,5 +60,5 @@ public:
     void SetAim(float, float, float); //!< Set the aimpoint of the camera in GSE space. Only non-zero x values are supported
     void Render(); //!< Begin the rendering process
     int ToDat(std::string filename); //!< Export to a simple CSV file with a .dat file extension
-    int ToFITS(std::string filename); //!< Eport the image to a FITS file
+    // int ToFITS(std::string filename); //!< Eport the image to a FITS file
 };

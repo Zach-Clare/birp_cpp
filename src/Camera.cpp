@@ -20,11 +20,11 @@
 #include "Helper.h"
 #include "Camera.h"
 
-#include <EleFits/FitsFile.h>
-#include <EleFits/SifFile.h>
-#include <EleFits/MefFile.h>
-#include <EleFits/Header.h>
-#include <EleFitsData/Raster.h>
+// #include <EleFits/FitsFile.h>
+// #include <EleFits/SifFile.h>
+// #include <EleFits/MefFile.h>
+// #include <EleFits/Header.h>
+// #include <EleFitsData/Raster.h>
 
 Camera::Camera(Space &cube, float pixel_size_degrees, float plot_fov_h, float plot_fov_w)
 {
@@ -249,62 +249,62 @@ int Camera::ToDat(std::string filename)
     return 1;
 }
 
-int Camera::ToFITS(std::string filename)
-{
-    using namespace Euclid;
+// int Camera::ToFITS(std::string filename)
+// {
+//     using namespace Euclid;
 
-    std::vector<float> output_vector;
-    for (int j = 0; j < image_dimension_y; j++) {
-        for (int i = 0; i < image_dimension_x; i++) {
-            output_vector.push_back(image[j][i]);
-        }
-    }
+//     std::vector<float> output_vector;
+//     for (int j = 0; j < image_dimension_y; j++) {
+//         for (int i = 0; i < image_dimension_x; i++) {
+//             output_vector.push_back(image[j][i]);
+//         }
+//     }
 
-    auto raster = Fits::makeRaster(std::move(output_vector), image_dimension_x, image_dimension_y);
-    Fits::Record<std::string> record("rho", "0", "t", "comment");
-    Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", ""};
-    Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", ""};
-    Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", ""};
-    Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", ""};
+//     auto raster = Fits::makeRaster(std::move(output_vector), image_dimension_x, image_dimension_y);
+//     Fits::Record<std::string> record("rho", "0", "t", "comment");
+//     Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", ""};
+//     Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", ""};
+//     Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", ""};
+//     Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", ""};
     
-    Fits::Record<float> pos_x {"POS_X", this->position.x, "float", ""};
-    Fits::Record<float> pos_y {"POS_Y", this->position.y, "float", ""};
-    Fits::Record<float> pos_z {"POS_Z", this->position.z, "float", ""};
-    Fits::Record<float> aim_x {"AIM_X", this->aim.x, "float", ""};
-    Fits::Record<float> aim_y {"AIM_Y", this->aim.y, "float", ""};
-    Fits::Record<float> aim_z {"AIM_Z", this->aim.z, "float", ""};
+//     Fits::Record<float> pos_x {"POS_X", this->position.x, "float", ""};
+//     Fits::Record<float> pos_y {"POS_Y", this->position.y, "float", ""};
+//     Fits::Record<float> pos_z {"POS_Z", this->position.z, "float", ""};
+//     Fits::Record<float> aim_x {"AIM_X", this->aim.x, "float", ""};
+//     Fits::Record<float> aim_y {"AIM_Y", this->aim.y, "float", ""};
+//     Fits::Record<float> aim_z {"AIM_Z", this->aim.z, "float", ""};
 
     
-    try {
-        Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
-        // f.write(crval1, raster);
-        // f.write(cdelt1, raster);
-        // f.write(crval2, raster);
-        // f.write(cdelt2, raster);
-        // Fits::Header()
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
-        f.write(record, raster);
+//     try {
+//         Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
+//         // f.write(crval1, raster);
+//         // f.write(cdelt1, raster);
+//         // f.write(crval2, raster);
+//         // f.write(cdelt2, raster);
+//         // Fits::Header()
+//         f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
+//         f.write(record, raster);
 
-    } catch (Euclid::Cfitsio::CfitsioError) {
-        // Error here is either an error with EleFits or the file exists already
-        // So let's attempt to delete an existing file and try again
-        // If the file does not exist already, there's a problem with EleFits, good luck
+//     } catch (Euclid::Cfitsio::CfitsioError) {
+//         // Error here is either an error with EleFits or the file exists already
+//         // So let's attempt to delete an existing file and try again
+//         // If the file does not exist already, there's a problem with EleFits, good luck
 
-        std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
-        std::filesystem::remove(filename);
-        Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
-        // f.write(crval1, raster);
-        // f.write(cdelt1, raster);
-        // f.write(crval2, raster);
-        // f.write(cdelt2, raster);
+//         std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
+//         std::filesystem::remove(filename);
+//         Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
+//         // f.write(crval1, raster);
+//         // f.write(cdelt1, raster);
+//         // f.write(crval2, raster);
+//         // f.write(cdelt2, raster);
         
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
-        f.write(record, raster);
+//         f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
+//         f.write(record, raster);
 
-    }
+//     }
 
-    return 1;
-}
+//     return 1;
+// }
 
 float Camera::Orient()
 {
