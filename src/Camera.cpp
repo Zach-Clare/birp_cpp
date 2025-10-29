@@ -92,7 +92,7 @@ void Camera::Integrate()
     float x_diff = aim.x - position.x;
     float theta = (2 * M_PI) - std::atan2(x_diff, position.y);
     // float rotation_z = ((180 - (to_deg * theta)) * to_rad) + (20 * to_rad);
-    float hypotenuse = std::sqrt(std::pow(x_diff, 2) + std::pow(position.y, 2));
+    float hypotenuse = std::sqrt(x_diff*x_diff) + position.y*position.y;
 
     // Then calculate the rotation about the x axis
     float phi = std::atan2(hypotenuse, position.z);
