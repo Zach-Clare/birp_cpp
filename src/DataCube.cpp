@@ -97,7 +97,7 @@ void DataCube::Load(std::string filename, bool debug) {
 
 		// All coord-related arrays built. Now build slices with actual data
 		if (parsed_coords) { // make sure we're at the correct part of the input file - all coordinate arrays should be built by now
-			Helper::trim(line); // trim line with custom function
+			Helper::trim(line); // trim line with custom function // TODO: REmove????
 			
 			if (slices[k].size() == coord_array[1]) { // if our slices are the correct size, move  onto filling the next slice
 				k++; // This increases in z direction I think

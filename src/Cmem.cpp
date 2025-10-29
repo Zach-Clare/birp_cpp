@@ -138,22 +138,41 @@ float CMEM::GetSample(float x, float y, float z) {
         // find direction and magnitude of x from boundary
         float shue_norm = (shue[0] - (radius_mp - half_thickness)) / (radius_mp + half_thickness); // normalise distance to 0, 1, with 1 being thickness
         float b0 = 0; // boundary zero, pre-mp
-        float b1 = A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));;// boundary 1, inside mp
+        
+        // save values for faster maths
+        float half_shue_1 = shue[1] / 2;
+        float sin_shue_1 = std::sin(shue[1]);
+
+        float b1 = A1 * (std::exp(- B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[0] / 10, (- alpha - (beta * (sin_shue_1*sin_shue_1))));;// boundary 1, inside mp
 
         // now we have both values, we can lineraly interpolate
         return std::lerp(b0, b1, shue_norm);
     } else if (shue[0] > radius_mp + half_thickness && shue[0] < radius_bs - half_thickness) {
-        return A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));
+        
+        // save values for faster maths
+        float half_shue_1 = shue[1] / 2;
+        float sin_shue_1 = std::sin(shue[1]);
+        
+        return A1 * (std::exp(- B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[0] / 10, (- alpha - (beta * (sin_shue_1*sin_shue_1))));
     } else if (shue[0] >= radius_bs - half_thickness && shue[0] <= radius_bs + half_thickness) {
+        
+        // save values for faster maths
+        float half_shue_1 = shue[1] / 2;
+        float sin_shue_1 = std::sin(shue[1]);
+        double shue_div_10 = shue[0] / 10; // save for speed
+        
         // find direction and magnitude of x from boundary
         float shue_norm = (shue[0] - (radius_bs - half_thickness)) / (radius_bs + half_thickness); // normalise distance to 0, 1, with 1 being thickness        
-        float b1 = A1 * (std::exp(- B * std::pow(shue[1] / 2, 4))) * std::pow(shue[0] / 10, (- alpha - (beta * std::pow(std::sin(shue[1]), 2))));;// boundary 1, inside mp
-        float b2 = A2 * (std::pow(shue[0] / 10, -3));
+        float b1 = A1 * (std::exp(- B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[0] / 10, (- alpha - (beta * (sin_shue_1*sin_shue_1))));;// boundary 1, inside mp
+        float b2 = A2 * (1 / (shue_div_10*shue_div_10*shue_div_10)); // equivalent to: A2 * (std::pow(shue[0] / 10, -3))
 
         // now we have both values, we can lineraly interpolate
         return std::lerp(b1, b2, shue_norm);
     } else { //beyond the bow shock
-        return A2 * (std::pow(shue[0] / 10, -3));
+        double shue_div_10 = shue[0] / 10; // save for speed
+        return A2 * (1 / (shue_div_10*shue_div_10*shue_div_10));
+
+        // above is equivalent to: A2 * (std::pow(shue[0] / 10, -3));
     }
 
     // // old formula
@@ -191,7 +210,8 @@ float CMEM::LinScaled(
         );
 
         // what does f mean??
-        float f = std::pow(std::cos(theta / 2) + a[5] * std::sin(2 * theta) * (1 - std::exp( - theta)), (p1 * (beta_c[0] + beta_c[1] * std::cos(phi) + beta_c[3] * std::pow(std::sin(phi), 2))));
+        float sin_phi = std::sin(phi);
+        float f = std::pow(std::cos(theta / 2) + a[5] * std::sin(2 * theta) * (1 - std::exp( - theta)), (p1 * (beta_c[0] + beta_c[1] * std::cos(phi) + beta_c[3] * (sin_phi*sin_phi))));
 
         // what is q?
         float q = p2 * charlie * std::exp(p3 * dn * (std::pow(phi_n, a[21]))) + p2 * charlie * std::exp(p3 * ds * (std::pow(phi_s, a[21])));
@@ -244,8 +264,8 @@ void CMEM::DefineLinearCoeffs() {
 
     // get delta coeffs - north and south?
     // not identical, look carefully
-    dn = a[16] + a[17] * dipole + a[18] * std::pow(dipole, 2); // note +
-    ds = a[16] - a[17] * dipole + a[18] * std::pow(dipole, 2); // note -
+    dn = a[16] + a[17] * dipole + a[18] * (dipole*dipole); // note +
+    ds = a[16] - a[17] * dipole + a[18] * (dipole*dipole); // note -
 
     // get theta coeffs - north and south?
     theta_n = a[19] + a[20] * dipole; // note +
@@ -261,7 +281,9 @@ float CMEM::ShueModel(float theta, float phi, float r0, float ay, float az) {
     float ry = r0 * std::pow((2 / (1 + std::cos(theta))), ay);
     float rz = r0 * std::pow((2 / (1 + std::cos(theta))), az);
 
-    float r = (ry * rz) / std::pow(std::pow(rz * std::cos(phi), 2) + std::pow(ry * std::sin(phi), 2), 0.5);
+    float rz_x_cos_phi = rz * std::cos(phi);
+    float ry_x_sin_phi = ry * std::sin(phi);
+    float r = (ry * rz) / std::sqrt((rz_x_cos_phi*rz_x_cos_phi) + (ry_x_sin_phi*ry_x_sin_phi));
     return r;
 }
 
@@ -278,7 +300,7 @@ void CMEM::CalcDynamicPressure() {
     float n = density * 1000000; // That's 1,000,000 - a million
 
     // Calculate dynamic pressure first in Pascals, then nPa
-    pressure_dynamic = 0.5f * proton_mass * n * std::pow(vms, 2) * 1000000000; // That's 1,000,000,000 - a billion
+    pressure_dynamic = 0.5f * proton_mass * n * (vms*vms) * 1000000000; // That's 1,000,000,000 - a billion
 }
 
 /* Calculated value is constant throughout simulation (I think)
@@ -291,7 +313,7 @@ void CMEM::CalcMagneticPressure() {
     float mu0 = 4 * M_PI * 0.0000001;
 
     // Calculate magnetic pressue in Pascals, then nPa
-    pressure_magnetic = std::pow(B, 2) / (2 * mu0) * 1000000000; // That's 1,000,000,000 - a billion
+    pressure_magnetic = (B*B) / (2 * mu0) * 1000000000; // That's 1,000,000,000 - a billion
     
 }
 
