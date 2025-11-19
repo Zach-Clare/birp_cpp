@@ -138,6 +138,10 @@ void DataCube::Load(std::string filename, bool debug) {
 }
 
 void DataCube::InitSpacing() {
+	// std::vector<float> x_gaps;
+	// for (int i = 0; i < coords_x.size(); i++) {
+		
+	// }
 	this->spacing[0] = this->GetAxisSpacing(coords_x);
 	this->spacing[1] = this->GetAxisSpacing(coords_y);
 	this->spacing[2] = this->GetAxisSpacing(coords_z);
@@ -161,7 +165,17 @@ float DataCube::GetAxisSpacing(std::vector<float> coords) {
 	// https://stackoverflow.com/questions/20287095/checking-if-all-elements-of-a-vector-are-equal-in-c
 	// if (!std::equal(distances.begin() + 1, distances.end(), distances.begin())) {
 	if (!Helper::EqualDistance(distances)) {
-		//all equal
+		// okay, here we want to handle our non-uniform axis.
+		// let's find the smallest, that's our new grid size!
+		// auto min = std::min_element(distances.begin(), distances.end());
+
+		// this min value is new grid size. Maybe we need to break out this whole if statement because we can't return a float here.
+		// we need to iterate through our coords again and see how many of these minimums fit inside each one
+		// Then we add how many multiples to a new array e.g. [3, 3, 2, 2, 1, 1, 1, 1, 2, 2, 3, 3]
+		// And when we load our data from the file, we use this array to control how many times we add it.
+		// The obvious question here is what happens if it's not exact?
+		// I don't know.
+
 		throw std::invalid_argument("non-uniform grid given");
 	}
 
@@ -188,18 +202,18 @@ void DataCube::SetTrilinear(bool option) {
 
 float DataCube::GetSample(float x, float y, float z) {
 	// If this gives a segmentation fault, the datacube likely has a problem loading. TODO: Error catch
-	float x_ingress = std::abs(coords_x[0] - x);
+	float x_ingress =  x - coords_x[0];
 	float x_index = (x_ingress / spacing[0]);
 
-	float y_ingress = std::abs(coords_y[0] - y);
+	float y_ingress =  y - coords_y[0];
 	float y_index = (y_ingress / spacing[1]);
 
-	float z_ingress = std::abs(coords_z[0] - z);
+	float z_ingress =  z - coords_z[0];
 	float z_index = (z_ingress / spacing[2]);
 
-	if ((0 > x_index || x_index + 1 >= size.x) ||
-		(0 > y_index || y_index + 1 >= size.y) ||
-		(0 > z_index || z_index + 1 >= size.z)) {
+	if ((0 > x_ingress || x_index + 1 >= size.x) ||
+		(0 > y_ingress || y_index + 1 >= size.y) ||
+		(0 > z_ingress || z_index + 1 >= size.z)) {
 		return -1.f;
 	}
 	
