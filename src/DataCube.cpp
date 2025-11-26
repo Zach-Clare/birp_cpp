@@ -270,7 +270,7 @@ float DataCube::GetSample(float x, float y, float z) {
 		sample = std::lerp(low_y, high_y, z_frac);
 
 	} else {
-		sample = slices.at((int) z_index).at((int) y_index).at((int) x_index);
+		sample = slices.at(std::round(z_index)).at(std::round(y_index)).at(std::round(x_index));
 	}
 	
 	return sample;
