@@ -25,6 +25,7 @@
 #include <EleFits/MefFile.h>
 #include <EleFits/Header.h>
 #include <EleFitsData/Raster.h>
+#include <EleFitsData/KeywordCategory.h>
 
 Camera::Camera(Space &cube, float pixel_size_degrees, float plot_fov_h, float plot_fov_w)
 {
@@ -261,45 +262,41 @@ int Camera::ToFITS(std::string filename)
     }
 
     auto raster = Fits::makeRaster(std::move(output_vector), image_dimension_x, image_dimension_y);
-    Fits::Record<std::string> record("rho", "0", "t", "comment");
-    Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", ""};
-    Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", ""};
-    Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", ""};
-    Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", ""};
+    Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", "Half the FOV in x (left-right)"};
+    Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", "Width of each pixel in x"};
+    Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", "Half the FOV in y (up-down)"};
+    Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", "Width of each pixel in y"};
     
-    Fits::Record<float> pos_x {"POS_X", this->position.x, "float", ""};
-    Fits::Record<float> pos_y {"POS_Y", this->position.y, "float", ""};
-    Fits::Record<float> pos_z {"POS_Z", this->position.z, "float", ""};
-    Fits::Record<float> aim_x {"AIM_X", this->aim.x, "float", ""};
-    Fits::Record<float> aim_y {"AIM_Y", this->aim.y, "float", ""};
-    Fits::Record<float> aim_z {"AIM_Z", this->aim.z, "float", ""};
+    Fits::Record<float> pos_x {"POS_X", this->position.x, "float", "Position of the camera in x"};
+    Fits::Record<float> pos_y {"POS_Y", this->position.y, "float", "Position of the camera in x"};
+    Fits::Record<float> pos_z {"POS_Z", this->position.z, "float", "Position of the camera in x"};
+    Fits::Record<float> aim_x {"AIM_X", this->aim.x, "float", "Aimpoint of the central pixel in x"};
+    Fits::Record<float> aim_y {"AIM_Y", this->aim.y, "float", "Aimpoint of the central pixel in y"};
+    Fits::Record<float> aim_z {"AIM_Z", this->aim.z, "float", "Aimpoint of the central pixel in z"};
+    
+    Fits::Record<std::string> units {"UNITS", "keV"};
+    
+    Fits::Record<std::string> created {"BIRP", "This file was created with BIRP C++ authored by Zach Clare at MSSL"};
+    Fits::Record<std::string> created_url {"BIRP_URL", "http://github.com/Zach-Clare/birp_cpp"};
 
     
     try {
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
-        // f.write(crval1, raster);
-        // f.write(cdelt1, raster);
-        // f.write(crval2, raster);
-        // f.write(cdelt2, raster);
-        // Fits::Header()
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
-        f.write(record, raster);
+        // This next line parses the records into a sequence
+        Fits::RecordSeq records = Fits::RecordSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z, units, created, created_url);
+        f.write(records, raster); // ...so that we can write them all at once with the raster object we have!
 
     } catch (Euclid::Cfitsio::CfitsioError) {
         // Error here is either an error with EleFits or the file exists already
         // So let's attempt to delete an existing file and try again
         // If the file does not exist already, there's a problem with EleFits, good luck
 
-        std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
+        std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows, specifically the red text
         std::filesystem::remove(filename);
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
-        // f.write(crval1, raster);
-        // f.write(cdelt1, raster);
-        // f.write(crval2, raster);
-        // f.write(cdelt2, raster);
-        
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
-        f.write(record, raster);
+        // This next line parses the records into a sequence
+        Fits::RecordSeq records = Fits::RecordSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z, units, created, created_url);
+        f.write(records, raster); // ...so that we can write them all at once with the raster object we have!
 
     }
 
