@@ -76,6 +76,7 @@ int main(int argc, char** argv)
     float ay_bs = NULL; // flaring parameters for bowshock
     float az_bs = NULL;
     float density = NULL;
+    float dbeta = NULL; // dbeta parameter for CMEM
 
     while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:")) != -1) //JKLMN remain. Time for Boost.program_options?
     {
@@ -233,6 +234,12 @@ int main(int argc, char** argv)
                 density = std::stof(fs);
                 break;
             }
+            case 'm': // dbeta parameter CMEM-specific
+            {
+                std::string fs(optarg);
+                dbeta = std::stof(fs);
+                break;
+            }
         }
     }
 
@@ -300,9 +307,10 @@ int main(int argc, char** argv)
                 !v.empty() ||
                 !b.empty() ||
                 !p.empty() ||
-                density != NULL
+                density != NULL ||
+                dbeta != NULL
             ) {
-                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs, density);
+                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs, density, dbeta);
             } else {
                 cmem->Init();
             }

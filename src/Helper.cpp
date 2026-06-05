@@ -342,14 +342,13 @@ std::vector<float> Helper::RaDecToGSI(float ra, float dec)
     float delta = dec * conv;
 
     float z_gei = std::sin(delta);
-    float y_int = 1 - z_gei*z_gei;
+    float y_int = 1 - std::pow(std::sin(delta), 2);
     if (y_int < 0) {
         y_int = 0.f;
     }
 
-    float tan_alpha = std::tan(alpha); // store for speed instead of calculating twice
-    float y_gei = std::sqrt(y_int) * std::tan(alpha) / std::sqrt(1 + tan_alpha*tan_alpha);
-    float x_int = 1 - y_gei*y_gei - z_gei*z_gei;
+    float y_gei = std::sqrt(y_int) * std::tan(alpha) / std::sqrt(1 + std::pow(std::tan(alpha),2));
+    float x_int = 1 - std::pow(y_gei, 2) - std::pow(std::sin(delta), 2);
     if (x_int < 0) {
         x_int = 0.f;
     }
@@ -590,7 +589,7 @@ std::vector<float> Helper::XYZToSphericalAlt(float* xyz)
 // Calculate distance of 3D vector
 float Helper::VectorDistance(float* xyz)
 {
-    return std::sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1] + xyz[2]*xyz[2]);
+    return std::sqrt(std::pow(xyz[0],2) + std::pow(xyz[1],2) + std::pow(xyz[2],2));
 }
 
 // Calculate distance of 2D vector

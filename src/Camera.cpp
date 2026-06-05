@@ -63,7 +63,7 @@ void Camera::SetAim(float x, float y, float z)
 
 void Camera::Render()
 {
-    this->GenerateRayDistWidth(44);
+    this->GenerateRayDistWidth(100);
     this->Integrate();
 }
 
@@ -171,6 +171,8 @@ void Camera::Integrate()
             int pxk_ok = 1;
             // int pxk_yes = 0;
 
+            float summing_array[ray_samples];
+
             for (int pxk = 0; pxk < ray_samples; ++pxk) {
                 if (pxk_ok == 1) {
 
@@ -191,6 +193,10 @@ void Camera::Integrate()
 
                     float sample = dataCube->GetSample(x_coord, y_coord, z_coord);
 
+                    // if (pxk != 0 && pxk != ray_samples) {
+                    //     sample = 
+                    // }
+
                     // float width_factor;
                     // if (pxk == 0) {
                     //     width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
@@ -199,7 +205,10 @@ void Camera::Integrate()
                     // }
 
                     // sample = (sample * width_factor * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
-	                sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
+	                // sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
+                    
+                    
+                    // sample = ((1 / (4 * M_PI)) * sample * (ray_width / 2)) * 637100;
                     // sample = (sample * ray_width);
                     // sample = sample * 3;
 
@@ -222,14 +231,23 @@ void Camera::Integrate()
 
                     // image[i][j] = image[i][j] + sample;
                     image[j][i] = image[j][i] + sample; // one of these needs to be commented out?
+                    summing_array[pxk] = sample;
                     sample_vector.clear();
 
                     // pxk_yes = 1;
 
                 }
             }
+
+            // float sum = 0;
+            // for (int k = 1; k < ray_samples - 2; k++){
+            //     sum = 2 * summing_array[k] 
+            // }
+
+            image[j][i] = (image[j][i] * 2) - summing_array[0] - summing_array[ray_samples];
+            image[j][i] = ((1 / (4 * M_PI)) * image[j][i] * (ray_width / 2)) * 637100;
         }
-        // std::cout << std::to_string(i) << ", " << std::flush;
+        // std::cout << std::to_string(i) << ", " << std::flush;   
     }
 }
 
@@ -306,9 +324,9 @@ int Camera::ToFITS(std::string filename)
 float Camera::Orient()
 {
     // This is a port of the IDL version of orient() so I'm
-    // not entirely sure what it's doing, but I think it finds
+    // not entirely sure how it works, but it finds
     // out how to rotate the camera so that the x-line is 
-    // perpendicular to the sides of the image.
+    // perpendicular to the sides of the image and it's spot on.
 
     // I was going to refactor this, but it takes less than 1ms.
     // It's just maths with no loops so it's quick
@@ -401,7 +419,7 @@ float Camera::Orient()
 
     std::vector<float> sun = {23455.f, 0.f, 0.f};
     std::vector<float> p2pout = PointToPlane(sun, plac, 1, distance_vec, unit_vec, north, right);
-    float angle_sun = 270 - (to_deg * std::atan2(0 - p2pout[0], 0 - p2pout[1]));
+    float angle_sun = (to_deg * std::atan2(0 - p2pout[0], 0 - p2pout[1]));
 
     if (angle_sun > 360) {
         angle_sun = angle_sun - 360;
