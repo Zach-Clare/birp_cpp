@@ -244,7 +244,7 @@ void Camera::Integrate()
             //     sum = 2 * summing_array[k] 
             // }
 
-            image[j][i] = (image[j][i] * 2) - summing_array[0] - summing_array[ray_samples];
+            image[j][i] = ((image[j][i] * 2) - summing_array[0]) - summing_array[ray_samples];
             image[j][i] = ((1 / (4 * M_PI)) * image[j][i] * (ray_width / 2)) * 637100;
         }
         // std::cout << std::to_string(i) << ", " << std::flush;   
@@ -419,7 +419,7 @@ float Camera::Orient()
 
     std::vector<float> sun = {23455.f, 0.f, 0.f};
     std::vector<float> p2pout = PointToPlane(sun, plac, 1, distance_vec, unit_vec, north, right);
-    float angle_sun = (to_deg * std::atan2(0 - p2pout[0], 0 - p2pout[1]));
+    float angle_sun = 270 - (to_deg * std::atan2(0 - p2pout[0], 0 - p2pout[1]));
 
     if (angle_sun > 360) {
         angle_sun = angle_sun - 360;

@@ -78,7 +78,7 @@ int main(int argc, char** argv)
     float density = NULL;
     float dbeta = NULL; // dbeta parameter for CMEM
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:")) != -1) //JKLMN remain. Time for Boost.program_options?
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:m:")) != -1) //JKLMN remain. Time for Boost.program_options?
     {
         switch (c)
         {
@@ -310,7 +310,7 @@ int main(int argc, char** argv)
                 density != NULL ||
                 dbeta != NULL
             ) {
-                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs, density, dbeta);
+                cmem->Init(true, dipole, p[0], p[1], p[2], p[3], B, A1, dbeta);
             } else {
                 cmem->Init();
             }

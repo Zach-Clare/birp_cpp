@@ -37,79 +37,79 @@ void CMEM::Init()
 */
 void CMEM::Init(
     bool hack, // horrible hack to fool the compiler. explaination in other Init func
-    std::vector<int> v_passed, 
-    std::vector<int> b_passed, 
+    // std::vector<int> v_passed, 
+    // std::vector<int> b_passed, 
     float dipole_passed,
     float p0_passed,
     float p1_passed,
     float p2_passed,
     float p3_passed,
     float B_passed,
-    float alpha_passed,
-    float beta_passed,
-    float bs_passed,
+    // float alpha_passed,
+    // float beta_passed,
+    // float bs_passed,
     float A1_passed,
-    float A2_passed,
-    float ay_bs_passed,
-    float az_bs_passed,
-    float density_passed,
+    // float A2_passed,
+    // float ay_bs_passed,
+    // float az_bs_passed,
+    // float density_passed,
     float dbeta_passed
 ) {
 
     // These numbers are magic numbers from Sam's code. I don't know what these numbers do, but I know their value. Or at least Sam does.
 
-    if (v_passed.empty()) {
-        // v is some sort of vector that we need to calculate the dynamic pressure
-        v[0] = 400; // x
-        v[1] = 0;   // y
-        v[2] = 0;   // z
-    } else {
-        v[0] = v_passed[0]; // x
-        v[1] = v_passed[1];   // y
-        v[2] = v_passed[2];   // z
-    }
+    // if (v_passed.empty()) {
+    //     // v is some sort of vector that we need to calculate the dynamic pressure
+    //     v[0] = 400; // x
+    //     v[1] = 0;   // y
+    //     v[2] = 0;   // z
+    // } else {
+    //     v[0] = v_passed[0]; // x
+    //     v[1] = v_passed[1];   // y
+    //     v[2] = v_passed[2];   // z
+    // }
 
-    if (b_passed.empty()) {
-        // // z is v but for magnetic pressure
-        b[0] = 0;   // x
-        b[1] = 0;   // y
-        b[2] = 5;   // z
-    } else {
-        b[0] = b_passed[0]; // x
-        b[1] = b_passed[1];   // y
-        b[2] = b_passed[2];   // z
-    }
+    // if (b_passed.empty()) {
+    //     // // z is v but for magnetic pressure
+    //     b[0] = 0;   // x
+    //     b[1] = 0;   // y
+    //     b[2] = 5;   // z
+    // } else {
+    //     b[0] = b_passed[0]; // x
+    //     b[1] = b_passed[1];   // y
+    //     b[2] = b_passed[2];   // z
+    // }
 
     dipole = dipole_passed;
 
     // Initialise parameters for...models? Probbaly Shue or Jorgensen?
     B = B_passed;
-    alpha = alpha_passed;
-    beta = beta_passed;
+    // alpha = alpha_passed;
+    // beta = beta_passed;
     p0 = p0_passed == 0 ? 0.786300004f : p0_passed; // is it 0? if so, use default, otherwise use passed
     p1 = p1_passed == 0 ? 1.f : p1_passed;
     p2 = p2_passed == 0 ? 3.f : p2_passed;
     p3 = p3_passed == 0 ? 4.f : p3_passed;
-    bs = bs_passed == 0 ? 12.64f : bs_passed;
+    // bs = bs_passed == 0 ? 12.64f : bs_passed;
     A1 = A1_passed == 0 ? 7.2e-06f : A1_passed;
-    A2 = A2_passed == 0 ? 3.5e-06f : A2_passed;
-    density = density_passed == 0 ? 5 : density_passed;
+    // A2 = A2_passed == 0 ? 3.5e-06f : A2_passed;
+    // density = density_passed == 0 ? 5 : density_passed;
     dbeta = dbeta_passed == 0 ? 0.86 : dbeta_passed;
 
-    CalcDynamicPressure();
-    CalcMagneticPressure();
+    // CalcDynamicPressure();
+    // CalcMagneticPressure();
 
-    // used passed parameters for bowshock flaring. If not passed, calculate from existing parameters
-    if (ay_bs_passed == NULL) {
-        ay_bs = CalcInitialAlpha();
-    } else {
-        ay_bs = ay_bs_passed;
-    }
-    if (az_bs_passed == NULL) {
-        az_bs = CalcInitialAlpha();
-    } else {
-        az_bs = az_bs_passed;
-    }
+    // // used passed parameters for bowshock flaring. If not passed, calculate from existing parameters
+    // if (ay_bs_passed == NULL) {
+    //     ay_bs = CalcInitialAlpha();
+    // } else {
+    //     ay_bs = ay_bs_passed;
+    // }
+    // if (az_bs_passed == NULL) {
+    //     az_bs = CalcInitialAlpha();
+    // } else {
+    //     az_bs = az_bs_passed;
+    // }
     
     DefineLinearCoeffs();
 
@@ -121,7 +121,7 @@ float CMEM::GetSample(float x, float y, float z) {
     // convert {x, y, z} to {r, theta, and phi}
     std::vector<float> shue = CMEM::ShueCoords(x, y, z);
 
-    double radius_mp = LinScaledSimple(shue[1], shue[2], dn, ds, theta_n, theta_s, r0_lin, p0, p1, p2, p3);
+    double radius_mp = LinScaledSimple(shue[1], shue[2], dn, ds, theta_n, theta_s, p0, p1, p2, p3);
     double rmp0 = SubsolarPoint(dn, ds, theta_n, theta_s, p0, p2, p3);
     double radius_bs = ShueModelSimple(shue[1], rmp0, p1, 0.05);
 
@@ -133,13 +133,13 @@ float CMEM::GetSample(float x, float y, float z) {
     // the final post-bs layer
 
     float thickness = 0.5f;
-    float half_thickness = thickness / 2;
+    // float half_thickness = thickness / 2;
 
-    if (shue[0] < radius_mp - half_thickness) {
+    if (shue[0] < radius_mp - thickness) {
         return 0;
-    } else if (shue[0] >= radius_mp - half_thickness && shue[0] <= radius_mp + half_thickness) {
+    } else if (shue[0] >= radius_mp - thickness && shue[0] < radius_mp) {
         // find direction and magnitude of x from boundary
-        // float shue_norm = (shue[0] - (radius_mp - half_thickness)) / (radius_mp + half_thickness); // normalise distance to 0, 1, with 1 being thickness
+        // float shue_norm = (shue[0] - (radius_mp - thickness)) / (radius_mp + thickness); // normalise distance to 0, 1, with 1 being thickness
         // float b0 = 0; // boundary zero, pre-mp
         
         // // save values for faster maths
@@ -157,7 +157,7 @@ float CMEM::GetSample(float x, float y, float z) {
         float cos_shue_1 = std::cos(shue[1]);
         float eta_rmp = A1 * (std::exp(- B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(radius_mp / 10, -(dbeta + (2 * (cos_shue_1 * cos_shue_1))));
         return (eta_rmp / thickness) * (shue[0] - radius_mp) + eta_rmp;
-    } else if (shue[0] > radius_mp + half_thickness && shue[0] < radius_bs - half_thickness) {
+    } else if (shue[0] > radius_mp && shue[0] < radius_bs) {
         
         // save values for faster maths
         float half_shue_1 = shue[1] / 2;
@@ -168,7 +168,7 @@ float CMEM::GetSample(float x, float y, float z) {
 
         // alt method
         return A1 * (std::exp(-B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[1] / 10, (-dbeta+(2*(cos_shue_1 * cos_shue_1))));
-    } else if (shue[0] >= radius_bs - half_thickness && shue[0] <= radius_bs + half_thickness) {
+    } else if (shue[0] >= radius_bs && shue[0] < radius_bs + thickness) {
         
         // // save values for faster maths
         // float half_shue_1 = shue[1] / 2;
@@ -176,7 +176,7 @@ float CMEM::GetSample(float x, float y, float z) {
         // double shue_div_10 = shue[0] / 10; // save for speed
         
         // // find direction and magnitude of x from boundary
-        // float shue_norm = (shue[0] - (radius_bs - half_thickness)) / (radius_bs + half_thickness); // normalise distance to 0, 1, with 1 being thickness        
+        // float shue_norm = (shue[0] - (radius_bs - thickness)) / (radius_bs + thickness); // normalise distance to 0, 1, with 1 being thickness        
         // float b1 = A1 * (std::exp(- B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[0] / 10, (- alpha - (beta * (sin_shue_1*sin_shue_1))));;// boundary 1, inside mp
         // float b2 = A2 * (1 / (shue_div_10*shue_div_10*shue_div_10)); // equivalent to: A2 * (std::pow(shue[0] / 10, -3))
 
@@ -250,7 +250,6 @@ double CMEM::LinScaledSimple(
         float& ds,
         float& theta_n,
         float& theta_s,
-        float& r0_lin,
         float& p0,
         float& p1,
         float& p2,
@@ -303,20 +302,20 @@ std::vector<float> CMEM::ShueCoords(float x, float y, float z) {
 
     float r = Helper::VectorDistance(point);
 
-    float theta;
-    float phi;
+    // if (x != 0) {
+    //     phi =  std::acos(x / r);
+    // } else {
+    //     phi = 0;
+    // }
 
-    if (x != 0) {
-        phi =  std::acos(x / r);
-    } else {
-        phi = 0;
-    }
+    // if (y != 0) {
+    //     theta = std::acos(y / Helper::VectorDistance2D(theta_components));
+    // } else {
+    //     theta = 0;
+    // }
 
-    if (y != 0) {
-        theta = std::acos(y / Helper::VectorDistance2D(theta_components));
-    } else {
-        theta = 0;
-    }
+    float theta = std::acos(x / r);
+    float phi = std::atan2(z, y);
 
     return std::vector<float> {r, theta, phi};
 }
