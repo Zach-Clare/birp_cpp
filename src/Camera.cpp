@@ -25,6 +25,7 @@
 #include <EleFits/MefFile.h>
 #include <EleFits/Header.h>
 #include <EleFitsData/Raster.h>
+#include <EleFitsData/KeywordCategory.h>
 
 Camera::Camera(Space &cube, float pixel_size_degrees, float plot_fov_h, float plot_fov_w)
 {
@@ -62,7 +63,7 @@ void Camera::SetAim(float x, float y, float z)
 
 void Camera::Render()
 {
-    this->GenerateRayDistWidth(44);
+    this->GenerateRayDistWidth(100);
     this->Integrate();
 }
 
@@ -170,6 +171,8 @@ void Camera::Integrate()
             int pxk_ok = 1;
             // int pxk_yes = 0;
 
+            float summing_array[ray_samples];
+
             for (int pxk = 0; pxk < ray_samples; ++pxk) {
                 if (pxk_ok == 1) {
 
@@ -190,6 +193,10 @@ void Camera::Integrate()
 
                     float sample = dataCube->GetSample(x_coord, y_coord, z_coord);
 
+                    // if (pxk != 0 && pxk != ray_samples) {
+                    //     sample = 
+                    // }
+
                     // float width_factor;
                     // if (pxk == 0) {
                     //     width_factor = ray_widths[pxk] * ray_widths[pxk] * ray_dist[pxk];
@@ -198,7 +205,10 @@ void Camera::Integrate()
                     // }
 
                     // sample = (sample * width_factor * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
-	                sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
+	                // sample = (sample * ray_width * (1000 * 100 * 6378.1) / (4 / M_PI)) / 10000;
+                    
+                    
+                    // sample = ((1 / (4 * M_PI)) * sample * (ray_width / 2)) * 637100;
                     // sample = (sample * ray_width);
                     // sample = sample * 3;
 
@@ -221,14 +231,23 @@ void Camera::Integrate()
 
                     // image[i][j] = image[i][j] + sample;
                     image[j][i] = image[j][i] + sample; // one of these needs to be commented out?
+                    summing_array[pxk] = sample;
                     sample_vector.clear();
 
                     // pxk_yes = 1;
 
                 }
             }
+
+            // float sum = 0;
+            // for (int k = 1; k < ray_samples - 2; k++){
+            //     sum = 2 * summing_array[k] 
+            // }
+
+            image[j][i] = ((image[j][i] * 2) - summing_array[0]) - summing_array[ray_samples];
+            image[j][i] = ((1 / (4 * M_PI)) * image[j][i] * (ray_width / 2)) * 637100;
         }
-        // std::cout << std::to_string(i) << ", " << std::flush;
+        // std::cout << std::to_string(i) << ", " << std::flush;   
     }
 }
 
@@ -261,45 +280,41 @@ int Camera::ToFITS(std::string filename)
     }
 
     auto raster = Fits::makeRaster(std::move(output_vector), image_dimension_x, image_dimension_y);
-    Fits::Record<std::string> record("rho", "0", "t", "comment");
-    Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", ""};
-    Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", ""};
-    Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", ""};
-    Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", ""};
+    Fits::Record<float> crval1 {"CRVAL1", -(this->fov_x / 2), "deg", "Half the FOV in x (left-right)"};
+    Fits::Record<float> cdelt1 {"CDELT1", pixel_size_deg, "deg", "Width of each pixel in x"};
+    Fits::Record<float> crval2 {"CRVAL2", -(this->fov_y / 2), "deg", "Half the FOV in y (up-down)"};
+    Fits::Record<float> cdelt2 {"CDELT2", pixel_size_deg, "deg", "Width of each pixel in y"};
     
-    Fits::Record<float> pos_x {"POS_X", this->position.x, "float", ""};
-    Fits::Record<float> pos_y {"POS_Y", this->position.y, "float", ""};
-    Fits::Record<float> pos_z {"POS_Z", this->position.z, "float", ""};
-    Fits::Record<float> aim_x {"AIM_X", this->aim.x, "float", ""};
-    Fits::Record<float> aim_y {"AIM_Y", this->aim.y, "float", ""};
-    Fits::Record<float> aim_z {"AIM_Z", this->aim.z, "float", ""};
+    Fits::Record<float> pos_x {"POS_X", this->position.x, "float", "Position of the camera in x"};
+    Fits::Record<float> pos_y {"POS_Y", this->position.y, "float", "Position of the camera in x"};
+    Fits::Record<float> pos_z {"POS_Z", this->position.z, "float", "Position of the camera in x"};
+    Fits::Record<float> aim_x {"AIM_X", this->aim.x, "float", "Aimpoint of the central pixel in x"};
+    Fits::Record<float> aim_y {"AIM_Y", this->aim.y, "float", "Aimpoint of the central pixel in y"};
+    Fits::Record<float> aim_z {"AIM_Z", this->aim.z, "float", "Aimpoint of the central pixel in z"};
+    
+    Fits::Record<std::string> units {"UNITS", "keV"};
+    
+    Fits::Record<std::string> created {"BIRP", "This file was created with BIRP C++ authored by Zach Clare at MSSL"};
+    Fits::Record<std::string> created_url {"BIRP_URL", "http://github.com/Zach-Clare/birp_cpp"};
 
     
     try {
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Create);
-        // f.write(crval1, raster);
-        // f.write(cdelt1, raster);
-        // f.write(crval2, raster);
-        // f.write(cdelt2, raster);
-        // Fits::Header()
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
-        f.write(record, raster);
+        // This next line parses the records into a sequence
+        Fits::RecordSeq records = Fits::RecordSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z, units, created, created_url);
+        f.write(records, raster); // ...so that we can write them all at once with the raster object we have!
 
     } catch (Euclid::Cfitsio::CfitsioError) {
         // Error here is either an error with EleFits or the file exists already
         // So let's attempt to delete an existing file and try again
         // If the file does not exist already, there's a problem with EleFits, good luck
 
-        std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows
+        std::cout << "\x1B[31mOverwriting\033[0m - " << std::flush; // This may not work with windows, specifically the red text
         std::filesystem::remove(filename);
         Fits::SifFile f(filename + ".fits", Fits::FileMode::Overwrite);
-        // f.write(crval1, raster);
-        // f.write(cdelt1, raster);
-        // f.write(crval2, raster);
-        // f.write(cdelt2, raster);
-        
-        f.header().writeSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z);
-        f.write(record, raster);
+        // This next line parses the records into a sequence
+        Fits::RecordSeq records = Fits::RecordSeq(crval1, cdelt1, crval2, cdelt2, pos_x, pos_y, pos_z, aim_x, aim_y, aim_z, units, created, created_url);
+        f.write(records, raster); // ...so that we can write them all at once with the raster object we have!
 
     }
 
@@ -309,9 +324,9 @@ int Camera::ToFITS(std::string filename)
 float Camera::Orient()
 {
     // This is a port of the IDL version of orient() so I'm
-    // not entirely sure what it's doing, but I think it finds
+    // not entirely sure how it works, but it finds
     // out how to rotate the camera so that the x-line is 
-    // perpendicular to the sides of the image.
+    // perpendicular to the sides of the image and it's spot on.
 
     // I was going to refactor this, but it takes less than 1ms.
     // It's just maths with no loops so it's quick

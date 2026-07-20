@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
     int c;
     std::string input;
-    std::string output;
+    std::string output = "";
     bool batch;
     bool use_cmem = false;
 
@@ -76,8 +76,9 @@ int main(int argc, char** argv)
     float ay_bs = NULL; // flaring parameters for bowshock
     float az_bs = NULL;
     float density = NULL;
+    float dbeta = NULL; // dbeta parameter for CMEM
 
-    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:")) != -1) //JKLMN remain. Time for Boost.program_options?
+    while ((c = getopt(argc, argv, "i:o:x:y:z:a:tcs:h:w:v:b:d:p:q:r:f:e:g:u:j:k:l:m:")) != -1) //JKLMN remain. Time for Boost.program_options?
     {
         switch (c)
         {
@@ -233,6 +234,12 @@ int main(int argc, char** argv)
                 density = std::stof(fs);
                 break;
             }
+            case 'm': // dbeta parameter CMEM-specific
+            {
+                std::string fs(optarg);
+                dbeta = std::stof(fs);
+                break;
+            }
         }
     }
 
@@ -257,9 +264,20 @@ int main(int argc, char** argv)
 
             camera.Render();
             std::cout << "Completed rendering.\nExporting..." << std::flush;
-            std::string base_filename = path.substr(path.find_last_of("/\\") + 1);
-            camera.ToFITS(output + base_filename);
-            std::cout << "Exported to " << output + base_filename << ".fits\n" << std::flush;
+            if (output == "")
+            { // if no output name given, make one up from the input filename
+                int period_location = input.find_last_of(".");
+                int slash_location = input.find_last_of("/\\") + 1;
+                output = input.substr(slash_location, period_location - slash_location);
+            }
+            else if (&output.back() == "/" || &output.back() == "\\")
+            { // or if we get given a directory, use the input base filename and still put it in that directory
+                output = output + path.substr(path.find_last_of("/\\") + 1);
+            }
+            
+            camera.ToFITS(output);
+            
+            std::cout << "Exported to " << output << ".fits\n" << std::flush;
             // std::cout << entry.path() << std::endl;
         }
     } else { // non-batch
@@ -289,9 +307,10 @@ int main(int argc, char** argv)
                 !v.empty() ||
                 !b.empty() ||
                 !p.empty() ||
-                density != NULL
+                density != NULL ||
+                dbeta != NULL
             ) {
-                cmem->Init(true, v, b, dipole, p[0], p[1], p[2], p[3], B, alpha, beta, bs, A1, A2, ay_bs, az_bs, density);
+                cmem->Init(true, dipole, p[0], p[1], p[2], p[3], B, A1, dbeta);
             } else {
                 cmem->Init();
             }
@@ -305,9 +324,32 @@ int main(int argc, char** argv)
         camera.Render();
         // delete space;
         std::cout << "Completed rendering.\nExporting...\t\t" << std::flush;
-        camera.ToFITS(output + base_filename);
-        // camera.ToDat(output + base_filename);
-        std::cout << "Exported to " << output << base_filename << ".fits\n" << std::flush;
+        if (!use_cmem){
+            
+            if (output == "")
+            { // if no output name given, make one up from the input filename
+                int period_location = input.find_last_of(".");
+                int slash_location = input.find_last_of("/\\") + 1;
+                output = input.substr(slash_location, period_location - slash_location);
+            }
+            else if (output.back() == '/' || output.back() == '\\')
+            { // or if we get given a directory, use the input base filename and still put it in that directory
+                output = output + input.substr(input.find_last_of("/\\") + 1);
+            }
+        } else {
+            if (output == "")
+            { // if no output name given, make one up from the input filename
+                output = "birp_cmem";
+            }
+            else if (output.back() == '/' || output.back() == '\\')
+            { // or if we get given a directory, use the input base filename and still put it in that directory
+                output = output + "birp_cmem";
+            }
+        }
+            
+        camera.ToFITS(output);
+        
+        std::cout << "Exported to " << output << ".fits\n" << std::flush;
     }
 
     auto end = high_resolution_clock::now();

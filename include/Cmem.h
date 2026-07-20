@@ -24,9 +24,9 @@ public:
         std::vector<int> b_passed = {}, 
         float dipole_passed = 0.f,
         float p0_passed = 0.786300004f,
-        int p1_passed = 1.f,
-        int p2_passed = 3.f,
-        int p3_passed = 4.f,
+        float p1_passed = 1.f,
+        float p2_passed = 3.f,
+        float p3_passed = 4.f,
         float B_passed = 2.f,
         float alpha_passed = 2.5f,
         float beta_passed = -1.6f,
@@ -35,7 +35,8 @@ public:
         float A2_passed = 3.5000000000000004e-06f,
         float ay_bs_passed = NULL,
         float az_bs_passed = NULL,
-        float density_passed = NULL
+        float density_passed = NULL,
+        float dbeta_passed = NULL
     );
     void Init();
     float GetSample(float x, float y, float z);
@@ -74,8 +75,9 @@ private:
     float ay_bs; // ay bowshock flaring parameter
     float az_bs; // az bowshock flaring parameter
     float density; // Solar wind density
+    float dbeta; // dbeta parameter
 
-    float LinScaled(
+    double LinScaled(
         float& theta,
         float& phi,
         float& dn,
@@ -88,9 +90,32 @@ private:
         float& p2,
         float& p3
     );
+    double LinScaledSimple(
+        float& theta,
+        float& phi,
+        float& dn,
+        float& ds,
+        float& theta_n,
+        float& theta_s,
+        float& r0_lin,
+        float& p0,
+        float& p1,
+        float& p2,
+        float& p3
+    );
+    double SubsolarPoint(
+        float& dn, 
+        float& ds,
+        float& theta_n, 
+        float& theta_s, 
+        float& p0, 
+        float& p2, 
+        float& p3
+    );
     static std::vector<float> ShueCoords(float x, float y, float z);
     void DefineLinearCoeffs();
     static float ShueModel(float theta, float phi, float r0, float ay, float az);
+    static double ShueModelSimple(float theta, float rmp0, float p1, float dp1);
     void CalcDynamicPressure();
     void CalcMagneticPressure();
     float CalcInitialAlpha();
