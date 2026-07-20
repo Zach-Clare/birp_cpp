@@ -138,23 +138,15 @@ TEST(Camera, RendersAccurateCMEM) {
     Space* space;
     space = cube;
     //CMEM init values
-    std::vector<int> v = {400, 0, 0};
-    std::vector<int> b = {-5, 0, 0};
     float dipole = 30.f;
     float p0 = 0.67f;
     int p1 = 1;
     int p2 = 3;
     int p3 = 4;
     float B = 2.f;
-    float alpha = 2.5f;
-    float beta = -1.6f;
-    float bs = 12.6400003f;
     float A1 = 7.2e-06f;
-    float A2 = 3.5000000000000004e-06f;
-    float ay_bs = NULL;
-    float az_bs = NULL;
-    float density = NULL;
-    cube->Init(false, v, b, dipole, p0, p1, p2, p3, B, alpha, beta, bs, A1, A2, ay_bs, az_bs, density);
+    float dbeta = 0.86;
+    cube->Init(false, dipole, p0, p1, p2, p3, B, A1, dbeta);
     float pixel_size_deg = 0.25f;
     float plot_fov_h = 36.f;
     float plot_fov_w = 36.f;
