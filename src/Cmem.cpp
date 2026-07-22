@@ -167,7 +167,7 @@ float CMEM::GetSample(float x, float y, float z) {
         // return A1 * (std::exp(- B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[0] / 10, (-(dbeta + (2 * (cos_shue_1 * cos_shue_1)));
 
         // alt method
-        return A1 * (std::exp(-B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[1] / 10, (-dbeta+(2*(cos_shue_1 * cos_shue_1))));
+        return A1 * (std::exp(-B * (half_shue_1*half_shue_1*half_shue_1*half_shue_1))) * std::pow(shue[0] / 10, (-(dbeta+(2*(cos_shue_1 * cos_shue_1)))));
     } else if (shue[0] >= radius_bs && shue[0] < radius_bs + thickness) {
         
         // // save values for faster maths
@@ -314,8 +314,11 @@ std::vector<float> CMEM::ShueCoords(float x, float y, float z) {
     //     theta = 0;
     // }
 
-    float theta = std::acos(x / r);
-    float phi = std::atan2(z, y);
+    // float theta = std::acos(x / r);
+    // float phi = std::atan2(z, y);
+
+    float theta = std::acos(z / r);
+    float phi = std::atan2(y, x);
 
     return std::vector<float> {r, theta, phi};
 }
